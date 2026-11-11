@@ -1,0 +1,27 @@
+name: Verify projects on Java 17
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  batch-parallel:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: spring-batch-parallel-starter
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: spring-batch-parallel-starter/**/pom.xml
+      - run: chmod +x mvnw && ./mvnw -B clean install
+      - run: ./mvnw -B -f examples/oracle-demo/pom.xml package
+      - run: java -jar examples/oracle-demo/target/parallel-oracle-demo-0.1.0-SNAPSHOT.jar --spring.profiles.active=h2

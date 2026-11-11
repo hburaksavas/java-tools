@@ -1,0 +1,4 @@
+[submodule "spring-batch-parallel-starter"]
+	path = spring-batch-parallel-starter
+	url = https://github.com/hburaksavas/java-tools.git
+	branch = project/spring-batch-parallel-starter
