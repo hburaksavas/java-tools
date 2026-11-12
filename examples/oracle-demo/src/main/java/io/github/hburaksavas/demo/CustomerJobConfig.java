@@ -1,6 +1,5 @@
 package io.github.hburaksavas.demo;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import io.github.hburaksavas.batch.parallel.*;
 import org.springframework.batch.core.*;
@@ -12,14 +11,13 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.*;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration(proxyBeanMethods = false)
 @Profile("!chunk")
 @EnablePartitionedSteps(job = "customerJob", steps = {"prepareStep", "processStep"},
-        contextKey = "branchCode", valuesResource = "classpath:sql/find-branches.sql", concurrency = 3)
+        contextKey = "branchCode", valuesResource = "find-branches.sql", concurrency = 3)
 public class CustomerJobConfig {
     @Bean Job customerJob(JobRepository repository, @Qualifier("prepareStep") Step prepare,
                           @Qualifier("processStep") Step process) {
@@ -34,19 +32,16 @@ public class CustomerJobConfig {
         return new StepBuilder("processStep", repository).tasklet(tasklet, transactions).build();
     }
     @Bean @StepScope Tasklet prepareTasklet(@PartitionValue("branchCode") String branch,
-                                            NamedParameterJdbcTemplate jdbc, ResourceLoader resources) throws Exception {
-        return sqlTasklet("classpath:sql/prepare.sql", branch, jdbc, resources);
+                                            NamedParameterJdbcTemplate jdbc, SqlResources resources) throws Exception {
+        return sqlTasklet("prepare.sql", branch, jdbc, resources);
     }
     @Bean @StepScope Tasklet processTasklet(@PartitionValue("branchCode") String branch,
-                                            NamedParameterJdbcTemplate jdbc, ResourceLoader resources) throws Exception {
-        return sqlTasklet("classpath:sql/process.sql", branch, jdbc, resources);
+                                            NamedParameterJdbcTemplate jdbc, SqlResources resources) throws Exception {
+        return sqlTasklet("process.sql", branch, jdbc, resources);
     }
     private Tasklet sqlTasklet(String resource, String branch, NamedParameterJdbcTemplate jdbc,
-                               ResourceLoader resources) throws Exception {
-        String sql;
-        try (var stream = resources.getResource(resource).getInputStream()) {
-            sql = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-        }
+                               SqlResources resources) throws Exception {
+        String sql = resources.read(resource);
         return (contribution, chunk) -> {
             jdbc.update(sql, Map.of("branchCode", branch));
             return RepeatStatus.FINISHED;

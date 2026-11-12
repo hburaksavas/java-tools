@@ -5,7 +5,6 @@ import org.springframework.batch.core.*;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.core.io.ResourceLoader;
 
 /** Keeps the public step name while the original Step executes once per partition. */
 final class PartitionedStep implements Step {
@@ -13,13 +12,11 @@ final class PartitionedStep implements Step {
     private final Step worker;
     private final PartitionSpec spec;
     private final ConfigurableListableBeanFactory beans;
-    private final ResourceLoader resources;
 
-    PartitionedStep(Step worker, PartitionSpec spec, ConfigurableListableBeanFactory beans, ResourceLoader resources) {
+    PartitionedStep(Step worker, PartitionSpec spec, ConfigurableListableBeanFactory beans) {
         this.worker = worker;
         this.spec = spec;
         this.beans = beans;
-        this.resources = resources;
     }
     @Override public String getName() { return worker.getName(); }
     @Override public boolean isAllowStartIfComplete() { return worker.isAllowStartIfComplete(); }
@@ -29,7 +26,7 @@ final class PartitionedStep implements Step {
         try {
             if (execution.getStartTime() == null) execution.setStartTime(java.time.LocalDateTime.now());
             JobRepository repository = beans.getBean(JobRepository.class);
-            KeyPartitioner partitioner = new KeyPartitioner(spec, execution, repository, resources,
+            KeyPartitioner partitioner = new KeyPartitioner(spec, execution, repository, beans.getBean(SqlResources.class),
                     beans.getBeanProvider(DataSource.class).getIfUnique());
             int concurrency = beans.getBean(ParallelProperties.class).concurrency(spec);
             Step manager = new StepBuilder(getName(), repository)

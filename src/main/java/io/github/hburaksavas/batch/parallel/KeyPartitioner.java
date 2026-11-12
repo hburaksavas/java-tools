@@ -1,13 +1,11 @@
 package io.github.hburaksavas.batch.parallel;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import javax.sql.DataSource;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.item.ExecutionContext;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 final class KeyPartitioner implements Partitioner {
@@ -16,7 +14,7 @@ final class KeyPartitioner implements Partitioner {
 
     @SuppressWarnings("unchecked")
     KeyPartitioner(PartitionSpec spec, StepExecution manager, JobRepository repository,
-                   ResourceLoader resources, DataSource dataSource) throws Exception {
+                   SqlResources resources, DataSource dataSource) throws Exception {
         this.spec = spec;
         ExecutionContext context = manager.getJobExecution().getExecutionContext();
         String snapshotKey = "_parallel.values." + spec.job();
@@ -30,10 +28,7 @@ final class KeyPartitioner implements Partitioner {
             List<String> loaded;
             if (!spec.valuesResource().isBlank()) {
                 if (dataSource == null) throw new IllegalStateException("A unique DataSource is required for valuesResource");
-                String sql;
-                try (var stream = resources.getResource(spec.valuesResource()).getInputStream()) {
-                    sql = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-                }
+                String sql = resources.read(spec.valuesResource());
                 loaded = new JdbcTemplate(dataSource).query(sql, (org.springframework.jdbc.core.ResultSetExtractor<List<String>>) rs -> {
                     if (rs.getMetaData().getColumnCount() != 1) {
                         throw new IllegalArgumentException("Partition query must return exactly one column");

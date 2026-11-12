@@ -15,6 +15,8 @@ spring:
       name: customerJob
 batch:
   parallel:
+    sql:
+      base-path: classpath:sql/
     max-workers: 4
     queue-capacity: 16
     jobs:

@@ -1,9 +1,9 @@
 package io.github.hburaksavas.demo;
 
-import java.nio.charset.StandardCharsets;
 import javax.sql.DataSource;
 import io.github.hburaksavas.batch.parallel.EnablePartitionedSteps;
 import io.github.hburaksavas.batch.parallel.PartitionValue;
+import io.github.hburaksavas.batch.parallel.SqlResources;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -16,14 +16,13 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.*;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /** Same partition annotation as the tasklet example; chunk components remain standard Batch beans. */
 @Configuration(proxyBeanMethods = false)
 @Profile("chunk")
 @EnablePartitionedSteps(job = "customerJob", steps = {"prepareStep", "processStep"},
-        contextKey = "branchCode", valuesResource = "classpath:sql/find-branches.sql", concurrency = 3)
+        contextKey = "branchCode", valuesResource = "find-branches.sql", concurrency = 3)
 public class ChunkCustomerJobConfig {
     @Bean Job customerJob(JobRepository repository, @Qualifier("prepareStep") Step prepare,
                           @Qualifier("processStep") Step process) {
@@ -50,14 +49,14 @@ public class ChunkCustomerJobConfig {
 
     @Bean @StepScope
     JdbcCursorItemReader<BatchItem> prepareReader(@PartitionValue("branchCode") String branchCode,
-                                                DataSource dataSource, ResourceLoader resources) throws Exception {
-        return reader("prepareReader", "classpath:sql/read-items.sql", branchCode, dataSource, resources);
+                                                DataSource dataSource, SqlResources resources) throws Exception {
+        return reader("prepareReader", "read-items.sql", branchCode, dataSource, resources);
     }
 
     @Bean @StepScope
     JdbcCursorItemReader<BatchItem> processReader(@PartitionValue("branchCode") String branchCode,
-                                                DataSource dataSource, ResourceLoader resources) throws Exception {
-        return reader("processReader", "classpath:sql/read-items.sql", branchCode, dataSource, resources);
+                                                DataSource dataSource, SqlResources resources) throws Exception {
+        return reader("processReader", "read-items.sql", branchCode, dataSource, resources);
     }
 
     @Bean ItemProcessor<BatchItem, BatchItem> prepareProcessor() {
@@ -75,9 +74,9 @@ public class ChunkCustomerJobConfig {
     }
 
     // The stateless JDBC batch writer can be shared by partitions.
-    @Bean JdbcBatchItemWriter<BatchItem> itemWriter(DataSource dataSource, ResourceLoader resources) throws Exception {
+    @Bean JdbcBatchItemWriter<BatchItem> itemWriter(DataSource dataSource, SqlResources resources) throws Exception {
         return new JdbcBatchItemWriterBuilder<BatchItem>()
-                .dataSource(dataSource).sql(sql("classpath:sql/write-item.sql", resources))
+                .dataSource(dataSource).sql(resources.read("write-item.sql"))
                 .itemPreparedStatementSetter((item, statement) -> {
                     statement.setString(1, item.status());
                     statement.setLong(2, item.id());
@@ -86,18 +85,13 @@ public class ChunkCustomerJobConfig {
     }
 
     private JdbcCursorItemReader<BatchItem> reader(String name, String resource, String branchCode,
-                                                  DataSource dataSource, ResourceLoader resources) throws Exception {
+                                                  DataSource dataSource, SqlResources resources) throws Exception {
         return new JdbcCursorItemReaderBuilder<BatchItem>()
-                .name(name).dataSource(dataSource).sql(sql(resource, resources))
+                .name(name).dataSource(dataSource).sql(resources.read(resource))
                 .preparedStatementSetter(statement -> statement.setString(1, branchCode))
                 .rowMapper((row, index) -> new BatchItem(row.getLong("ID"), row.getString("BRANCH_CODE"),
                         row.getString("STATUS")))
                 .build();
     }
 
-    private String sql(String resource, ResourceLoader resources) throws Exception {
-        try (var stream = resources.getResource(resource).getInputStream()) {
-            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-        }
-    }
 }

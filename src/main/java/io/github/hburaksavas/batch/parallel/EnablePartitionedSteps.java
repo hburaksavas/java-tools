@@ -14,6 +14,7 @@ public @interface EnablePartitionedSteps {
     /** Spring bean names of the worker steps. */
     String[] steps();
     String contextKey();
+    /** SQL filename relative to batch.parallel.sql.base-path, or an explicit resource location. */
     String valuesResource() default "";
     String[] values() default {};
     int concurrency() default 4;

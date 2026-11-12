@@ -32,7 +32,7 @@ import io.github.hburaksavas.batch.parallel.EnablePartitionedSteps;
     job = "customerJob",
     steps = {"prepareStep", "processStep"},
     contextKey = "branchCode",
-    valuesResource = "classpath:sql/find-branches.sql",
+    valuesResource = "find-branches.sql",
     concurrency = 8
 )
 public class CustomerJobConfig {
@@ -59,6 +59,42 @@ ORDER BY BRANCH_CODE
 ```
 
 Değerler JDBC `getString` ile alınır. `VARCHAR2` içindeki `001` gibi değerler korunur; NUMBER değerleri string'e çevrilir. Statik alternatif: `valuesResource` yerine `values = {"001", "002", "003"}` kullanın. İki kaynaktan tam biri zorunludur.
+
+### SQL dosyaları için ortak kök
+
+Varsayılan SQL kökü **`classpath:sql/`** olduğundan `src/main/resources/sql/` altındaki dosyalar için ek ayar gerekmez. Annotation'da `valuesResource = "find-branches.sql"` yazmak yeterlidir.
+
+Kökü uygulamada bir kez değiştirebilirsiniz:
+
+```yaml
+batch:
+  parallel:
+    sql:
+      base-path: classpath:sql/customer/
+```
+
+Bu ayarla `valuesResource = "partition/find-branches.sql"`, kaynak kodda `src/main/resources/sql/customer/partition/find-branches.sql` dosyasına karşılık gelir. `src/main/resources/` derleme sırasında classpath kökü olur; property'ye `resources/` veya Java package yolu yazılmaz. SQL dosyaları classpath altında package benzeri klasörlerde tutuluyorsa o klasörü açıkça belirtin; örneğin `classpath:com/example/batch/sql/`. `sql/customer` gibi prefix'siz kökler de classpath yolu kabul edilir.
+
+Aynı kökü reader, writer ve tasklet içinde kullanmak için starter'ın sağladığı `SqlResources` bean'ini inject edin:
+
+```java
+@Bean
+@StepScope
+JdbcCursorItemReader<BatchItem> reader(@PartitionValue("branchCode") String branchCode,
+                                      DataSource dataSource, SqlResources sql) throws IOException {
+    return new JdbcCursorItemReaderBuilder<BatchItem>()
+        .name("customerReader").dataSource(dataSource)
+        .sql(sql.read("reader/read-items.sql"))
+        .preparedStatementSetter(statement -> statement.setString(1, branchCode))
+        .rowMapper((row, index) -> new BatchItem(row.getLong("ID"),
+            row.getString("BRANCH_CODE"), row.getString("STATUS")))
+        .build();
+}
+```
+
+`SqlResources` import'u: `io.github.hburaksavas.batch.parallel.SqlResources`. `read` dosyayı UTF-8 SQL metni olarak okur; `resource` Spring Resource döndürür. Dosya yolları köke göre göreli olabilir. Açık `classpath:...` veya `file:...` yolları kökten bağımsız çözülür; eski `valuesResource = "classpath:sql/find-branches.sql"` kullanımı geçerliliğini korur. Kök için `file:/opt/batch/sql/` gibi harici klasör de kullanılabilir.
+
+Bu kök annotation sorgusuna ve `SqlResources` kullanan bileşenlere uygulanır. Spring'in genel `ResourceLoader` davranışını veya `spring.sql.init.schema-locations` gibi başka property'leri değiştirmez. Tasklet ve chunk örnekleri bütün iş SQL dosyaları için bu ortak bean'i kullanır.
 
 ## Context'ten okuma
 
@@ -172,11 +208,12 @@ Reader restart pozisyonunu saklar. Bu yüzden SELECT, writer'ın değiştirdiği
 @Bean
 @StepScope
 JdbcCursorItemReader<BatchItem> prepareReader(
-        @PartitionValue("branchCode") String branchCode, DataSource dataSource) {
+        @PartitionValue("branchCode") String branchCode,
+        DataSource dataSource, SqlResources sql) throws IOException {
     return new JdbcCursorItemReaderBuilder<BatchItem>()
         .name("prepareReader")
         .dataSource(dataSource)
-        .sql("SELECT ID, BRANCH_CODE, STATUS FROM DEMO_BATCH_ITEM WHERE BRANCH_CODE = ? ORDER BY ID")
+        .sql(sql.read("read-items.sql"))
         .preparedStatementSetter(statement -> statement.setString(1, branchCode))
         .rowMapper((row, index) -> new BatchItem(row.getLong("ID"),
             row.getString("BRANCH_CODE"), row.getString("STATUS")))

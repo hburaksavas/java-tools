@@ -8,19 +8,15 @@ import org.springframework.batch.core.step.AbstractStep;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.config.*;
-import org.springframework.context.ResourceLoaderAware;
-import org.springframework.core.io.ResourceLoader;
 
 public final class ParallelStepPostProcessor implements BeanPostProcessor, BeanFactoryAware,
-        ResourceLoaderAware, SmartInitializingSingleton {
+        SmartInitializingSingleton {
     private ConfigurableListableBeanFactory beans;
-    private ResourceLoader resources;
     private final Map<String, PartitionedStep> wrapped = new HashMap<>();
 
     @Override public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         beans = (ConfigurableListableBeanFactory) beanFactory;
     }
-    @Override public void setResourceLoader(ResourceLoader resourceLoader) { resources = resourceLoader; }
 
     private Collection<PartitionSpec> specs() { return beans.getBeansOfType(PartitionSpec.class).values(); }
 
@@ -46,7 +42,7 @@ public final class ParallelStepPostProcessor implements BeanPostProcessor, BeanF
             @Override public void beforeStep(StepExecution e) { delegate().beforeStep(e); }
             @Override public ExitStatus afterStep(StepExecution e) { return delegate().afterStep(e); }
         });
-        PartitionedStep result = new PartitionedStep(step, spec, beans, resources);
+        PartitionedStep result = new PartitionedStep(step, spec, beans);
         wrapped.put(name, result);
         return result;
     }

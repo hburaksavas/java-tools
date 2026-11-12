@@ -91,6 +91,13 @@ class ParallelIntegrationTest {
         }
     }
 
+    @Test void relativePartitionSqlUsesTheConfiguredClasspathBase() throws Exception {
+        try (var c = context(RelativeDatabaseJob.class, Map.of("batch.parallel.sql.base-path", "sql/nested"))) {
+            assertThat(run(c, 10).getStatus()).isEqualTo(BatchStatus.COMPLETED);
+            assertThat(c.getBean(Tracker.class).processed).containsExactlyInAnyOrder("001", "002", "003");
+        }
+    }
+
     @Test void simultaneousJobExecutionsShareTheGlobalWorkerLimitWithNoQueue() throws Exception {
         try (var c = context(StaticJob.class, Map.of("batch.parallel.max-workers", 2,
                 "batch.parallel.queue-capacity", 0))) {
@@ -214,6 +221,11 @@ class ParallelIntegrationTest {
     @EnablePartitionedSteps(job = "customerJob", steps = {"prepareStep", "processStep"},
             contextKey = "branchCode", valuesResource = "classpath:find-branches.sql", concurrency = 3)
     static class DatabaseJob extends Pipeline {}
+
+    @Configuration
+    @EnablePartitionedSteps(job = "customerJob", steps = {"prepareStep", "processStep"},
+            contextKey = "branchCode", valuesResource = "branches.sql", concurrency = 3)
+    static class RelativeDatabaseJob extends Pipeline {}
 
     @Configuration
     @EnablePartitionedSteps(job = "customerJob", steps = {"prepareStep", "processStep"},
