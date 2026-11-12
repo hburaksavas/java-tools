@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent><groupId>com.brsvs</groupId><artifactId>swagger-ui-studio</artifactId><version>0.2.0</version><relativePath>../pom.xml</relativePath></parent>
+  <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
+  <dependencies>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
+    <dependency><groupId>org.springdoc</groupId><artifactId>springdoc-openapi-starter-webmvc-ui</artifactId></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+    <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-configuration-processor</artifactId><optional>true</optional></dependency>
+  </dependencies>
+  <build><resources>
+    <resource><directory>src/main/resources</directory></resource>
+    <resource><directory>..</directory><targetPath>META-INF/swagger-ui-studio</targetPath><includes><include>core.js</include><include>swagger-bridge.js</include><include>theme.js</include><include>studio.js</include><include>studio.css</include><include>bootstrap.js</include></includes></resource>
+  </resources><plugins><plugin>
+    <groupId>org.apache.maven.plugins</groupId><artifactId>maven-source-plugin</artifactId><version>3.3.1</version>
+    <executions><execution><id>attach-sources</id><goals><goal>jar-no-fork</goal></goals></execution></executions>
+  </plugin></plugins></build>
+</project>
