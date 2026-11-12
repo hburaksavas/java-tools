@@ -5,6 +5,7 @@ Birden fazla bağımsız Java projesi için ortak GitHub deposu.
 | Proje | Açıklama | Kaynak |
 | --- | --- | --- |
 | [spring-batch-parallel-starter](spring-batch-parallel-starter) | Java 17 / Spring Boot 3.4 için annotation ile anahtar bazında paralel step çalıştırma | [Proje branch'i](https://github.com/hburaksavas/java-tools/tree/project/spring-batch-parallel-starter) |
+| [swagger-ui-studio](swagger-ui-studio) | Swagger ile ortak auth/tema kullanan dashboard, sekmeli istek editörü ve Spring Boot starter | [Proje branch'i](https://github.com/hburaksavas/java-tools/tree/project/swagger-ui-studio) · [0.2.0 sürümü](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.2.0) |
 
 ## Checkout
 

@@ -2,3 +2,7 @@
 	path = spring-batch-parallel-starter
 	url = https://github.com/hburaksavas/java-tools.git
 	branch = project/spring-batch-parallel-starter
+[submodule "swagger-ui-studio"]
+	path = swagger-ui-studio
+	url = https://github.com/hburaksavas/java-tools.git
+	branch = project/swagger-ui-studio
