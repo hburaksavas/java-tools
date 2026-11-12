@@ -21,3 +21,5 @@ jobs:
         run: ./mvnw -B install -DskipTests && ./mvnw -B -f examples/oracle-demo/pom.xml package
       - name: Run SQL example in Oracle compatibility mode
         run: java -jar examples/oracle-demo/target/parallel-oracle-demo-0.1.0-SNAPSHOT.jar --spring.profiles.active=h2
+      - name: Run chunk reader processor writer example
+        run: java -jar examples/oracle-demo/target/parallel-oracle-demo-0.1.0-SNAPSHOT.jar --spring.profiles.active=h2,chunk

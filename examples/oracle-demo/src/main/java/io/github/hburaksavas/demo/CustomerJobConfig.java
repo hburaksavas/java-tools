@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration(proxyBeanMethods = false)
+@Profile("!chunk")
 @EnablePartitionedSteps(job = "customerJob", steps = {"prepareStep", "processStep"},
         contextKey = "branchCode", valuesResource = "classpath:sql/find-branches.sql", concurrency = 3)
 public class CustomerJobConfig {

@@ -148,6 +148,44 @@ java -jar examples/oracle-demo/target/parallel-oracle-demo-0.1.0-SNAPSHOT.jar --
 
 H2 profili Oracle SQL modu kullanır; uygulama bütün örnek kayıtların `DONE` olduğunu doğrulayıp kapanır. Bu profil gerçek Oracle testinin yerine geçmez.
 
+### Reader–processor–writer (chunk) örneği
+
+[ChunkCustomerJobConfig.java](examples/oracle-demo/src/main/java/io/github/hburaksavas/demo/ChunkCustomerJobConfig.java) aynı annotation ile iki chunk step'i çalıştırır. `chunk` profili tasklet konfigürasyonu yerine bu konfigürasyonu seçer:
+
+```powershell
+.\mvnw.cmd -f examples/oracle-demo/pom.xml package
+java -jar examples/oracle-demo/target/parallel-oracle-demo-0.1.0-SNAPSHOT.jar --spring.profiles.active=h2,chunk
+```
+
+Oracle için yalnızca `--spring.profiles.active=chunk` kullanın ve aşağıdaki Oracle kurulumunu yapın.
+
+- **Reader:** Her partition için `@StepScope` ile ayrı `JdbcCursorItemReader<BatchItem>` oluşturulur. `@PartitionValue("branchCode")` değeri [read-items.sql](examples/oracle-demo/src/main/resources/sql/read-items.sql) dosyasındaki `?` parametresine bağlanır; reader yalnızca kendi şubesini okur.
+- **Processor:** İlk step `NEW → READY`, ikinci step `READY → DONE` dönüşümü yapar. Beklenen durumda olmayan kayıtlar `null` döndürülerek filtrelenir. İlk processor stateless singleton'dır. İkinci processor `@StepScope` ve `@PartitionValue("branchCode")` kullanarak kaydın kendi şubesine ait olduğunu da doğrular; context'e processor içinden erişimi gösterir.
+- **Writer:** [write-item.sql](examples/oracle-demo/src/main/resources/sql/write-item.sql) ile hem ID hem şube koduna göre JDBC batch update yapılır. Stateless `JdbcBatchItemWriter` paylaşılır; her partition kendi transaction'ında ikişer kayıtlık chunk'lar commit eder.
+- **Bariyer:** Bütün şubeler `prepareStep`'i tamamladıktan sonra `processStep` başlar; tasklet örneğiyle aynı kural geçerlidir.
+
+Reader restart pozisyonunu saklar. Bu yüzden SELECT, writer'ın değiştirdiği `STATUS` kolonuyla filtrelenmez; durum kontrolü processor'dadır. Restart sırasında okunan kayıt kümesi ve ID sırası sabit kalmalıdır. İşlenirken kaynak kayıtlar eklenip silinebiliyorsa üretim uygulamasında snapshot veya farklı bir restart stratejisi tasarlayın.
+
+Örneğin temel reader tanımı:
+
+```java
+@Bean
+@StepScope
+JdbcCursorItemReader<BatchItem> prepareReader(
+        @PartitionValue("branchCode") String branchCode, DataSource dataSource) {
+    return new JdbcCursorItemReaderBuilder<BatchItem>()
+        .name("prepareReader")
+        .dataSource(dataSource)
+        .sql("SELECT ID, BRANCH_CODE, STATUS FROM DEMO_BATCH_ITEM WHERE BRANCH_CODE = ? ORDER BY ID")
+        .preparedStatementSetter(statement -> statement.setString(1, branchCode))
+        .rowMapper((row, index) -> new BatchItem(row.getLong("ID"),
+            row.getString("BRANCH_CODE"), row.getString("STATUS")))
+        .build();
+}
+```
+
+Tam örnekte aynı SQL resource dosyasından okunur. [ChunkCustomerJobTest](examples/oracle-demo/src/test/java/io/github/hburaksavas/demo/ChunkCustomerJobTest.java), altı worker execution'ın şube bazında doğru sayıda kayıt okuyup yazdığını, tüm kayıtların `DONE` olduğunu ve ikinci step'in birinciyi beklediğini doğrular.
+
 Oracle için önce uygulamanın kullandığı Spring Batch sürümünün `org/springframework/batch/core/schema-oracle.sql` script'iyle metadata tablolarını kurun. Ayrı bir demo şemasında `examples/oracle-demo/src/main/resources/sql/demo-schema.sql` dosyasını çalıştırın. Ardından `ORACLE_URL`, `ORACLE_USERNAME`, `ORACLE_PASSWORD` ortam değişkenlerini ayarlayıp H2 profili olmadan JAR'ı çalıştırın. Örnek SQL dosyaları JDBC statement'larıdır; sonunda SQL*Plus `/` veya `;` ayırıcıları bulunmaz. Her yeni demo job instance'ı için `run=2` gibi yeni identifying parametre verilebilir.
 
 ## Doğrulama
