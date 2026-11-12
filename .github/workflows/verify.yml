@@ -25,3 +25,4 @@ jobs:
       - run: chmod +x mvnw && ./mvnw -B clean install
       - run: ./mvnw -B -f examples/oracle-demo/pom.xml package
       - run: java -jar examples/oracle-demo/target/parallel-oracle-demo-0.1.0-SNAPSHOT.jar --spring.profiles.active=h2
+      - run: java -jar examples/oracle-demo/target/parallel-oracle-demo-0.1.0-SNAPSHOT.jar --spring.profiles.active=h2,chunk
