@@ -3,12 +3,12 @@
   const core = window.SwaggerStudioCore, bridge = window.SwaggerStudioBridge;
   const source = [...document.scripts].find(s => s.src.endsWith('/studio.js'))?.src || new URL('studio.js', location.href).href;
   const stylesheet = new URL('studio.css', source).href;
-  let host, shadow, spec, ui, config, ops = [], specUrl, storageKey, selected = null, tabs = [], favorites = [], recent = [], drafts = new Map(), controller, busy = false, generation = 0, activity = [], searchTerm = '', favoriteOnly = false, effect = 'none', settingsOpen = false, savedFocus, oldOverflow;
-  const validEffect = value => ['none', 'snow'].includes(value) ? value : 'none';
+  let host, shadow, spec, ui, config, ops = [], specUrl, storageKey, selected = null, tabs = [], favorites = [], recent = [], drafts = new Map(), controller, busy = false, generation = 0, activity = [], searchTerm = '', favoriteOnly = false, effect = 'none', effectChosen = false, settingsOpen = false, savedFocus, oldOverflow, renderedId, overviewScroll = 0;
+  const validEffect = value => ['none', 'snow', 'stars'].includes(value) ? value : 'none';
   const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
   const button = (label, fn, cls) => { const n = el('button', label, cls); n.type = 'button'; n.onclick = fn; return n; };
   function read(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
-  function persist() { try { localStorage.setItem(storageKey, JSON.stringify({ version: 2, favorites, tabs, selected: selected?.id || null, recent, effect })); } catch {} }
+  function persist() { try { localStorage.setItem(storageKey, JSON.stringify({ version: 2, favorites, tabs, selected: selected?.id || null, recent, effect, effectChosen })); } catch {} }
   function field(label, value = '', type = 'text', definition) {
     const wrap = el('label', undefined, 'field'); wrap.append(el('span', label));
     let input;
@@ -20,9 +20,20 @@
   }
   function themePicker() {
     const select = el('select'); select.setAttribute('aria-label', 'Theme for Studio and Swagger');
-    for (const [v, label] of [['system', 'System theme'], ['dark', 'Dark theme'], ['light', 'Light theme']]) select.append(new Option(label, v));
+    for (const [v, label] of [['system', '◐ System'], ['dark', '◑ Dark'], ['light', '☀ Light']]) select.append(new Option(label, v));
     select.value = window.SwaggerStudioTheme?.preference() || 'system';
     select.onchange = () => window.SwaggerStudioTheme?.set(select.value); return select;
+  }
+  function effectPicker() {
+    const select = el('select'); select.setAttribute('aria-label', 'Visual effect'); select.title = 'Visual effects';
+    for (const [v, label] of [['none', 'Effects off'], ['snow', '❄ Snow'], ['stars', '✦ Stars']]) select.append(new Option(label, v));
+    select.value = effect;
+    select.onchange = () => {
+      effect = validEffect(select.value); effectChosen = true; persist();
+      for (const picker of shadow.querySelectorAll('[aria-label="Visual effect"]')) picker.value = effect;
+      shadow.querySelector('.snow')?.remove(); snow(shadow.querySelector('.shell'));
+    };
+    return select;
   }
   function close() {
     if (!host) return;
@@ -46,7 +57,16 @@
     b.append(el('span', op.method, `method ${op.method}`), el('span', op.path)); b.title = op.summary || op.path; return b;
   }
   function render() {
-    shadow.replaceChildren(); const link = el('link'); link.rel = 'stylesheet'; link.href = stylesheet; shadow.append(link);
+    const previousMain = shadow.querySelector('.main');
+    if (previousMain) {
+      if (renderedId && drafts.has(renderedId)) drafts.get(renderedId).scrollTop = previousMain.scrollTop;
+      else overviewScroll = previousMain.scrollTop;
+    }
+    // Keep the loaded stylesheet attached across view changes; removing it causes layout/scroll jumps.
+    if (!shadow.querySelector('link[rel="stylesheet"]')) {
+      const link = el('link'); link.rel = 'stylesheet'; link.href = stylesheet; shadow.append(link);
+    }
+    shadow.querySelector('.shell')?.remove();
     const shell = el('section', undefined, 'shell'); shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-modal', 'true'); shell.setAttribute('aria-label', 'Swagger UI Studio');
     const top = el('header', undefined, 'top'), brand = el('div', undefined, 'brand');
     if (config.logoUrl) { try { const url = new URL(config.logoUrl, location.href); if (url.origin === location.origin && ['http:', 'https:'].includes(url.protocol)) { const img = el('img', undefined, 'logo'); img.src = url.href; img.alt = ''; brand.append(img); } } catch {} }
@@ -54,7 +74,7 @@
     const auth = button('Authorize', () => {
       if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
-    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'), auth, themePicker(), button('Settings', () => openSettings()), button('Close · Esc', close));
+    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'), effectPicker(), auth, themePicker(), button('Settings', () => openSettings()), button('Swagger ↗', close));
     const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side'); side.append(button('⌂ Overview', () => select(null), 'home-button'));
     const search = el('input', undefined, 'search'); search.placeholder = 'Find endpoint · Ctrl K'; search.setAttribute('aria-label', 'Search endpoints'); search.value = searchTerm; side.append(search);
     const check = el('input'); check.type = 'checkbox'; check.checked = favoriteOnly;
@@ -76,6 +96,8 @@
       t.lastChild.setAttribute('aria-label', `Close ${op.method} ${op.path}`); tabbar.append(t);
     }
     main.append(tabbar, selected ? editor(selected) : dashboard()); layout.append(side, main); shell.append(top, layout); shadow.append(shell); snow(shell);
+    main.scrollTop = selected ? drafts.get(selected.id)?.scrollTop || 0 : overviewScroll;
+    renderedId = selected?.id || null;
   }
   function dashboard() {
     const area = el('div', undefined, 'welcome'), hero = el('div', undefined, 'hero'), intro = el('div');
@@ -150,40 +172,54 @@
     }
     area.append(el('p', 'Uses Swagger authorization and request/response interceptors. Request data stays in memory until Studio closes.', 'notice'));
     const controls = el('div', undefined, 'row'), send = button('Send request ↗', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel); area.append(controls);
-    const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); area.append(output); if (draft.response) show(draft.response);
+    const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.tabIndex = -1; area.append(output); if (draft.response) show(draft.response);
+    function focusResponse() {
+      const main = shadow.querySelector('.main'); if (!main || !output.isConnected) return;
+      const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      const top = Math.max(0, main.scrollTop + output.getBoundingClientRect().top - main.getBoundingClientRect().top - 58);
+      if (main.scrollTo) main.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' }); else main.scrollTop = top;
+      output.focus({ preventScroll: true });
+      output.classList.remove('arrived');
+      if (!reduced) { void output.offsetWidth; output.classList.add('arrived'); }
+    }
     function show(result) {
-      output.replaceChildren(); if (result.error) { output.append(el('p', result.error, 'error')); return; }
-      const status = el('div', undefined, `status ${result.status < 400 ? 'ok' : 'fail'}`); status.append(el('strong', `${result.status} ${result.statusText || ''}`), el('span', `${result.ms} ms`, 'muted')); output.append(status);
+      output.replaceChildren(); if (result.error) { output.append(el('h3', 'Response'), el('p', result.error, 'error')); return; }
+      const status = el('div', undefined, 'response-heading'); status.append(el('h3', 'Response'), el('strong', `${result.status} ${result.statusText || ''}`, `status ${result.status < 400 ? 'ok' : 'fail'}`), el('span', `${result.ms} ms`, 'muted'), el('span', undefined, 'grow'));
+      const copy = button('Copy body', async () => { try { await navigator.clipboard.writeText(result.body); copy.textContent = 'Copied'; } catch { copy.textContent = 'Copy unavailable'; } }, 'text-button'); status.append(copy); output.append(status);
       const details = el('details'); details.append(el('summary', 'Response headers'), el('pre', result.headers)); output.append(details, el('pre', result.body));
     }
     async function run() {
       if (busy) return;
-      let options; try { options = core.requestOptions(spec, op, draft, specUrl, location.href); } catch (e) { show({ error: e.message }); return; }
-      busy = true; send.disabled = true; cancel.hidden = false; controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(el('p', 'Sending…'));
+      let options; try { options = core.requestOptions(spec, op, draft, specUrl, location.href); } catch (e) { show({ error: e.message }); focusResponse(); return; }
+      busy = true; send.setAttribute('aria-disabled', 'true'); send.textContent = 'Sending…'; cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(el('p', 'Waiting for response…', 'pending'));
       try {
         const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: draft.auth, confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
         if (current !== generation) return;
         let body = response.text ?? response.data ?? ''; if (typeof body !== 'string') body = JSON.stringify(body, null, 2); try { body = JSON.stringify(JSON.parse(body), null, 2); } catch {}
         if (response.headers?.['x-studio-truncated'] === 'true') body += '\n[Response truncated at 1 MiB]';
         draft.response = { status: response.status, statusText: response.statusText, ms: Math.round(performance.now() - start), headers: Object.entries(response.headers || {}).map(([k,v]) => `${k}: ${v}`).join('\n'), body };
-        activity.push({ method: op.method, path: op.path, status: response.status, ms: draft.response.ms }); activity = activity.slice(-100); show(draft.response);
-      } catch (e) { if (current === generation) { draft.response = { error: e.name === 'AbortError' ? 'Request cancelled.' : `${e.message}. Check network, CORS, certificate and page policy restrictions.` }; show(draft.response); activity.push({ method: op.method, path: op.path, status: 0, ms: Math.round(performance.now() - start) }); } }
-      finally { if (current === generation) { busy = false; send.disabled = false; cancel.hidden = true; } }
+        activity.push({ method: op.method, path: op.path, status: response.status, ms: draft.response.ms }); activity = activity.slice(-100); show(draft.response); focusResponse();
+      } catch (e) { if (current === generation) { draft.response = { error: e.name === 'AbortError' ? 'Request cancelled.' : `${e.message}. Check network, CORS, certificate and page policy restrictions.` }; show(draft.response); focusResponse(); activity.push({ method: op.method, path: op.path, status: 0, ms: Math.round(performance.now() - start) }); } }
+      finally { if (current === generation) { busy = false; send.removeAttribute('aria-disabled'); send.textContent = 'Send request ↗'; cancel.hidden = true; output.removeAttribute('aria-busy'); } }
     }
     return area;
   }
   function snow(shell) {
-    if (effect !== 'snow' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const layer = el('div', undefined, 'snow'); layer.setAttribute('aria-hidden', 'true');
-    for (let i = 0; i < 28; i++) { const flake = el('span', '✦', 'flake'); flake.style.left = `${Math.random() * 100}%`; flake.style.animationDuration = `${8 + Math.random() * 12}s`; flake.style.animationDelay = `-${Math.random() * 20}s`; layer.append(flake); } shell.append(layer);
+    if (effect === 'none' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const layer = el('div', undefined, `snow ${effect}`); layer.setAttribute('aria-hidden', 'true');
+    const count = effect === 'snow' ? 42 : 30;
+    for (let i = 0; i < count; i++) {
+      const flake = el('span', effect === 'stars' ? '✦' : i % 4 ? '•' : '❄', 'flake'); flake.style.left = `${Math.random() * 100}%`; flake.style.fontSize = `${effect === 'snow' ? 11 + Math.random() * 9 : 7 + Math.random() * 7}px`;
+      if (effect === 'stars') flake.style.top = `${Math.random() * 100}%`;
+      flake.style.animationDuration = `${effect === 'snow' ? 7 + Math.random() * 10 : 2 + Math.random() * 4}s`; flake.style.animationDelay = `-${Math.random() * 20}s`; layer.append(flake);
+    } shell.append(layer);
   }
   function openSettings() {
     if (settingsOpen || busy) return; settingsOpen = true;
     const backdrop = el('div', undefined, 'settings-backdrop'), panel = el('section', undefined, 'settings'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Studio settings');
     const header = el('div', undefined, 'heading'); header.append(el('h2', 'Make it yours'), el('span', undefined, 'grow'), button('Close settings', () => { settingsOpen = false; backdrop.remove(); })); panel.append(header);
     const theme = el('label', undefined, 'field'); theme.append(el('span', 'Shared Studio + Swagger theme'), themePicker()); panel.append(theme);
-    const select = el('select'); select.setAttribute('aria-label', 'Visual effect'); select.append(new Option('None', 'none'), new Option('Snow', 'snow')); select.value = effect;
-    select.onchange = () => { effect = validEffect(select.value); persist(); shadow.querySelector('.snow')?.remove(); snow(shadow.querySelector('.shell')); };
+    const select = effectPicker();
     const label = el('label', undefined, 'field'); label.append(el('span', 'Visual effect'), select); panel.append(label, el('p', 'Effects respect your reduced-motion preference and do not intercept clicks.', 'notice'));
     panel.append(el('p', 'Favorites, open tabs, recent endpoints and appearance stay in this browser. Tokens, request bodies and responses are never saved by Studio.', 'notice'));
     panel.append(button('Reset workspace preferences', () => { favorites = []; tabs = []; recent = []; selected = null; effect = 'none'; persist(); settingsOpen = false; render(); }));
@@ -201,7 +237,7 @@
       const saved = read(storageKey) || {}, ids = new Set(ops.map(o => o.id));
       const clean = values => Array.isArray(values) ? [...new Set(values.filter(id => typeof id === 'string' && ids.has(id)))].slice(0, 100) : [];
       favorites = clean(saved.favorites); tabs = clean(saved.tabs); recent = clean(saved.recent); selected = ops.find(o => o.id === saved.selected && tabs.includes(o.id)) || null;
-      effect = validEffect(saved.effect ?? config.effect); if (!localStorageAvailableTheme() && ['dark','light','system'].includes(config.theme)) window.SwaggerStudioTheme?.set(config.theme);
+      effectChosen = saved.effectChosen === true; effect = validEffect(effectChosen ? saved.effect : config.effect); if (!localStorageAvailableTheme() && ['dark','light','system'].includes(config.theme)) window.SwaggerStudioTheme?.set(config.theme);
       if (current !== generation) return;
       searchTerm = ''; favoriteOnly = false; render(); shadow.querySelector('button')?.focus(); persist();
     } catch (e) { close(); alert(e.message); }

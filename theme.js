@@ -1,7 +1,7 @@
 (() => {
   const palettes = {
-    dark: { bg: '#0b1020', panel: '#10192b', input: '#172338', text: '#e8edf8', muted: '#94a5c2', line: '#293752', accent: '#9287ff', soft: '#24234b', code: '#080e1a' },
-    light: { bg: '#f2f5fc', panel: '#ffffff', input: '#f5f7fc', text: '#17233b', muted: '#586a86', line: '#dbe2ef', accent: '#6352d9', soft: '#eeebff', code: '#f6f8fc' }
+    dark: { bg: '#0c1018', panel: '#121824', input: '#181f2d', text: '#e6eaf2', muted: '#8b99b0', line: '#283142', accent: '#a497ff', soft: '#25233d', code: '#0e131d', snow: '#e0eaff' },
+    light: { bg: '#f4f6fa', panel: '#ffffff', input: '#f6f8fb', text: '#1e293d', muted: '#63718a', line: '#dce2ec', accent: '#7057df', soft: '#eeeafa', code: '#f7f8fc', snow: '#8069dc' }
   };
   const query = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null;
   let preference = 'system';

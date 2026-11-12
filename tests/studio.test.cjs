@@ -24,12 +24,18 @@ test('welcome dashboard, grouping, persistent tabs/favorites, transient request 
   const env = setup(t), { w, data } = env; await w.SwaggerStudio.open(data); let shadow = env.shadow;
   assert.match(shadow.querySelector('.welcome').textContent, /YOUR API, ONE WORKSPACE/); assert.equal(shadow.querySelectorAll('.stat').length, 4); assert.equal(shadow.querySelectorAll('.group').length, 2); assert.equal(shadow.querySelector('img'), null);
   clickOp(shadow, 'GET/pets/{id}'); shadow = env.shadow;
+  const stylesheet = shadow.querySelector('link');
   const input = [...shadow.querySelectorAll('.field input')].find(n => n.closest('label').textContent.startsWith('id *')); input.value = '42'; input.dispatchEvent(new w.Event('input'));
+  shadow.querySelector('.main').scrollTop = 235;
   shadow.querySelector('[aria-label="Toggle favorite"]').click(); shadow = env.shadow;
   clickOp(shadow, 'GET/health'); shadow = env.shadow; shadow.querySelector('.tab button').click(); shadow = env.shadow;
   assert.equal([...shadow.querySelectorAll('.field input')].find(n => n.closest('label').textContent.startsWith('id *')).value, '42');
+  assert.equal(shadow.querySelector('.main').scrollTop, 235, 'tab navigation preserves editor scroll');
+  assert.equal(shadow.querySelector('link'), stylesheet, 'view changes keep the loaded stylesheet');
   w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true })); assert.equal(shadow.activeElement, shadow.querySelector('.search'));
   w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true })); await new Promise(r => setTimeout(r, 20)); assert.match(shadow.querySelector('.response').textContent, /"ok": true/);
+  assert.equal(shadow.activeElement, shadow.querySelector('.response'), 'response receives focus after completion');
+  assert.equal(shadow.querySelector('.response').classList.contains('arrived'), true);
   w.SwaggerStudio.close(); await w.SwaggerStudio.open(data); shadow = env.shadow;
   assert.equal(shadow.querySelectorAll('.tab').length, 2); assert.equal(shadow.querySelector('[aria-label="Toggle favorite"]').textContent, '★');
   assert.equal([...shadow.querySelectorAll('.field input')].find(n => n.closest('label').textContent.startsWith('id *')).value, '');
@@ -42,7 +48,8 @@ test('schema examples and theme selection update both views and survive reload',
   const theme = shadow.querySelector('[aria-label="Theme for Studio and Swagger"]'); theme.value = 'light'; theme.dispatchEvent(new w.Event('change'));
   assert.equal(w.document.documentElement.dataset.studioTheme, 'light'); assert.equal(w.localStorage.getItem('brsvs:studio:theme'), 'light'); assert.match(w.document.getElementById('brsvs-swagger-theme').textContent, /\.swagger-ui/);
   [...shadow.querySelectorAll('button')].find(b => b.textContent === 'Settings').click();
-  const effect = shadow.querySelector('[aria-label="Visual effect"]'); effect.value = 'snow'; effect.dispatchEvent(new w.Event('change')); assert.equal(shadow.querySelectorAll('.flake').length, 28);
+  const effect = shadow.querySelector('[aria-label="Visual effect"]'); effect.value = 'snow'; effect.dispatchEvent(new w.Event('change')); assert.equal(shadow.querySelectorAll('.flake').length, 42);
+  effect.value = 'stars'; effect.dispatchEvent(new w.Event('change')); assert.equal(shadow.querySelectorAll('.stars .flake').length, 30);
   w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape' })); assert.ok(w.document.getElementById('brsvs-studio-host')); assert.equal(shadow.querySelector('.settings-backdrop'), null);
 });
 test('blocked localStorage does not prevent startup and reduced motion suppresses snow', async t => {

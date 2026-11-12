@@ -25,7 +25,7 @@ jobs:
       - run: chmod +x mvnw && ./mvnw -B verify
       - uses: actions/upload-artifact@v4
         with:
-          name: swagger-ui-studio-0.2.0
+          name: swagger-ui-studio-0.2.1
           path: |
             spring-boot-starter/target/*.jar
             examples/customer-api/target/*.jar
@@ -48,10 +48,10 @@ jobs:
           ./mvnw -B deploy -DskipTests -DaltDeploymentRepository=studio-release::file:${{ runner.temp }}/studio-maven
           mkdir -p dist
           cp spring-boot-starter/target/*.jar dist/
-          cp examples/customer-api/target/swagger-ui-studio-customer-demo-0.2.0.jar dist/
-          (cd "${{ runner.temp }}/studio-maven" && zip -qr "$GITHUB_WORKSPACE/dist/swagger-ui-studio-0.2.0-maven-repository.zip" .)
+          cp examples/customer-api/target/swagger-ui-studio-customer-demo-0.2.1.jar dist/
+          (cd "${{ runner.temp }}/studio-maven" && zip -qr "$GITHUB_WORKSPACE/dist/swagger-ui-studio-0.2.1-maven-repository.zip" .)
           (cd dist && sha256sum *.jar *.zip > SHA256SUMS.txt)
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --title "Swagger UI Studio 0.2.0" --notes-file RELEASE_NOTES.md
+        run: gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --title "Swagger UI Studio 0.2.1" --notes-file RELEASE_NOTES.md
