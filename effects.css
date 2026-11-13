@@ -374,3 +374,15 @@
 @media(prefers-reduced-motion:reduce) { .scene-environment,.feature-scene { display:none!important; } }
 
 .brsvs-response-fx[data-feature-scene][data-state=success] { animation:brsvs-fade .3s 3.3s ease-out both; }
+
+/* Studio keeps companions inside its aligned response card; Swagger keeps edge scenes. */
+.brsvs-response-fx[data-panel-mode=embedded] .feature-scene { top:54px; bottom:auto; height:84px; }
+.brsvs-response-fx[data-panel-mode=embedded] .http-zoo { top:64px; }
+.brsvs-response-fx[data-panel-mode=embedded] .whale-lane { top:66px; }
+.brsvs-response-fx[data-panel-mode=embedded] .snowman-lane { top:50px; }
+.brsvs-response-fx[data-panel-mode=embedded] .storm-lane { top:44px; }
+.brsvs-response-fx[data-panel-mode=embedded] .ferry-boat { top:90px; bottom:auto; }
+.brsvs-response-fx[data-panel-mode=embedded].sandworm .cinema-scene { top:66px; bottom:auto; height:55px; }
+.brsvs-response-fx[data-panel-mode=embedded] .rare-visitors { top:88px; }
+.brsvs-response-fx[data-panel-mode=embedded] .streak-party { top:62px; right:12px; }
+.brsvs-response-fx[data-panel-mode=embedded] .request-clock { top:18px; right:14px; bottom:auto; }

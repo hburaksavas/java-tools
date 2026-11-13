@@ -1,8 +1,8 @@
 (() => {
   if (window.SwaggerStudioTheme) return;
   const styleLink = document.createElement('link'); styleLink.rel = 'stylesheet'; styleLink.id = 'brsvs-effects-stylesheet';
-  const themeSource = [...document.scripts].find(script => script.src.endsWith('/theme.js'))?.src || new URL('theme.js', location.href).href;
-  styleLink.href = new URL('effects.css', themeSource).href; document.head.append(styleLink);
+  const themeSource = [...document.scripts].find(script => new URL(script.src, location.href).pathname.endsWith('/theme.js'))?.src || new URL('theme.js', location.href).href;
+  const effectUrl = new URL('effects.css', themeSource); effectUrl.search = new URL(themeSource).search; styleLink.href = effectUrl.href; document.head.append(styleLink);
   const dark = { bg: '#0c1018', panel: '#121824', input: '#181f2d', text: '#e6eaf2', muted: '#8b99b0', line: '#283142', accent: '#a497ff', soft: '#25233d', code: '#0e131d', snow: '#e0eaff', mode: 'dark' };
   const light = { bg: '#f4f6fa', panel: '#ffffff', input: '#f6f8fb', text: '#1e293d', muted: '#63718a', line: '#dce2ec', accent: '#7057df', soft: '#eeeafa', code: '#f7f8fc', snow: '#8069dc', mode: 'light' };
   const themes = {

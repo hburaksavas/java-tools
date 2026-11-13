@@ -6,7 +6,7 @@
   document.body.append(switcher);
   const themePicker = window.SwaggerStudioTheme.picker(); themePicker.id = 'brsvs-swagger-theme-picker'; document.body.append(themePicker);
   const atmosphere = window.SwaggerStudioTheme.atmospherePicker?.(); if (atmosphere) { atmosphere.id = 'brsvs-swagger-atmosphere-picker'; document.body.append(atmosphere); }
-  const script = [...document.scripts].find(s => s.src.endsWith('/studio/bootstrap.js'));
+  const script = [...document.scripts].find(s => new URL(s.src, location.href).pathname.endsWith('/studio/bootstrap.js'));
   const configUrl = script ? new URL('./config.json', script.src) : null;
   const configReady = configUrl ? fetch(configUrl, { credentials: 'same-origin' }).then(r => r.ok ? r.json() : {}).then(value => { config = value; window.SwaggerStudioTheme.configure(config); }).catch(() => {}) : Promise.resolve();
   function snapshot() {

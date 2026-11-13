@@ -41,6 +41,9 @@ test('removed response actors and switched ambient scenes stop receiving proximi
   const fx=w.SwaggerStudioResponseEffects.start(w.document.getElementById('response')), fish=fx.node.querySelector('[data-environment-actor]');
   fish.getBoundingClientRect=()=>({left:100,top:100,right:150,bottom:140,width:50,height:40});
   move(w.document.getElementById('blank')); assert.equal(fish.classList.contains('env-near'),true);
+  const target=w.document.getElementById('response'); target.classList.add('response'); const stage=w.document.createElement('div'); stage.className='response-stage'; target.append(stage);
+  move(stage); assert.equal(fish.classList.contains('env-near'),true, 'embedded decorative stage remains reactive');
+  const text=w.document.createElement('pre'); text.textContent='JSON'; target.append(text); move(text); assert.equal(fish.classList.contains('env-near'),false, 'response text is protected');
   fx.remove(); assert.equal(fish.classList.contains('env-near'),false); move(w.document.getElementById('blank')); assert.equal(fish.classList.contains('env-near'),false);
 });
 test('reduced motion retains each palette but creates no scene or reactive actors', t=>{

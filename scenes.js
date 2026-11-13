@@ -5,7 +5,10 @@
   const environments = new Set(), reactive = new Set();
   let scheduled = false, pointer;
   const quiet = () => !!media?.matches;
-  const blocked = event => event.composedPath().some(element => element?.matches?.('input,textarea,select,button,label,form,[contenteditable]:not([contenteditable="false"]),[role="textbox"],.field,.request,.response,pre,code,.tabs,.side,.opblock-body,.opblock-summary'));
+  const blocked = event => {
+    const path = event.composedPath(), stage = path.some(element => element?.matches?.('.response-stage'));
+    return path.some(element => element?.matches?.('input,textarea,select,button,label,form,[contenteditable]:not([contenteditable="false"]),[role="textbox"],.field,.request,pre,code,.tabs,.side,.opblock-body,.opblock-summary')) || !stage && path.some(element => element?.matches?.('.response'));
+  };
   function clearProximity() { for (const actor of reactive) actor.classList.remove('env-near'); }
   function proximity() {
     scheduled = false;

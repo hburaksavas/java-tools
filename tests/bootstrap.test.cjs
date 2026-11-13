@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { JSDOM } = require('jsdom');
 test('application bootstrap loads config and automatically opens when Swagger becomes ready', async t => {
-  const dom = new JSDOM('<html><body><script src="https://example.test/sample/swagger-ui/studio/bootstrap.js"></script></body></html>', { url: 'https://example.test/sample/swagger-ui/index.html', runScripts: 'outside-only' }); t.after(() => dom.window.close());
+  const dom = new JSDOM('<html><body><script src="https://example.test/sample/swagger-ui/studio/bootstrap.js?v=revision"></script></body></html>', { url: 'https://example.test/sample/swagger-ui/index.html', runScripts: 'outside-only' }); t.after(() => dom.window.close());
   const w = dom.window; let loaded = false, opened, configUrl;
   w.fetch = async url => { configUrl = String(url); return { ok: true, json: async () => ({ title: 'My API' }) }; };
   w.ui = { specSelectors: { specJson: () => ({ toJS: () => loaded ? { openapi: '3.0.3', paths: {} } : {} }), url: () => '/sample/openapi' } };

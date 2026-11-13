@@ -11,7 +11,7 @@ const spec = {
   }
 };
 function setup(t) {
-  const dom = new JSDOM('<html><head></head><body><button id="return">Swagger</button><div class="swagger-ui">Original Swagger</div></body></html>', { url: 'https://api.example.org/docs', runScripts: 'outside-only' }); t.after(() => dom.window.close());
+  const dom = new JSDOM('<html><head><script src="/studio/studio.js?v=revision"></script><script src="/studio/theme.js?v=revision"></script></head><body><button id="return">Swagger</button><div class="swagger-ui">Original Swagger</div></body></html>', { url: 'https://api.example.org/docs', runScripts: 'outside-only' }); t.after(() => dom.window.close());
   const w = dom.window; w.alert = message => { throw new Error(message); }; w.matchMedia = query => ({ matches: false, addEventListener() {} });
   for (const name of ['core.js', 'theme.js', 'playful.js', 'response-effects.js']) w.eval(fs.readFileSync(require.resolve(`../${name}`), 'utf8'));
   w.SwaggerStudioBridge = { authSummary: () => ['bearer'], openAuth: () => {}, send: async () => ({ status: 200, text: '{"ok":true}', headers: {} }) };
@@ -62,6 +62,7 @@ test('welcome dashboard, grouping, persistent tabs/favorites, transient request 
 });
 test('schema examples and theme selection update both views and survive reload', async t => {
   const env = setup(t), { w, data } = env; await w.SwaggerStudio.open(data); clickOp(env.shadow, 'POST/pets'); let shadow = env.shadow;
+  assert.match(shadow.querySelector('link').href, /studio\.css\?v=revision/); assert.match(w.document.getElementById('brsvs-effects-stylesheet').href, /effects\.css\?v=revision/);
   assert.equal([...shadow.querySelectorAll('button')].some(b => b.textContent === 'Generate example'), false);
   assert.match(shadow.querySelector('textarea').value, /"name": "Ada"/);
   shadow.querySelector('textarea').value = ''; shadow.querySelector('textarea').dispatchEvent(new w.Event('input'));

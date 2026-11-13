@@ -35,7 +35,7 @@ const assets = {
 function json(res, status, data) { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)); }
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
-  if (req.method === 'GET' && assets[url.pathname]) { const [file, type] = assets[url.pathname]; res.writeHead(200, { 'Content-Type': type }); fs.createReadStream(file).pipe(res); return; }
+  if (req.method === 'GET' && assets[url.pathname]) { const [file, type] = assets[url.pathname]; res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache' }); fs.createReadStream(file).pipe(res); return; }
   if (req.method === 'GET' && url.pathname === '/v3/api-docs') return json(res, 200, spec);
   if (req.method === 'GET' && url.pathname === '/api/customers') return json(res, 200, { items: customers.filter(c => !url.searchParams.get('status') || c.status === url.searchParams.get('status')), total: customers.length });
   if (req.method === 'GET' && /^\/api\/customers\/\d+$/.test(url.pathname)) { const customer = customers.find(c => c.id === Number(url.pathname.split('/').at(-1))); return json(res, customer ? 200 : 404, customer || { message: 'Customer not found' }); }

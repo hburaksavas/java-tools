@@ -18,7 +18,7 @@ class StudioIntegrationTest {
     @Test void swaggerIndexIncludesStudioAndKeepsSwagger() throws Exception {
         mvc.perform(get("/swagger-ui/index.html")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("swagger-initializer.js")))
-                .andExpect(content().string(containsString("./studio/bootstrap.js")))
+                .andExpect(content().string(matchesPattern("(?s).*studio/bootstrap\\.js\\?v=[a-f0-9]{16}.*")))
                 .andExpect(content().string(containsString("./studio/core.js")))
                 .andExpect(content().string(containsString("./studio/playful.js")))
                 .andExpect(content().string(containsString("./studio/scenes.js")));

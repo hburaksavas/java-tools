@@ -1,8 +1,8 @@
 (() => {
   if (window.SwaggerStudio) return;
   const core = window.SwaggerStudioCore, bridge = window.SwaggerStudioBridge;
-  const source = [...document.scripts].find(s => s.src.endsWith('/studio.js'))?.src || new URL('studio.js', location.href).href;
-  const stylesheet = new URL('studio.css', source).href;
+  const source = [...document.scripts].find(s => new URL(s.src, location.href).pathname.endsWith('/studio.js'))?.src || new URL('studio.js', location.href).href;
+  const styleUrl = new URL('studio.css', source); styleUrl.search = new URL(source).search; const stylesheet = styleUrl.href;
   let host, shadow, spec, ui, config, ops = [], specUrl, storageKey, selected = null, tabs = [], favorites = [], recent = [], drafts = new Map(), controller, busy = false, generation = 0, activity = [], searchTerm = '', favoriteOnly = false, savedFocus, oldOverflow, renderedId, overviewScroll = 0;
   const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
   const button = (label, fn, cls) => { const n = el('button', label, cls); n.type = 'button'; n.onclick = fn; return n; };
@@ -191,15 +191,18 @@
       const model = el('details'); model.append(el('summary', 'Request schema'), el('pre', JSON.stringify(s, null, 2))); area.append(model);
     }
     area.append(el('p', `${secured ? 'Uses Swagger authorization and request/response interceptors.' : 'Uses Swagger request/response interceptors.'} Request data stays in memory until Studio closes.`, 'notice'));
-    const controls = el('div', undefined, 'row'), send = button('Execute', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel); area.append(controls);
-    const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.tabIndex = -1; const panels = el('div', undefined, 'request-response'), request = el('section', undefined, 'request'); request.setAttribute('aria-label', 'Request');
+    const controls = el('div', undefined, 'request-actions'), send = button('Execute', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel);
+    const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.dataset.studioPanel = 'true'; output.tabIndex = -1; const panels = el('div', undefined, 'request-response'), request = el('section', undefined, 'request'); request.setAttribute('aria-label', 'Request');
+    const requestHeading = el('div', undefined, 'panel-heading'); requestHeading.append(el('h3', 'Request'), el('span', undefined, 'grow'), controls); request.append(requestHeading);
     for (const node of [...area.children].slice(2)) request.append(node);
-    output.append(el('h3', 'Response'), el('p', 'Execute a request to see the response.', 'empty'));
+    output.append(responseHeader(), el('p', 'Execute a request to see the response.', 'empty response-placeholder'));
     panels.append(request, output); area.append(panels); if (draft.response) show(draft.response);
+    function responseHeader() { const header = el('div', undefined, 'response-heading'); header.append(el('h3', 'Response')); return header; }
+    function responseStage() { const stage = el('div', undefined, 'response-stage'); stage.setAttribute('aria-hidden', 'true'); return stage; }
     function focusResponse() {
       const main = shadow.querySelector('.main'); if (!main || !output.isConnected) return;
       const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      const top = Math.max(0, main.scrollTop + output.getBoundingClientRect().top - main.getBoundingClientRect().top - 112);
+      const top = Math.max(0, main.scrollTop + output.getBoundingClientRect().top - main.getBoundingClientRect().top - 58);
       const bounds = output.getBoundingClientRect(), viewport = main.getBoundingClientRect();
       const visible = bounds.top >= viewport.top + 54 && bounds.top < viewport.bottom - 64;
       if (!visible && main.scrollTo) main.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' }); else if (!visible) main.scrollTop = top;
@@ -208,15 +211,15 @@
       if (!reduced) { void output.offsetWidth; output.classList.add('arrived'); }
     }
     function show(result) {
-      output.replaceChildren(); if (result.error) { output.append(el('h3', 'Response'), el('p', result.error, 'error')); return; }
+      output.replaceChildren(); if (result.error) { output.append(responseHeader(), responseStage(), el('p', result.error, 'error')); return; }
       const status = el('div', undefined, 'response-heading'); status.append(el('h3', 'Response'), el('strong', `${result.status} ${result.statusText || ''}`, `status ${result.status < 400 ? 'ok' : 'fail'}`), el('span', `${result.ms} ms`, 'muted'), el('span', undefined, 'grow'));
-      const copy = button('Copy body', async () => { try { await navigator.clipboard.writeText(result.body); copy.textContent = 'Copied'; } catch { copy.textContent = 'Copy unavailable'; } }, 'text-button'); status.append(copy); output.append(status);
+      const copy = button('Copy body', async () => { try { await navigator.clipboard.writeText(result.body); copy.textContent = 'Copied'; } catch { copy.textContent = 'Copy unavailable'; } }, 'text-button'); status.append(copy); output.append(status, responseStage());
       const details = el('details'); details.append(el('summary', 'Response headers'), el('pre', result.headers)); output.append(details, el('pre', result.body));
     }
     async function run() {
       if (busy) return;
       let options; try { options = core.requestOptions(spec, op, draft, specUrl, location.href); } catch (e) { show({ error: e.message }); focusResponse(); return; }
-      busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(el('p', 'Waiting for response…', 'pending'));
+      busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(responseHeader(), responseStage(), el('p', 'Waiting for response…', 'pending'));
       const feedback = window.SwaggerStudioResponseEffects?.start(output); focusResponse();
       try {
         const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: secured ? draft.auth : '', confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });

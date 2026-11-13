@@ -2,6 +2,9 @@ package com.brsvs.swagger.studio;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springdoc.webmvc.ui.SwaggerIndexTransformer;
 import org.springframework.core.io.Resource;
@@ -21,9 +24,26 @@ final class StudioIndexTransformer implements SwaggerIndexTransformer {
             <script src="./studio/bootstrap.js" defer></script>
             """;
     private final SwaggerIndexTransformer delegate;
+    private final String assetRevision;
 
     StudioIndexTransformer(SwaggerIndexTransformer delegate) {
         this.delegate = delegate;
+        this.assetRevision = assetRevision();
+    }
+
+    private static String assetRevision() {
+        try {
+            var digest = MessageDigest.getInstance("SHA-256");
+            for (String name : new String[] { "core.js", "swagger-bridge.js", "motion.js", "scenes.js", "theme.js", "playful.js", "response-effects.js", "studio.js", "bootstrap.js", "studio.css", "effects.css" }) {
+                try (var input = StudioIndexTransformer.class.getResourceAsStream("/META-INF/swagger-ui-studio/" + name)) {
+                    if (input == null) throw new IllegalStateException("Missing Studio asset: " + name);
+                    digest.update(input.readAllBytes());
+                }
+            }
+            return HexFormat.of().formatHex(digest.digest(), 0, 8);
+        } catch (IOException | NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("Cannot fingerprint Studio assets", exception);
+        }
     }
 
     @Override
@@ -34,7 +54,7 @@ final class StudioIndexTransformer implements SwaggerIndexTransformer {
         try (var input = transformed.getInputStream()) {
             html = new String(input.readAllBytes(), StandardCharsets.UTF_8);
         }
-        if (!html.contains("./studio/bootstrap.js")) html = html.replace("</body>", SCRIPTS + "</body>");
+        if (!html.contains("./studio/bootstrap.js")) html = html.replace("</body>", SCRIPTS.replace(".js\"", ".js?v=" + assetRevision + "\"") + "</body>");
         return new TransformedResource(transformed, html.getBytes(StandardCharsets.UTF_8));
     }
 }
