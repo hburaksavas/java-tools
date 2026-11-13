@@ -149,11 +149,11 @@
     }
     area.dataset.layout = requestLayout;
     heading.append(el('span', op.method, `method ${op.method}`), el('h2', op.path), star, copyApi, copyStatus, el('span', undefined, 'grow'), layouts); area.append(heading, el('p', [op.summary, op.description].filter(Boolean).join('\n'), 'description'));
-    const base = field('Server URL', draft.base); base.input.oninput = () => draft.base = base.input.value; area.append(base.wrap);
+    const base = field('Server URL', draft.base); base.wrap.classList.add('server-bar'); base.input.oninput = () => draft.base = base.input.value; area.append(base.wrap);
+    const requestStart = area.children.length;
     if (secured) {
-      const schemes = bridge.authSummary(ui).filter(name => securityNames.includes(name)); area.append(el('p', schemes.length ? `Using Swagger authorization: ${schemes.join(', ')}` : 'Authorization is shared with Swagger. Use Authorize to sign in.', 'notice'));
       const authDetails = el('details'); authDetails.append(el('summary', 'Override Authorization header for this request'));
-      const auth = field('Authorization override · memory only', draft.auth, 'password'); auth.input.placeholder = 'Bearer …'; auth.input.oninput = () => draft.auth = auth.input.value; authDetails.append(auth.wrap); area.append(authDetails);
+      const auth = field('Authorization override', draft.auth, 'password'); auth.input.placeholder = 'Bearer …'; auth.input.oninput = () => draft.auth = auth.input.value; authDetails.append(auth.wrap); area.append(authDetails);
     }
     for (const p of op.parameters.filter(p => !['body', 'formData'].includes(p.in))) {
       const key = `${p.in}:${p.name}`, s = core.schema(spec, p.schema || p); const f = field(`${p.name}${p.required ? ' *' : ''} · ${p.in} · ${s.type || 'string'}`, draft.values[key], 'text', { ...s, description: p.description || s.description });
@@ -192,11 +192,10 @@
       }
       const model = el('details'); model.append(el('summary', 'Request schema'), jsonCode(JSON.stringify(s, null, 2), true)); area.append(model);
     }
-    area.append(el('p', `${secured ? 'Uses Swagger authorization and request/response interceptors.' : 'Uses Swagger request/response interceptors.'} Request data stays in memory until Studio closes.`, 'notice'));
     const controls = el('div', undefined, 'request-actions'), send = button('Execute', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel);
     const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.dataset.studioPanel = 'true'; output.tabIndex = -1; const panels = el('div', undefined, 'request-response'), request = el('section', undefined, 'request'); request.setAttribute('aria-label', 'Request');
     const requestHeading = el('div', undefined, 'panel-heading'); requestHeading.append(el('h3', 'Request'), el('span', undefined, 'grow'), controls); request.append(requestHeading);
-    for (const node of [...area.children].slice(2)) request.append(node);
+    for (const node of [...area.children].slice(requestStart)) request.append(node);
     output.append(responseHeader(), el('p', 'Execute a request to see the response.', 'empty response-placeholder'));
     panels.append(request, output); area.append(panels); if (draft.response) show(draft.response);
     function responseHeader() { const header = el('div', undefined, 'response-heading'); header.append(el('h3', 'Response')); return header; }

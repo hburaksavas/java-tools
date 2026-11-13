@@ -214,3 +214,8 @@ a { color: var(--st-accent); }
 .json-editor .json-input::selection { background:color-mix(in srgb,var(--st-accent) 25%,transparent); }
 .json-editor .json-input::placeholder { color:var(--st-muted); -webkit-text-fill-color:var(--st-muted); }
 @media(forced-colors:active) { .json-editor .json-mirror { display:none; } .json-editor .json-input { color:CanvasText; -webkit-text-fill-color:CanvasText; } }
+
+.server-bar { display:flex; align-items:center; gap:10px; margin:0 0 16px; padding:7px 12px; border:1px solid var(--st-line); border-radius:7px; background:var(--st-panel); }
+.server-bar > span { flex:0 0 auto; margin:0; font-size:10px; }
+.server-bar input { flex:1; min-width:0; width:auto; height:28px; padding:4px 7px; border-color:transparent; background:transparent; font:11px ui-monospace,SFMono-Regular,Consolas,monospace; }
+.server-bar input:focus { border-color:var(--st-line); background:var(--st-input); }

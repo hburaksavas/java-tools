@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.20
+# Swagger UI Studio 0.3.21
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.21 moves Server URL into a compact shared toolbar above the request/response cards. Internal interceptor, memory-lifetime and authorization explanation notices are removed. Server overrides remain per-endpoint in-memory drafts and still drive execution and API copying.
 
 0.3.20 adds theme-aware JSON syntax colors to editable Studio request bodies, response bodies and schema examples. Native editing, selection, scrolling and formatting are retained; text is rendered safely without interpreting HTML. Token colors meet 4.5:1 contrast on code/input backgrounds across every theme and atmosphere, and are shared with Swagger code blocks. Large documents retain complete plain-text rendering beyond the highlighting budget.
 
