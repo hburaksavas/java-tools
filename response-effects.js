@@ -11,12 +11,12 @@
     if (Number(status) >= 300) return 'warning';
     return Number(status) >= 200 ? 'success' : 'error';
   }
-  function start(target) {
-    for (const record of active) if (record.target === target) record.remove();
+  function start(target, requestKey) {
+    for (const record of active) if (record.target === target || requestKey && record.requestKey === requestKey) record.remove();
     if (active.size >= 6) active.values().next().value.remove();
     const node = document.createElement('div'); node.setAttribute('aria-hidden', 'true'); node.dataset.state = 'pending';
-    let frame, timer, removed = false, lastPaint = -Infinity;
-    const record = { target, node, remove, finish, refresh };
+    let frame, timer, playful, finished = false, removed = false, lastPaint = -Infinity;
+    const record = { target, requestKey, node, remove, finish, refresh };
     function refresh() {
       const recipe = window.SwaggerStudioTheme?.responseRecipe() || 'glow';
       node.className = `brsvs-response-fx ${recipe}${motion?.matches ? ' reduced' : ''}`;
@@ -62,6 +62,7 @@
         node.append(scene);
       }
       node.dataset.theme = window.SwaggerStudioTheme?.current() || 'dark';
+      playful?.refresh();
     }
     function position(time) {
       if (removed) return;
@@ -75,19 +76,19 @@
       frame = raf(position);
     }
     function remove() {
-      if (removed) return; removed = true; caf(frame); clearTimeout(timer); node.remove(); active.delete(record);
+      if (removed) return; removed = true; playful?.remove(); caf(frame); clearTimeout(timer); node.remove(); active.delete(record);
       for (const [key, value] of requests) if (value === record) requests.delete(key);
     }
     function finish(status, error) {
-      if (removed) return;
-      node.dataset.state = classify(status, error); node.replaceChildren(); refresh();
+      if (removed || finished) return; finished = true;
+      node.dataset.state = classify(status, error); node.replaceChildren(); refresh(); playful?.finish(status, error);
       if (!motion?.matches && node.dataset.state === 'success') for (let i = 0; i < 9; i++) {
         const particle = document.createElement('span');
         particle.style.setProperty('--x', `${8 + i * 10}%`); particle.style.setProperty('--dx', `${i % 2 ? 12 : -12}px`); particle.style.setProperty('--delay', `${i * 15}ms`); node.append(particle);
       }
-      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : node.querySelector('.cinema-scene') ? 3000 : node.classList.contains('storm') ? 2600 : node.classList.contains('ice') ? 3400 : node.classList.contains('tide') ? 3600 : node.classList.contains('ferry') ? 2800 : node.querySelector('.response-scene') ? 2000 : 1000);
+      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : playful ? 3600 : node.querySelector('.cinema-scene') ? 3000 : node.classList.contains('storm') ? 2600 : node.classList.contains('ice') ? 3400 : node.classList.contains('tide') ? 3600 : node.classList.contains('ferry') ? 2800 : node.querySelector('.response-scene') ? 2000 : 1000);
     }
-    active.add(record); refresh(); document.documentElement.append(node); frame = raf(position);
+    active.add(record); refresh(); playful = window.SwaggerStudioPlayful?.attach(node); document.documentElement.append(node); frame = raf(position);
     timer = window.setTimeout(remove, 120000);
     return record;
   }
@@ -110,7 +111,7 @@
         requests.get(key)?.remove(); requests.set(key, start(() => {
           const execute = operationRoot(path, method)?.querySelector('button.execute');
           return requests.has(key) && execute ? execute.parentElement : responseTarget(path, method);
-        }));
+        }, key));
         try { return original(request); } catch (error) { requests.get(key)?.finish(undefined, error); requests.delete(key); throw error; }
       },
       setResponse: original => (path, method, response) => {

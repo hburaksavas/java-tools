@@ -38,9 +38,12 @@
     persist(); render();
   }
   function select(op) {
-    if (busy) return; selected = op;
+    if (busy) return;
+    const previousId = selected?.id, from = shadow.querySelector('.tabs button.active')?.getBoundingClientRect();
+    selected = op;
     if (op) { if (!tabs.includes(op.id)) tabs.push(op.id); recent = [op.id, ...recent.filter(id => id !== op.id)].slice(0, 8); }
     persist(); render();
+    if (previousId !== op?.id) window.SwaggerStudioPlayful?.travel(from, shadow.querySelector('.tabs button.active')?.getBoundingClientRect());
   }
   function opButton(op) {
     const b = button('', () => select(op), `endpoint ${selected?.id === op.id ? 'active' : ''}`);
@@ -64,7 +67,7 @@
     const auth = button('Authorize', () => {
       if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
-    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'), auth, themePicker(), button('Swagger ↗', close));
+    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'), auth, themePicker(), window.SwaggerStudioTheme.atmospherePicker(), button('Swagger ↗', close));
     const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side');
     const search = el('input', undefined, 'search'); search.placeholder = 'Find endpoint · Ctrl K'; search.setAttribute('aria-label', 'Search endpoints'); search.value = searchTerm; side.append(search);
     const check = el('input'); check.type = 'checkbox'; check.checked = favoriteOnly;
@@ -191,7 +194,7 @@
     function focusResponse() {
       const main = shadow.querySelector('.main'); if (!main || !output.isConnected) return;
       const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      const top = Math.max(0, main.scrollTop + output.getBoundingClientRect().top - main.getBoundingClientRect().top - 58);
+      const top = Math.max(0, main.scrollTop + output.getBoundingClientRect().top - main.getBoundingClientRect().top - 112);
       const bounds = output.getBoundingClientRect(), viewport = main.getBoundingClientRect();
       const visible = bounds.top >= viewport.top + 54 && bounds.top < viewport.bottom - 64;
       if (!visible && main.scrollTo) main.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' }); else if (!visible) main.scrollTop = top;
@@ -209,7 +212,7 @@
       if (busy) return;
       let options; try { options = core.requestOptions(spec, op, draft, specUrl, location.href); } catch (e) { show({ error: e.message }); focusResponse(); return; }
       busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(el('p', 'Waiting for response…', 'pending'));
-      const feedback = window.SwaggerStudioResponseEffects?.start(output);
+      const feedback = window.SwaggerStudioResponseEffects?.start(output); focusResponse();
       try {
         const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: draft.auth, confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
         if (current !== generation) return;
@@ -253,7 +256,7 @@
       else if (!e.shiftKey && (active === last || !nodes.includes(active))) { e.preventDefault(); first.focus(); }
     }
   });
-  window.addEventListener('studio-theme-changed', () => { if (host) for (const select of shadow.querySelectorAll('[aria-label="Theme for Studio and Swagger"]')) select.value = window.SwaggerStudioTheme.preference(); });
+  window.addEventListener('studio-theme-changed', () => { if (host) { for (const select of shadow.querySelectorAll('[aria-label="Theme for Studio and Swagger"]')) select.value = window.SwaggerStudioTheme.preference(); for (const select of shadow.querySelectorAll('[data-atmosphere-picker]')) window.SwaggerStudioTheme.syncAtmospherePicker(select); } });
   window.addEventListener('storage', event => {
     if (event.key === layoutKey || event.key === null) { requestLayout = read(layoutKey) === 'stacked' ? 'stacked' : 'split'; if (host) applyLayout(); }
   });

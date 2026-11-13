@@ -36,6 +36,26 @@
     zen: { label: '○ Zen', effect: 'mist', palette: { ...light, bg: '#eff1eb', panel: '#f8faf4', input: '#e7ece0', text: '#36483b', muted: '#73816f', accent: '#608568', soft: '#d5e2cf', line: '#cbd6c4' } }
   };
   const responseRecipes = { 'digital-rain': 'decode', arrakis: 'sandworm', hyperspace: 'jump', bosphorus: 'ferry', system: 'glow', light: 'ripple', dark: 'glow', winter: 'ice', cosmic: 'constellation', forest: 'leaves', 'rainy-night': 'storm', aurora: 'aurora', sakura: 'petals', ember: 'embers', ocean: 'tide', cyberpunk: 'neon', terminal: 'terminal', blueprint: 'blueprint', eclipse: 'eclipse', paper: 'ink', observatory: 'constellation', autumn: 'leaves', monsoon: 'storm', circuit: 'circuit', sandstorm: 'dust', bioluminescence: 'fireflies', infrared: 'heat', zen: 'ripple' };
+  const atmosphereKey = 'brsvs:studio:atmosphere-v1';
+  const atmosphereThemes = new Set(['bosphorus', 'winter']);
+  const atmosphereChoices = ['default', 'day', 'sunset', 'night'];
+  function readAtmospheres() {
+    try { const value = JSON.parse(localStorage.getItem(atmosphereKey)) || {}; return Object.fromEntries(Object.entries(value).filter(([key, choice]) => atmosphereThemes.has(key) && atmosphereChoices.includes(choice))); } catch { return {}; }
+  }
+  let atmospheres = readAtmospheres();
+  const atmosphere = () => atmospheres[current()] || 'default';
+  const atmospherePalettes = {
+    bosphorus: {
+      day: {},
+      sunset: { bg: '#f5e9df', panel: '#fff6eb', input: '#eeddd1', text: '#493d44', muted: '#876b6a', line: '#dcc0b1', accent: '#a75e49', soft: '#efd0bb', code: '#faf0e6', snow: '#a77565', mode: 'light' },
+      night: { bg: '#0a1828', panel: '#10253b', input: '#19344b', text: '#e2ecf6', muted: '#91abc2', line: '#304d64', accent: '#dfc38a', soft: '#2f3d42', code: '#0c1c2e', snow: '#b5c9dc', mode: 'dark' }
+    },
+    winter: {
+      day: { bg: '#edf5f8', panel: '#fbfeff', input: '#e4eff4', text: '#274557', muted: '#617d8c', line: '#c3d9e2', accent: '#327e9e', soft: '#d1e8f0', code: '#f3f9fb', snow: '#6096aa', mode: 'light' },
+      sunset: { bg: '#211d2e', panel: '#2c283c', input: '#39344c', text: '#f0e6ed', muted: '#b4a0b5', line: '#56465e', accent: '#edb5ac', soft: '#503b50', code: '#241f32', snow: '#edc8de', mode: 'dark' },
+      night: { bg: '#060f1e', panel: '#0c1b2e', input: '#132a42', text: '#dcebf8', muted: '#8aa7c3', line: '#26415e', accent: '#a6cfee', soft: '#1a354f', code: '#081426', snow: '#d2e7ff', mode: 'dark' }
+    }
+  };
   const key = 'brsvs:studio:theme-v2';
   const query = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null;
   const motion = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -54,7 +74,7 @@
     @media(prefers-reduced-motion:reduce){#brsvs-theme-effects{display:none}}
   `; document.head.append(effectsStyle);
   function current() { return preference === 'system' ? query?.matches ? 'dark' : 'light' : preference; }
-  function palette() { return themes[current()].palette; }
+  function palette() { return { ...themes[current()].palette, ...atmospherePalettes[current()]?.[atmosphere()] }; }
   function variables() { return Object.entries(palette()).filter(([k]) => k !== 'mode').map(([k,v]) => `--st-${k}:${v}`).join(';'); }
   function raiseEffects() { if (layer) document.documentElement.append(layer); }
   function effects() {
@@ -62,7 +82,7 @@
     layer?.remove(); layer = undefined;
     const effect = themes[current()].effect;
     if (effect === 'none' || motion?.matches) return;
-    layer = document.createElement('div'); layer.id = 'brsvs-theme-effects'; layer.className = effect; layer.setAttribute('aria-hidden', 'true');
+    layer = document.createElement('div'); layer.id = 'brsvs-theme-effects'; layer.className = effect; layer.dataset.atmosphere = atmosphere(); layer.setAttribute('aria-hidden', 'true');
     if (['rain', 'rain-heavy'].includes(effect)) { const bolt = window.SwaggerStudioMotion?.lightningSvg(); if (bolt) { bolt.classList.add('distant-lightning'); layer.append(bolt); } }
     const scenes = ['aurora','ocean','neon','scan','grid','eclipse','paper','circuit','heat','mist'];
     const count = effect === 'code-rain' ? 16 : effect === 'desert' ? 28 : effect === 'starfield' ? 32 : effect === 'ocean' ? 14 : effect === 'gulls' ? 9 : effect === 'snow' ? 42 : effect === 'stars' ? 30 : scenes.includes(effect) ? 3 : 24;
@@ -80,7 +100,7 @@
     raiseEffects();
   }
   function apply() {
-    const p = palette(); document.documentElement.dataset.studioTheme = current();
+    const p = palette(); document.documentElement.dataset.studioTheme = current(); document.documentElement.dataset.studioAtmosphere = atmosphere();
     // Scope stronger overrides to the Swagger page, including its method panels and syntax highlighter.
     shared.textContent = `
       :root{${variables()};color-scheme:${p.mode}}body{background:${p.bg}!important;color:${p.text}}
@@ -105,8 +125,19 @@
       #brsvs-swagger-theme-picker{position:fixed;right:180px;bottom:24px;z-index:2147483646;background:${p.input};color:${p.text};border:1px solid ${p.line};border-radius:9px;padding:10px;font:13px system-ui}
     `;
     effects();
+    for (const select of document.querySelectorAll('[data-atmosphere-picker]')) syncAtmospherePicker(select);
     for (const select of document.querySelectorAll('#brsvs-swagger-theme-picker')) select.value = preference;
     window.dispatchEvent(new CustomEvent('studio-theme-changed', { detail: { preference, theme: current() } }));
+  }
+  function setAtmosphere(value) {
+    if (!atmosphereThemes.has(current()) || !atmosphereChoices.includes(value)) return;
+    atmospheres[current()] = value; try { localStorage.setItem(atmosphereKey, JSON.stringify(atmospheres)); } catch {} apply();
+  }
+  function syncAtmospherePicker(select) { select.hidden = !atmosphereThemes.has(current()); select.value = atmosphere(); }
+  function atmospherePicker() {
+    const select = document.createElement('select'); select.dataset.atmospherePicker = ''; select.setAttribute('aria-label', 'Atmosphere for Studio and Swagger');
+    for (const [id, label] of [['default', 'Theme light'], ['day', 'Day'], ['sunset', 'Sunset'], ['night', 'Night']]) select.append(new Option(label, id));
+    select.onchange = () => setAtmosphere(select.value); syncAtmospherePicker(select); return select;
   }
   function set(value) { if (!Object.hasOwn(themes, value)) return; preference = value; explicit = true; try { localStorage.setItem(key, value); } catch {} apply(); }
   function configure(config = {}) { if (!explicit && Object.hasOwn(themes, config.theme)) { preference = config.theme; apply(); } }
@@ -117,8 +148,9 @@
   }
   query?.addEventListener?.('change', apply); motion?.addEventListener?.('change', effects);
   window.addEventListener('studio-opened', raiseEffects);
-  window.addEventListener('storage', e => { if (e.key === key) { preference = Object.hasOwn(themes, e.newValue) ? e.newValue : 'system'; explicit = !!e.newValue; apply(); } });
-  window.SwaggerStudioTheme = { set, current, preference: () => preference, variables, configure, picker,
+  window.addEventListener('storage', e => { if (e.key === atmosphereKey || e.key === null) { atmospheres = readAtmospheres(); apply(); }
+    if (e.key === key) { preference = Object.hasOwn(themes, e.newValue) ? e.newValue : 'system'; explicit = !!e.newValue; apply(); } });
+  window.SwaggerStudioTheme = { set, current, preference: () => preference, variables, configure, picker, atmosphere, setAtmosphere, atmospherePicker, syncAtmospherePicker,
     catalog: () => Object.entries(themes).map(([id, theme]) => ({ id, label: theme.label, effect: theme.effect, response: responseRecipes[id] })),
     responseRecipe: () => responseRecipes[current()] };
   apply();

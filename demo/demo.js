@@ -5,3 +5,6 @@ async function openStudio() {
 }
 document.getElementById('open-studio').addEventListener('click', openStudio);
 if (new URLSearchParams(location.search).has('studio')) openStudio();
+
+const demoThemePicker = SwaggerStudioTheme.picker(); demoThemePicker.id = 'brsvs-swagger-theme-picker'; document.body.append(demoThemePicker);
+const demoAtmospherePicker = SwaggerStudioTheme.atmospherePicker(); demoAtmospherePicker.id = 'brsvs-swagger-atmosphere-picker'; document.body.append(demoAtmospherePicker);

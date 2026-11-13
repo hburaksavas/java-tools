@@ -19,13 +19,15 @@ class StudioIntegrationTest {
         mvc.perform(get("/swagger-ui/index.html")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("swagger-initializer.js")))
                 .andExpect(content().string(containsString("./studio/bootstrap.js")))
-                .andExpect(content().string(containsString("./studio/core.js")));
+                .andExpect(content().string(containsString("./studio/core.js")))
+                .andExpect(content().string(containsString("./studio/playful.js")));
         mvc.perform(get("/swagger-ui/studio/bootstrap.js")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("waitForSwagger")));
         mvc.perform(get("/swagger-ui/studio/studio.js")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("localStorage")));
         mvc.perform(get("/swagger-ui/studio/studio.css")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/theme.js")).andExpect(status().isOk());
+        mvc.perform(get("/swagger-ui/studio/playful.js")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/response-effects.js")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/effects.css")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/config.json")).andExpect(status().isOk())
@@ -39,9 +41,10 @@ class StudioIntegrationTest {
 
     @Test void responsePreviewProducesSuccessWarningAndFailureWithoutChangingData() throws Exception {
         mvc.perform(get("/api/demo-response").param("status", "200")).andExpect(status().isOk());
+        mvc.perform(get("/api/demo-response").param("status", "418")).andExpect(status().isIAmATeapot());
         mvc.perform(get("/api/demo-response").param("status", "404")).andExpect(status().isNotFound());
         mvc.perform(get("/api/demo-response").param("status", "503")).andExpect(status().isServiceUnavailable());
-        mvc.perform(get("/api/demo-response").param("delayMillis", "6000")).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/demo-response").param("delayMillis", "16000")).andExpect(status().isBadRequest());
     }
 
     @Test void realOpenApiAndRequestsWork() throws Exception {

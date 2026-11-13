@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.14
+# Swagger UI Studio 0.3.15
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.15 adds playful request companions: HTTP mood characters and a special 418 teapot; elapsed-time scenes at 4/8 seconds; celebrations every five consecutive 2xx completions; rare dolphins, baby whales and second sandworms; per-theme Day/Sunset/Night atmospheres for Bosphorus and Winter; and a short character journey between endpoint tabs. Both views share effects and browser atmosphere preferences. Characters respect reduced motion; request clocks remain visible. Failures/cancellation reset the in-memory success streak. Demo response delays now support 0..15000 ms.
 
 0.3.14 adds three cinema-inspired themes: Digital Rain with layered code columns and edge decoding, Arrakis with low drifting sand and a segmented sandworm, and Hyperspace with radial stars and perimeter jump streaks. All share Studio/Swagger palettes, browser persistence, request-state feedback and reduced-motion support.
 

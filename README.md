@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.3.14
+# Swagger UI Studio 0.3.15
 
 Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir API çalışma alanı. `/swagger-ui/index.html` açılınca Studio otomatik başlar. Eklenti ve ayrı frontend sunucusu gerekmez.
 
@@ -21,11 +21,11 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 <dependency>
     <groupId>com.brsvs</groupId>
     <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
-    <version>0.3.14</version>
+    <version>0.3.15</version>
 </dependency>
 ```
 
-Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.14) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
+Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.15) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
 
 Repository ZIP'ini örneğin `vendor/studio-maven` klasörüne açıp tüketen projeye şu repository'yi ekleyebilirsiniz. ZIP, starter'ın parent POM'unu da içerir; diğer bağımlılıklar Maven Central'dan çözülür.
 
@@ -60,7 +60,7 @@ Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici
 
 ```powershell
 ./mvnw.cmd verify
-java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.14.jar
+java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.15.jar
 ```
 
 [Swagger UI / Studio](http://127.0.0.1:8087/swagger-ui/index.html) adresini açın. Springdoc, [OpenAPI tanımını](http://127.0.0.1:8087/v3/api-docs) gerçek controller'lardan üretir. Müşteri oluşturma/listeleme, sipariş, sağlık, auth/interceptor kontrolü, dosya ve form endpoint'leri vardır. Veriler bellekte tutulur; sunucu yalnız `127.0.0.1` üzerinde çalışır.
@@ -99,3 +99,11 @@ Frontend testleri gerçek Swagger UI paketinin istek motorunu kullanarak auth t�
 Bu proje bağımsız Git deposudur. Kaynak: [project/swagger-ui-studio](https://github.com/hburaksavas/java-tools/tree/project/swagger-ui-studio). Üst deponun `main` branch'inde submodule olarak listelenir. `AGENTS.md` yerel tutulur.
 
 Teknik başvurular: [Springdoc customization](https://springdoc.org/index.html), [Swagger configuration](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/), [Swagger Client transport](https://github.com/swagger-api/swagger-js/blob/master/src/http/index.js).
+
+### Playful request companions
+
+HTTP responses show a theme character: happy for 2xx, surprised for 4xx, smoky for 5xx, and a teapot for 418. Five consecutive 2xx completions trigger a short celebration; failures and cancellation reset the session streak. No request data or streaks are persisted.
+
+While waiting, a clock stays visible. At four seconds a gull can land on the Bosphorus ferry; at eight seconds the Ocean whale takes a second breath and Winter's snowman adjusts its scarf. About 8% of requests in Bosphorus, Ocean and Arrakis receive rare visitors. Endpoint tab changes get a short character journey.
+
+Bosphorus and Winter offer Theme light, Day, Sunset and Night beside the theme picker. Choices are saved separately per theme in localStorage and sync across same-origin browser tabs. Reduced motion disables decorative characters, visitors, celebrations and travel while retaining static palettes and elapsed time. The demo endpoint `/api/demo-response` accepts `status=418` and `delayMillis=0..15000` for previewing these scenes.

@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @SpringBootApplication
-@io.swagger.v3.oas.annotations.OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Customer Platform", version = "0.3.14", description = "Local API Studio playground"))
+@io.swagger.v3.oas.annotations.OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Customer Platform", version = "0.3.15", description = "Local API Studio playground"))
 @SecurityScheme(name = "demoBearer", type = SecuritySchemeType.HTTP, scheme = "bearer", description = "Local demo token: demo-token")
 public class CustomerApiApplication {
     public static void main(String[] args) { SpringApplication.run(CustomerApiApplication.class, args); }
@@ -70,8 +70,8 @@ public class CustomerApiApplication {
         org.springframework.http.ResponseEntity<Map<String, Object>> demoResponse(
                 @RequestParam(defaultValue = "200") int status,
                 @RequestParam(defaultValue = "0") int delayMillis) throws InterruptedException {
-            if (status < 200 || status > 599 || delayMillis < 0 || delayMillis > 5000) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status: 200..599; delayMillis: 0..5000");
+            if (status < 200 || status > 599 || delayMillis < 0 || delayMillis > 15000) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "status: 200..599; delayMillis: 0..15000");
             }
             Thread.sleep(delayMillis);
             return org.springframework.http.ResponseEntity.status(status).body(Map.of("status", status, "delayMillis", delayMillis, "message", "Theme response preview"));

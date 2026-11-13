@@ -187,3 +187,6 @@ a { color: var(--st-accent); }
 .copy-api::after { left:10px; top:8px; background:var(--st-panel); }
 .copy-api:hover { color:var(--st-accent); }
 .copy-status { font-size:10px; color:var(--st-muted); }
+
+/* Reserve a small stage above response panels so companions do not cover form controls. */
+.request-response > .response { margin-top:64px; }
