@@ -41,6 +41,20 @@
         const bolt = window.SwaggerStudioMotion?.lightningSvg(); if (bolt) { bolt.classList.add('storm-bolt'); lane.append(bolt); }
         node.append(lane);
       }
+      node.querySelector('.cinema-scene')?.remove();
+      if (['decode', 'sandworm', 'jump'].includes(recipe) && !motion?.matches) {
+        const scene = document.createElement('i'); scene.className = 'cinema-scene';
+        if (recipe === 'sandworm') {
+          scene.innerHTML = '<svg class="sandworm-creature" viewBox="0 0 240 70" xmlns="http://www.w3.org/2000/svg"><path class="worm-body" d="M8 68C40 25 100 7 171 26C199 34 219 49 231 68Z"/><path class="worm-rings" d="M30 65L43 38M48 58L60 28M68 48L78 22M90 42L98 19M113 42L119 19M137 45L140 23M159 50L161 28M180 58L181 36M201 66L200 46"/><path class="worm-ridge" d="M13 65Q110 -9 222 63" fill="none"/></svg>';
+        } else {
+          for (let i = 0; i < 24; i++) {
+            const shape = document.createElement('b'); shape.style.setProperty('--n', i); shape.style.setProperty('--angle', `${i * 15}deg`);
+            if (recipe === 'decode') shape.textContent = ['01', 'ア', '10', 'キ', '00', 'コ'][i % 6];
+            scene.append(shape);
+          }
+        }
+        node.append(scene);
+      }
       node.querySelector('.response-scene')?.remove();
       if (['tide', 'ice', 'petals'].includes(recipe) && !motion?.matches) {
         const scene = document.createElement('i'); scene.className = 'response-scene';
@@ -71,7 +85,7 @@
         const particle = document.createElement('span');
         particle.style.setProperty('--x', `${8 + i * 10}%`); particle.style.setProperty('--dx', `${i % 2 ? 12 : -12}px`); particle.style.setProperty('--delay', `${i * 15}ms`); node.append(particle);
       }
-      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : node.classList.contains('storm') ? 2600 : node.classList.contains('ice') ? 3400 : node.classList.contains('tide') ? 3600 : node.classList.contains('ferry') ? 2800 : node.querySelector('.response-scene') ? 2000 : 1000);
+      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : node.querySelector('.cinema-scene') ? 3000 : node.classList.contains('storm') ? 2600 : node.classList.contains('ice') ? 3400 : node.classList.contains('tide') ? 3600 : node.classList.contains('ferry') ? 2800 : node.querySelector('.response-scene') ? 2000 : 1000);
     }
     active.add(record); refresh(); document.documentElement.append(node); frame = raf(position);
     timer = window.setTimeout(remove, 120000);

@@ -12,7 +12,7 @@ function setup(t, reduced = false) {
 }
 test('every saved theme has a working palette, bounded scene and response recipe', t => {
   const w = setup(t), themes = w.SwaggerStudioTheme;
-  assert.equal(themes.catalog().length, 25);
+  assert.equal(themes.catalog().length, 28);
   for (const theme of themes.catalog()) {
     themes.set(theme.id); assert.equal(themes.preference(), theme.id);
     assert.ok(themes.responseRecipe()); assert.match(themes.variables(), /--st-accent:#[0-9a-f]{6}/i);
@@ -130,5 +130,19 @@ test('Rainy Night and Monsoon share lightning feedback with reduced motion and t
     const quiet = setup(t, true); quiet.SwaggerStudioTheme.set(theme);
     const reduced = quiet.SwaggerStudioResponseEffects.start(quiet.document.getElementById('response'));
     assert.equal(reduced.node.querySelector('.storm-lane'), null); reduced.remove();
+  }
+});
+
+test('cinema themes render distinct execution scenes, preserve text and respect reduced motion', t => {
+  for (const [theme, recipe, selector] of [['digital-rain', 'decode', '.cinema-scene b'], ['arrakis', 'sandworm', '.sandworm-creature'], ['hyperspace', 'jump', '.cinema-scene b']]) {
+    const w = setup(t); w.SwaggerStudioTheme.set(theme); assert.equal(w.SwaggerStudioTheme.responseRecipe(), recipe);
+    const target = w.document.getElementById('response'), effect = w.SwaggerStudioResponseEffects.start(target);
+    assert.ok(effect.node.querySelector(selector)); effect.finish(200);
+    assert.equal(effect.node.querySelectorAll('.cinema-scene').length, 1);
+    assert.equal(target.textContent, 'Readable JSON remains here');
+    w.SwaggerStudioTheme.set('dark'); assert.equal(effect.node.querySelector('.cinema-scene'), null); effect.remove();
+    const quiet = setup(t, true); quiet.SwaggerStudioTheme.set(theme);
+    const reduced = quiet.SwaggerStudioResponseEffects.start(quiet.document.getElementById('response'));
+    assert.equal(reduced.node.querySelector('.cinema-scene'), null); reduced.remove();
   }
 });

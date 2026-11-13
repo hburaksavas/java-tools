@@ -23,6 +23,9 @@
     eclipse: { label: '◉ Eclipse', effect: 'eclipse', palette: { ...dark, bg: '#171615', panel: '#23211e', input: '#302d27', accent: '#e6c57c', soft: '#463d29', line: '#514831' } },
     paper: { label: '▤ Paper & Ink', effect: 'paper', palette: { ...light, bg: '#f3efe5', panel: '#fcf9f0', input: '#eee9dc', text: '#283547', muted: '#70766d', accent: '#3f607f', soft: '#dbe2e5', line: '#d6d2c5' } },
     observatory: { label: '⋆ Observatory', effect: 'constellations', palette: { ...dark, bg: '#0b1325', panel: '#141f35', input: '#202d46', accent: '#b7c9ed', soft: '#2b3856', line: '#394962' } },
+    'digital-rain': { label: '⌗ Digital Rain', effect: 'code-rain', palette: { ...dark, bg: '#06110c', panel: '#0b1d14', input: '#102b1e', text: '#d1efdf', muted: '#86ac98', line: '#244c37', accent: '#72e8a4', soft: '#163e2a', code: '#07170e', snow: '#8feabb' } },
+    arrakis: { label: '∿ Arrakis', effect: 'desert', palette: { ...dark, bg: '#1b150f', panel: '#292016', input: '#382b1c', text: '#f0dfbf', muted: '#b5a082', line: '#59452c', accent: '#e0b36d', soft: '#49351e', code: '#21190f', snow: '#d4ad73' } },
+    hyperspace: { label: '» Hyperspace', effect: 'starfield', palette: { ...dark, bg: '#070e1c', panel: '#0e1c31', input: '#152b46', text: '#dcecfb', muted: '#88a9c4', line: '#284c6a', accent: '#8edcff', soft: '#193c57', code: '#091425', snow: '#c7eaff' } },
     bosphorus: { label: '≈ Bosphorus', effect: 'gulls', palette: { ...light, bg: '#eaf3f6', panel: '#f8fcfd', input: '#e3eff4', text: '#173c50', muted: '#59788b', accent: '#16759a', soft: '#cde6ee', line: '#b7d4df', code: '#f1f8fa', snow: '#375d72' } },
     autumn: { label: '❧ Autumn', effect: 'leaves', palette: { ...light, bg: '#f7efe3', panel: '#fff8ef', input: '#f2e5d5', text: '#48312a', muted: '#8b6c5e', accent: '#a55738', soft: '#efd5bd', line: '#e1c8af', snow: '#ae6a35' } },
     monsoon: { label: '☔ Monsoon', effect: 'rain-heavy', palette: { ...dark, bg: '#0b1b1e', panel: '#122b2e', input: '#1a3b3e', accent: '#85c8bf', soft: '#23494a', line: '#335354' } },
@@ -32,7 +35,7 @@
     infrared: { label: '◌ Infrared', effect: 'heat', palette: { ...dark, bg: '#1c1018', panel: '#2d1824', input: '#3d2030', accent: '#f29b98', soft: '#582b38', line: '#5e3444' } },
     zen: { label: '○ Zen', effect: 'mist', palette: { ...light, bg: '#eff1eb', panel: '#f8faf4', input: '#e7ece0', text: '#36483b', muted: '#73816f', accent: '#608568', soft: '#d5e2cf', line: '#cbd6c4' } }
   };
-  const responseRecipes = { bosphorus: 'ferry', system: 'glow', light: 'ripple', dark: 'glow', winter: 'ice', cosmic: 'constellation', forest: 'leaves', 'rainy-night': 'storm', aurora: 'aurora', sakura: 'petals', ember: 'embers', ocean: 'tide', cyberpunk: 'neon', terminal: 'terminal', blueprint: 'blueprint', eclipse: 'eclipse', paper: 'ink', observatory: 'constellation', autumn: 'leaves', monsoon: 'storm', circuit: 'circuit', sandstorm: 'dust', bioluminescence: 'fireflies', infrared: 'heat', zen: 'ripple' };
+  const responseRecipes = { 'digital-rain': 'decode', arrakis: 'sandworm', hyperspace: 'jump', bosphorus: 'ferry', system: 'glow', light: 'ripple', dark: 'glow', winter: 'ice', cosmic: 'constellation', forest: 'leaves', 'rainy-night': 'storm', aurora: 'aurora', sakura: 'petals', ember: 'embers', ocean: 'tide', cyberpunk: 'neon', terminal: 'terminal', blueprint: 'blueprint', eclipse: 'eclipse', paper: 'ink', observatory: 'constellation', autumn: 'leaves', monsoon: 'storm', circuit: 'circuit', sandstorm: 'dust', bioluminescence: 'fireflies', infrared: 'heat', zen: 'ripple' };
   const key = 'brsvs:studio:theme-v2';
   const query = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null;
   const motion = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -62,7 +65,7 @@
     layer = document.createElement('div'); layer.id = 'brsvs-theme-effects'; layer.className = effect; layer.setAttribute('aria-hidden', 'true');
     if (['rain', 'rain-heavy'].includes(effect)) { const bolt = window.SwaggerStudioMotion?.lightningSvg(); if (bolt) { bolt.classList.add('distant-lightning'); layer.append(bolt); } }
     const scenes = ['aurora','ocean','neon','scan','grid','eclipse','paper','circuit','heat','mist'];
-    const count = effect === 'ocean' ? 14 : effect === 'gulls' ? 9 : effect === 'snow' ? 42 : effect === 'stars' ? 30 : scenes.includes(effect) ? 3 : 24;
+    const count = effect === 'code-rain' ? 16 : effect === 'desert' ? 28 : effect === 'starfield' ? 32 : effect === 'ocean' ? 14 : effect === 'gulls' ? 9 : effect === 'snow' ? 42 : effect === 'stars' ? 30 : scenes.includes(effect) ? 3 : 24;
     motionCleanup = window.SwaggerStudioMotion?.mount(layer, effect, count);
     if (motionCleanup) { raiseEffects(); return; }
     for (let i = 0; i < count; i++) {

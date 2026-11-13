@@ -1,6 +1,6 @@
 # Tema ve response kataloğu — 0.3.0
 
-Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve response tepkisi tek seçimle değişir. `System` dışında 24 tema vardır.
+Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve response tepkisi tek seçimle değişir. `System` dışında 27 tema vardır.
 
 | Ayar değeri | Tema | Arka plan | Response dokunuşu |
 | --- | --- | --- | --- |
@@ -27,6 +27,9 @@ Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve 
 | sandstorm | Sandstorm | İnce toz akışı | Kenarda kum parçacıkları |
 | bioluminescence | Bioluminescence | Belirip sönen ışık noktaları | Parlayan noktalar |
 | infrared | Infrared | Sıcak ışık halkaları | Isı kenarı |
+| digital-rain | Digital Rain | Seyrek kod sütunları | Kenarda kod çözülmesi |
+| arrakis | Arrakis | Kum tepeleri ve yatay kum | Kum solucanı geçişi |
+| hyperspace | Hyperspace | Radyal yıldız alanı | Kenarda hiperuzay sıçraması |
 | zen | Zen | Hafif sis | Tek sakin halka |
 
 ## İstek durumları

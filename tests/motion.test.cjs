@@ -65,3 +65,13 @@ test('lightning has a varied irregular channel with connected branches', () => {
   assert.equal((a.trunk.match(/L/g) || []).length, 14);
   for (const branch of a.branches) assert.equal((branch.match(/L/g) || []).length, 3);
 });
+
+test('cinema ambient paths distinguish code columns, low sand and radial star travel', () => {
+  const coords = frame => [...frame.transform.matchAll(/(-?[0-9.]+)(?:vw|vh)/g)].map(match => Number(match[1]));
+  const code = motion.particle('code-rain', () => .6), sand = motion.particle('desert', () => .6), star = motion.particle('starfield', () => .6);
+  assert.equal(coords(code.frames[0])[0], coords(code.frames.at(-1))[0]);
+  assert.ok(coords(code.frames.at(-1))[1] - coords(code.frames[0])[1] > 150);
+  assert.ok(sand.frames.every(frame => coords(frame)[1] > 60));
+  const distance = frame => Math.hypot(coords(frame)[0] - 50, coords(frame)[1] - 42);
+  assert.ok(distance(star.frames.at(-1)) > distance(star.frames[0]) * 10);
+});

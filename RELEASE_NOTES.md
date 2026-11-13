@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.13
+# Swagger UI Studio 0.3.14
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.14 adds three cinema-inspired themes: Digital Rain with layered code columns and edge decoding, Arrakis with low drifting sand and a segmented sandworm, and Hyperspace with radial stars and perimeter jump streaks. All share Studio/Swagger palettes, browser persistence, request-state feedback and reduced-motion support.
 
 0.3.13 replaces the lightning icon with randomized branching channels, a thin white core, a soft blue halo and a brief asymmetric decay. Ambient lightning stays distant and avoids full-screen flashes.
 
