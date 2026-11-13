@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.3.22
+# Swagger UI Studio 0.3.23
 
 Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir API çalışma alanı. `/swagger-ui/index.html` açılınca Studio otomatik başlar. Eklenti ve ayrı frontend sunucusu gerekmez.
 
@@ -21,11 +21,11 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 <dependency>
     <groupId>com.brsvs</groupId>
     <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
-    <version>0.3.22</version>
+    <version>0.3.23</version>
 </dependency>
 ```
 
-Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.22) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
+Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.23) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
 
 Repository ZIP'ini örneğin `vendor/studio-maven` klasörüne açıp tüketen projeye şu repository'yi ekleyebilirsiniz. ZIP, starter'ın parent POM'unu da içerir; diğer bağımlılıklar Maven Central'dan çözülür.
 
@@ -60,7 +60,7 @@ Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici
 
 ```powershell
 ./mvnw.cmd verify
-java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.22.jar
+java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.23.jar
 ```
 
 [Swagger UI / Studio](http://127.0.0.1:8087/swagger-ui/index.html) adresini açın. Springdoc, [OpenAPI tanımını](http://127.0.0.1:8087/v3/api-docs) gerçek controller'lardan üretir. Müşteri oluşturma/listeleme, sipariş, sağlık, auth/interceptor kontrolü, dosya ve form endpoint'leri vardır. Veriler bellekte tutulur; sunucu yalnız `127.0.0.1` üzerinde çalışır.
@@ -113,3 +113,5 @@ Bosphorus and Winter offer Theme light, Day, Sunset and Night beside the theme p
 Orient Express, Koi Garden, Moonbase, Coral Reef, Clockwork, Firefly Camp, Air Mail and Volcanic Island each include a shared Studio/Swagger palette, ambient artwork and a distinct Execute scene. Koi reverse direction and the camp fox opens its eyes when the pointer approaches decorative space. Forms, buttons, editors, response text and Swagger operation controls suppress proximity reactions. Decorative layers never capture input, clean up when themes change, pause in hidden tabs and respect reduced motion. Scope and implementation sequence: [THEME_PHASE_ONE.md](THEME_PHASE_ONE.md).
 
 JSON request bodies, JSON responses and schema examples use theme-aware syntax highlighting. Editable requests retain native textarea behavior and synchronized coloring. Documents over 128 KiB or 12,000 tokens fall back to complete plain text to bound rendering cost. Swagger code blocks use the same token colors.
+
+Response schema is available before and after execution, with status and content-type selection. Exact status, status ranges and default definitions are supported. Studio Execute scenes use the header spacer and do not consume space inside the response card.

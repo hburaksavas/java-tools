@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.22
+# Swagger UI Studio 0.3.23
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.23 adds a collapsible response schema viewer with status/media selectors, local reference resolution, status-range/default matching and Swagger 2 support. Studio Execute scenes move into the existing header spacer; the response animation stage is removed so animations do not offset response content.
 
 0.3.22 removes HTTP status character badges, including the 418 teapot. Status/timing stay in the response header; theme Execute scenes, long-request behavior, visitors and streaks remain.
 

@@ -377,3 +377,17 @@
 .brsvs-response-fx[data-panel-mode=embedded] .rare-visitors { top:88px; }
 .brsvs-response-fx[data-panel-mode=embedded] .streak-party { top:62px; right:12px; }
 .brsvs-response-fx[data-panel-mode=embedded] .request-clock { top:18px; right:14px; bottom:auto; }
+
+/* Studio Execute scenes occupy the header's existing flexible space, outside response flow. */
+.brsvs-response-fx[data-panel-mode=dock] { border:0; border-radius:5px; box-shadow:none; overflow:hidden; }
+.brsvs-response-fx[data-panel-mode=dock]::before { display:none; }
+.brsvs-response-fx[data-panel-mode=dock] > span { display:none; }
+.brsvs-response-fx[data-panel-mode=dock] .feature-scene { top:0; bottom:auto; left:0; width:172.4%; height:64px; transform:scale(.58); transform-origin:0 0; }
+.brsvs-response-fx[data-panel-mode=dock] .whale-lane { top:0; left:0; right:auto; width:153.8%; height:57px; transform:scale(.65); transform-origin:0 0; }
+.brsvs-response-fx[data-panel-mode=dock] .snowman-lane { top:0; right:auto; left:calc(50% - 17px); transform:scale(.48); transform-origin:0 0; }
+.brsvs-response-fx[data-panel-mode=dock] .storm-lane { top:0; right:auto; left:calc(50% - 23px); transform:scale(.42); transform-origin:0 0; }
+.brsvs-response-fx[data-panel-mode=dock] .ferry-boat { top:auto; bottom:3px; }
+.brsvs-response-fx[data-panel-mode=dock].sandworm .cinema-scene { top:0; bottom:auto; left:0; right:auto; width:125%; height:46px; transform:scale(.8); transform-origin:0 0; }
+.brsvs-response-fx[data-panel-mode=dock] .rare-visitors { top:0; }
+.brsvs-response-fx[data-panel-mode=dock] .streak-party { top:7px; right:6px; }
+.brsvs-response-fx[data-panel-mode=dock] .request-clock { top:auto; bottom:0; right:4px; }

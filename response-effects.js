@@ -72,7 +72,7 @@
         lastPaint = time;
         const element = typeof target === 'function' ? target() : target;
         const rect = element?.isConnected ? element.getBoundingClientRect() : null;
-        node.dataset.panelMode = element?.dataset?.studioPanel === 'true' ? 'embedded' : 'external';
+        node.dataset.panelMode = element?.dataset?.studioDock === 'true' ? 'dock' : element?.dataset?.studioPanel === 'true' ? 'embedded' : 'external';
         node.hidden = !rect || !rect.width || !rect.height || rect.bottom <= 0 || rect.top >= innerHeight;
         if (!node.hidden) Object.assign(node.style, { left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px` });
       }

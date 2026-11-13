@@ -157,6 +157,20 @@
     if (!entry) return {};
     return entry.example ?? Object.values(entry.examples || {}).map(e => resolve(spec, e)?.value).find(v => v !== undefined) ?? sample(spec, entry.schema);
   }
+  function responseDefinitions(spec, op) {
+    return Object.entries(op.responses || {}).map(([status, raw]) => {
+      const response = resolve(spec, raw), content = response.content || {};
+      const media = spec.swagger === '2.0' ? response.schema === undefined ? [] : (op.produces || spec.produces || ['application/json']).map(type => ({ type, schema:response.schema })) : Object.entries(content).map(([type, value]) => ({ type, schema:value.schema }));
+      return { status, description:response.description || '', media };
+    });
+  }
+  function selectResponseDefinition(definitions, status) {
+    if (status !== undefined && status !== null && status !== '') {
+      const code = String(status);
+      return definitions.find(item => item.status === code) || definitions.find(item => /^[1-5]XX$/i.test(item.status) && item.status[0] === code[0]) || definitions.find(item => item.status === 'default');
+    }
+    return definitions.find(item => /^2[0-9Xx]{2}$/.test(item.status)) || definitions.find(item => item.status === 'default') || definitions[0];
+  }
   function responseExample(spec, op) {
     const entries = Object.entries(op.responses || {});
     const entry = entries.find(([code]) => /^2[0-9Xx]{2}$/.test(code)) || entries.find(([code]) => code === 'default') || entries[0];
@@ -207,6 +221,6 @@
     if (!Array.isArray(security)) return [];
     return [...new Set(security.flatMap(requirement => requirement && typeof requirement === 'object' ? Object.keys(requirement) : []).filter(name => Object.hasOwn(definitions, name)))];
   }
-  const api = { resolve, schema, sample, operations, baseUrl, bodyInfo, bodyExample, isJson, validate, typedValue, requestOptions, responseExample, operationReport, authorizationSchemes };
+  const api = { resolve, schema, sample, operations, baseUrl, bodyInfo, bodyExample, isJson, validate, typedValue, requestOptions, responseExample, operationReport, authorizationSchemes, responseDefinitions, selectResponseDefinition };
   if (typeof module !== 'undefined') module.exports = api; else root.SwaggerStudioCore = api;
 })(globalThis);

@@ -68,7 +68,8 @@
     const auth = button('Authorize', () => {
       if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
-    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'));
+    const sceneDock = el('div', undefined, 'scene-dock grow'); sceneDock.dataset.studioDock = 'true'; sceneDock.setAttribute('aria-hidden', 'true');
+    top.append(brand, el('small', spec.info?.title || 'API workspace'), sceneDock);
     if (ops.some(op => core.authorizationSchemes(spec, op).length)) top.append(auth);
     top.append(themePicker(), window.SwaggerStudioTheme.atmospherePicker(), button('Swagger ↗', close));
     const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side');
@@ -196,10 +197,35 @@
     const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.dataset.studioPanel = 'true'; output.tabIndex = -1; const panels = el('div', undefined, 'request-response'), request = el('section', undefined, 'request'); request.setAttribute('aria-label', 'Request');
     const requestHeading = el('div', undefined, 'panel-heading'); requestHeading.append(el('h3', 'Request'), el('span', undefined, 'grow'), controls); request.append(requestHeading);
     for (const node of [...area.children].slice(requestStart)) request.append(node);
-    output.append(responseHeader(), el('p', 'Execute a request to see the response.', 'empty response-placeholder'));
+    output.append(responseHeader(), el('p', 'Execute a request to see the response.', 'empty response-placeholder'), responseSchema());
     panels.append(request, output); area.append(panels); if (draft.response) show(draft.response);
     function responseHeader() { const header = el('div', undefined, 'response-heading'); header.append(el('h3', 'Response')); return header; }
-    function responseStage() { const stage = el('div', undefined, 'response-stage'); stage.setAttribute('aria-hidden', 'true'); return stage; }
+    function responseSchema() {
+      const panel = el('details', undefined, 'response-schema'); panel.append(el('summary', 'Response schema')); panel.open = !!draft.schemaOpen;
+      panel.ontoggle = () => { if (panel.isConnected) draft.schemaOpen = panel.open; };
+      const definitions = core.responseDefinitions(spec, op), preferred = draft.schemaStatus ?? draft.response?.status;
+      const initial = core.selectResponseDefinition(definitions, preferred);
+      if (!definitions.length) { panel.append(el('p', 'No response schema defined.', 'schema-empty')); return panel; }
+      const controls = el('div', undefined, 'schema-controls'), statusField = el('label', undefined, 'field'), typeField = el('label', undefined, 'field');
+      const status = el('select'), type = el('select'), body = el('div'); status.setAttribute('aria-label', 'Schema response status'); type.setAttribute('aria-label', 'Schema content type');
+      statusField.append(el('span', 'Status'), status); typeField.append(el('span', 'Content type'), type); controls.append(statusField, typeField); panel.append(controls, body);
+      for (const item of definitions) status.append(new Option(item.status, item.status));
+      if (!initial && preferred !== undefined) status.append(new Option(`${preferred} · Not defined`, String(preferred)));
+      status.value = initial?.status || String(preferred);
+      function drawSchema() {
+        const definition = definitions.find(item => item.status === status.value), media = definition?.media.find(item => item.type === type.value);
+        body.replaceChildren(media && media.schema !== undefined ? jsonCode(JSON.stringify(core.resolve(spec, media.schema), null, 2), true) : el('p', 'No response schema defined.', 'schema-empty'));
+      }
+      function drawTypes() {
+        const definition = definitions.find(item => item.status === status.value), media = definition?.media || [];
+        type.replaceChildren(...media.map(item => new Option(item.type, item.type))); typeField.hidden = !media.length;
+        const responseType = draft.response?.contentType;
+        type.value = media.find(item => item.type === draft.schemaType)?.type || media.find(item => item.type === responseType)?.type || media.find(item => responseType && (item.type === '*/*' || item.type.endsWith('/*') && responseType.startsWith(item.type.slice(0,-1))))?.type || media.find(item => core.isJson(item.type))?.type || media[0]?.type || '';
+        drawSchema();
+      }
+      status.onchange = () => { draft.schemaStatus = status.value; draft.schemaType = undefined; drawTypes(); };
+      type.onchange = () => { draft.schemaType = type.value; drawSchema(); }; drawTypes(); return panel;
+    }
     function focusResponse() {
       const main = shadow.querySelector('.main'); if (!main || !output.isConnected) return;
       const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -212,22 +238,23 @@
       if (!reduced) { void output.offsetWidth; output.classList.add('arrived'); }
     }
     function show(result) {
-      output.replaceChildren(); if (result.error) { output.append(responseHeader(), responseStage(), el('p', result.error, 'error')); return; }
+      output.replaceChildren(); if (result.error) { output.append(responseHeader(), el('p', result.error, 'error'), responseSchema()); return; }
       const status = el('div', undefined, 'response-heading'); status.append(el('h3', 'Response'), el('strong', `${result.status} ${result.statusText || ''}`, `status ${result.status < 400 ? 'ok' : 'fail'}`), el('span', `${result.ms} ms`, 'muted'), el('span', undefined, 'grow'));
-      const copy = button('Copy body', async () => { try { await navigator.clipboard.writeText(result.body); copy.textContent = 'Copied'; } catch { copy.textContent = 'Copy unavailable'; } }, 'text-button'); status.append(copy); output.append(status, responseStage());
-      const details = el('details'); details.append(el('summary', 'Response headers'), el('pre', result.headers)); output.append(details, jsonCode(result.body));
+      const copy = button('Copy body', async () => { try { await navigator.clipboard.writeText(result.body); copy.textContent = 'Copied'; } catch { copy.textContent = 'Copy unavailable'; } }, 'text-button'); status.append(copy); output.append(status);
+      const details = el('details'); details.append(el('summary', 'Response headers'), el('pre', result.headers)); output.append(details, jsonCode(result.body), responseSchema());
     }
     async function run() {
       if (busy) return;
       let options; try { options = core.requestOptions(spec, op, draft, specUrl, location.href); } catch (e) { show({ error: e.message }); focusResponse(); return; }
-      busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(responseHeader(), responseStage(), el('p', 'Waiting for response…', 'pending'));
-      const feedback = window.SwaggerStudioResponseEffects?.start(output); focusResponse();
+      busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(responseHeader(), el('p', 'Waiting for response…', 'pending'), responseSchema());
+      const feedback = window.SwaggerStudioResponseEffects?.start(() => shadow.querySelector('.scene-dock')); focusResponse();
       try {
         const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: secured ? draft.auth : '', confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
         if (current !== generation) return;
         let body = response.text ?? response.data ?? ''; if (typeof body !== 'string') body = JSON.stringify(body, null, 2); try { body = JSON.stringify(JSON.parse(body), null, 2); } catch {}
         if (response.headers?.['x-studio-truncated'] === 'true') body += '\n[Response truncated at 1 MiB]';
-        draft.response = { status: response.status, statusText: response.statusText, ms: Math.round(performance.now() - start), headers: Object.entries(response.headers || {}).map(([k,v]) => `${k}: ${v}`).join('\n'), body };
+        draft.response = { status: response.status, statusText: response.statusText, ms: Math.round(performance.now() - start), contentType: String(Object.entries(response.headers || {}).find(([key]) => key.toLowerCase() === 'content-type')?.[1] || '').split(';')[0].trim(), headers: Object.entries(response.headers || {}).map(([k,v]) => `${k}: ${v}`).join('\n'), body };
+        draft.schemaStatus = undefined; draft.schemaType = undefined;
         activity.push({ method: op.method, path: op.path, status: response.status, ms: draft.response.ms }); activity = activity.slice(-100); show(draft.response); focusResponse(); feedback?.finish(response.status);
       } catch (e) { if (current === generation) { draft.response = { error: e.name === 'AbortError' ? 'Request cancelled.' : `${e.message}. Check network, CORS, certificate and page policy restrictions.` }; show(draft.response); focusResponse(); feedback?.finish(undefined, e); activity.push({ method: op.method, path: op.path, status: 0, ms: Math.round(performance.now() - start) }); } }
       finally { if (current === generation) { busy = false; send.removeAttribute('aria-disabled'); send.removeAttribute('aria-busy'); send.textContent = 'Execute'; cancel.hidden = true; output.removeAttribute('aria-busy'); } }

@@ -1,6 +1,16 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const core = require('../core.js');
+test('response definitions support refs, exact and wildcard status, defaults and Swagger 2 schemas', () => {
+  const api = { components:{responses:{created:{description:'Created',content:{'application/json':{schema:{type:'object',properties:{id:{type:'integer'}}}}}}}} };
+  const op = {responses:{201:{$ref:'#/components/responses/created'},'4XX':{description:'Client error',content:{'application/problem+json':{schema:{type:'object'}}}},default:{description:'Fallback'}}};
+  const definitions=core.responseDefinitions(api,op);
+  assert.equal(core.selectResponseDefinition(definitions).status,'201'); assert.equal(core.selectResponseDefinition(definitions,201).media[0].schema.properties.id.type,'integer');
+  assert.equal(core.selectResponseDefinition(definitions,404).status,'4XX'); assert.equal(core.selectResponseDefinition(definitions,503).status,'default');
+  assert.equal(core.selectResponseDefinition(definitions.filter(item=>item.status!=='default'),503),undefined);
+  const v2=core.responseDefinitions({swagger:'2.0',produces:['application/json','application/xml'],definitions:{Pet:{type:'object'}}},{responses:{200:{schema:{$ref:'#/definitions/Pet'}},204:{description:'No content'}}});
+  assert.equal(v2[0].media.length,2); assert.equal(v2[0].media[0].schema.$ref,'#/definitions/Pet'); assert.equal(v2[1].media.length,0);
+});
 const { JSDOM } = require('jsdom');
 const fs = require('node:fs');
 const bundle = fs.readFileSync(require.resolve('swagger-ui-dist/swagger-ui-bundle.js'), 'utf8');

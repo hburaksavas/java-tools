@@ -21,6 +21,21 @@ function setup(t) {
 }
 const clickOp = (shadow, text) => [...shadow.querySelectorAll('nav .endpoint')].find(n => n.textContent === text).click();
 
+test('response schema is available before execution and follows response status and media without changing request drafts', async t => {
+  const env=setup(t), {w,data}=env; data.spec=JSON.parse(JSON.stringify(spec));
+  data.spec.paths['/pets'].post.responses={200:{content:{'application/json':{schema:{type:'object',properties:{id:{type:'integer'}}}},'application/xml':{schema:{type:'string'}}}},404:{content:{'application/json':{schema:{type:'object',properties:{message:{type:'string'}}}},'application/problem+json':{schema:{type:'object',properties:{error:{type:'string'}}}}}}};
+  w.SwaggerStudioBridge.send=async()=>({status:404,text:'{"error":"missing"}',headers:{'content-type':'application/problem+json; charset=UTF-8'}});
+  await w.SwaggerStudio.open(data); clickOp(env.shadow,'POST/pets'); const shadow=env.shadow, body=shadow.querySelector('textarea');
+  body.value='{"name":"Kept"}'; body.dispatchEvent(new w.Event('input'));
+  assert.ok(shadow.querySelector('.response-schema')); assert.equal(shadow.querySelector('[aria-label="Schema response status"]').value,'200');
+  const type=shadow.querySelector('[aria-label="Schema content type"]'); type.value='application/xml'; type.dispatchEvent(new w.Event('change'));
+  assert.match(shadow.querySelector('.response-schema pre').textContent,/"string"/); assert.equal(shadow.querySelector('textarea'),body); assert.equal(body.value,'{"name":"Kept"}');
+  shadow.querySelector('.send').click(); await new Promise(resolve=>setTimeout(resolve,15));
+  assert.equal(shadow.querySelector('[aria-label="Schema response status"]').value,'404'); assert.equal(shadow.querySelector('[aria-label="Schema content type"]').value,'application/problem+json');
+  assert.match(shadow.querySelector('.response-schema pre').textContent,/"error"/); assert.equal(shadow.querySelector('.response-stage'),null);
+  assert.equal(shadow.querySelector('.scene-dock').closest('header').className,'top');
+});
+
 test('authorization controls follow effective operation security, including public overrides', async t => {
   const env = setup(t), { w, data } = env;
   data.spec = JSON.parse(JSON.stringify(spec));
