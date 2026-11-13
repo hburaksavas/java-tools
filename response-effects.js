@@ -38,7 +38,7 @@
       node.querySelector('.storm-lane')?.remove();
       if (recipe === 'storm' && !motion?.matches) {
         const lane = document.createElement('i'); lane.className = 'storm-lane';
-        lane.innerHTML = '<svg viewBox="0 0 110 85" xmlns="http://www.w3.org/2000/svg"><path class="storm-cloud" d="M22 44C5 44 6 23 23 22C24 4 49 0 59 17C74 7 91 17 89 30C109 34 102 49 86 49H25Z"/><path class="storm-rain" d="M27 54L23 63M50 57L46 66M82 56L78 65M96 53L92 62" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="storm-bolt" d="M59 35L43 61H58L49 81L76 51H61L70 35Z"/></svg>';
+        const bolt = window.SwaggerStudioMotion?.lightningSvg(); if (bolt) { bolt.classList.add('storm-bolt'); lane.append(bolt); }
         node.append(lane);
       }
       node.querySelector('.response-scene')?.remove();

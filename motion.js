@@ -60,6 +60,25 @@
     return () => { for (const animation of animations) { animation.cancel(); active.delete(animation); } };
   }
   root.document?.addEventListener('visibilitychange', () => { for (const animation of active) root.document.hidden ? animation.pause() : animation.play(); });
-  const api = { particle, mount };
+  function lightning(random = Math.random) {
+    let x = range(random, 70, 110);
+    const points = [[x, 0]];
+    for (let i = 1; i <= 14; i++) { x += range(random, -24, 24); x = Math.max(30, Math.min(170, x)); points.push([x, i * 20]); }
+    const path = values => values.map(([px, py], i) => `${i ? 'L' : 'M'}${px.toFixed(1)} ${py.toFixed(1)}`).join(' ');
+    const branches = [4, 7, 10].map((index, i) => {
+      const start = points[index], direction = i % 2 ? -1 : 1;
+      return path([start, [start[0] + direction * range(random, 16, 28), start[1] + 10], [start[0] + direction * range(random, 22, 38), start[1] + 28], [start[0] + direction * range(random, 40, 60), start[1] + 37]]);
+    });
+    return { trunk: path(points), branches };
+  }
+  function lightningSvg() {
+    const ns = 'http://www.w3.org/2000/svg', svg = root.document.createElementNS(ns, 'svg'), model = lightning();
+    svg.setAttribute('viewBox', '0 0 200 300'); svg.setAttribute('preserveAspectRatio', 'none'); svg.setAttribute('aria-hidden', 'true');
+    for (const [d, cls] of [[model.trunk, 'lightning-glow'], [model.trunk, 'lightning-core'], ...model.branches.map(d => [d, 'lightning-branch'])]) {
+      const line = root.document.createElementNS(ns, 'path'); line.setAttribute('d', d); line.setAttribute('class', cls); svg.append(line);
+    }
+    return svg;
+  }
+  const api = { particle, mount, lightning, lightningSvg };
   if (typeof module !== 'undefined') module.exports = api; else root.SwaggerStudioMotion = api;
 })(globalThis);

@@ -187,3 +187,17 @@
 @keyframes brsvs-execute-lightning { 0%,100% { opacity:0; transform:translateY(-3px); } 35%,55% { opacity:.9; transform:translateY(0); } }
 @keyframes brsvs-cloud-rain { 0% { opacity:0; transform:translateY(-3px); } 45% { opacity:.6; } 100% { opacity:0; transform:translateY(5px); } }
 @media(prefers-reduced-motion:reduce) { .storm-lane { display:none; } }
+
+/* Branched lightning uses an irregular thin channel with a fading ionized halo. */
+#brsvs-theme-effects:is(.rain,.rain-heavy)::after { display:none; }
+#brsvs-theme-effects:is(.rain,.rain-heavy)::before { animation:brsvs-sky-illumination 23s 4s linear infinite; }
+.lightning-core,.lightning-glow,.lightning-branch { fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.lightning-core { stroke:#edf6ff; stroke-width:1.4; }
+.lightning-glow { stroke:#a1bde5; stroke-width:5; opacity:.4; filter:blur(2px); }
+.lightning-branch { stroke:#c5d8f0; stroke-width:.65; opacity:.6; }
+.distant-lightning { position:absolute; top:0; right:9vw; width:22vw; height:42vh; opacity:0; animation:brsvs-natural-lightning 23s 4s linear infinite; }
+.storm-lane { top:-85px; right:8px; width:110px; height:85px; }
+.storm-lane svg.storm-bolt { width:110px; height:85px; fill:none; opacity:0; animation:brsvs-close-lightning 2.2s linear both; }
+@keyframes brsvs-natural-lightning { 0%,84%,88%,100% { opacity:0; } 84.4% { opacity:.48; } 85% { opacity:.17; } 86.5% { opacity:.035; } }
+@keyframes brsvs-sky-illumination { 0%,84%,88%,100% { opacity:0; } 84.4% { opacity:.035; } 85.5% { opacity:.008; } }
+@keyframes brsvs-close-lightning { 0%,7% { opacity:0; } 9% { opacity:.9; } 15% { opacity:.35; } 32% { opacity:.08; } 50%,100% { opacity:0; } }

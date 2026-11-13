@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.12
+# Swagger UI Studio 0.3.13
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.13 replaces the lightning icon with randomized branching channels, a thin white core, a soft blue halo and a brief asymmetric decay. Ambient lightning stays distant and avoids full-screen flashes.
 
 0.3.12 adds a breaching whale with a timed water spout to Ocean Execute feedback. It swims above the response edge and dives away after completion. Winter adds a snowman that builds from snowballs and gently greets on completion. Rainy Night and Monsoon add slow distant lightning and a small storm cloud on Execute. All respect reduced motion.
 

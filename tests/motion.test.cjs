@@ -58,3 +58,10 @@ test('Ocean highlights loop near the horizon instead of falling across content',
   }
   assert.equal(water.frames[0].opacity, 0);
 });
+
+test('lightning has a varied irregular channel with connected branches', () => {
+  const a = motion.lightning(() => .3), b = motion.lightning(() => .7);
+  assert.notEqual(a.trunk, b.trunk); assert.equal(a.branches.length, 3);
+  assert.equal((a.trunk.match(/L/g) || []).length, 14);
+  for (const branch of a.branches) assert.equal((branch.match(/L/g) || []).length, 3);
+});

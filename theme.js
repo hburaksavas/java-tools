@@ -60,6 +60,7 @@
     const effect = themes[current()].effect;
     if (effect === 'none' || motion?.matches) return;
     layer = document.createElement('div'); layer.id = 'brsvs-theme-effects'; layer.className = effect; layer.setAttribute('aria-hidden', 'true');
+    if (['rain', 'rain-heavy'].includes(effect)) { const bolt = window.SwaggerStudioMotion?.lightningSvg(); if (bolt) { bolt.classList.add('distant-lightning'); layer.append(bolt); } }
     const scenes = ['aurora','ocean','neon','scan','grid','eclipse','paper','circuit','heat','mist'];
     const count = effect === 'ocean' ? 14 : effect === 'gulls' ? 9 : effect === 'snow' ? 42 : effect === 'stars' ? 30 : scenes.includes(effect) ? 3 : 24;
     motionCleanup = window.SwaggerStudioMotion?.mount(layer, effect, count);
