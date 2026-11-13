@@ -97,3 +97,38 @@ test('Ocean Winter and Sakura execution scenes refresh, clean up and respect red
     assert.equal(reduced.node.querySelector('.response-scene'), null); reduced.remove();
   }
 });
+
+test('Ocean whale follows pending and successful requests and clears when changing theme', t => {
+  const w = setup(t); w.SwaggerStudioTheme.set('ocean');
+  const effect = w.SwaggerStudioResponseEffects.start(w.document.getElementById('response'));
+  assert.ok(effect.node.querySelector('svg.ocean-whale'));
+  effect.finish(200); assert.equal(effect.node.querySelectorAll('.whale-lane').length, 1);
+  w.SwaggerStudioTheme.set('sakura'); assert.equal(effect.node.querySelector('.whale-lane'), null); effect.remove();
+  const quiet = setup(t, true); quiet.SwaggerStudioTheme.set('ocean');
+  const reduced = quiet.SwaggerStudioResponseEffects.start(quiet.document.getElementById('response'));
+  assert.equal(reduced.node.querySelector('.whale-lane'), null); reduced.remove();
+});
+
+test('Winter snowman builds during execution and clears on theme change or reduced motion', t => {
+  const w = setup(t); w.SwaggerStudioTheme.set('winter');
+  const effect = w.SwaggerStudioResponseEffects.start(w.document.getElementById('response'));
+  assert.equal(effect.node.querySelectorAll('.winter-snowman g').length, 3);
+  effect.finish(200); assert.equal(effect.node.querySelectorAll('.snowman-lane').length, 1);
+  w.SwaggerStudioTheme.set('ocean'); assert.equal(effect.node.querySelector('.snowman-lane'), null); effect.remove();
+  const quiet = setup(t, true); quiet.SwaggerStudioTheme.set('winter');
+  const reduced = quiet.SwaggerStudioResponseEffects.start(quiet.document.getElementById('response'));
+  assert.equal(reduced.node.querySelector('.snowman-lane'), null); reduced.remove();
+});
+
+test('Rainy Night and Monsoon share lightning feedback with reduced motion and theme cleanup', t => {
+  for (const theme of ['rainy-night', 'monsoon']) {
+    const w = setup(t); w.SwaggerStudioTheme.set(theme);
+    const effect = w.SwaggerStudioResponseEffects.start(w.document.getElementById('response'));
+    assert.ok(effect.node.querySelector('.storm-bolt'));
+    effect.finish(200); assert.equal(effect.node.querySelectorAll('.storm-lane').length, 1);
+    w.SwaggerStudioTheme.set('dark'); assert.equal(effect.node.querySelector('.storm-lane'), null); effect.remove();
+    const quiet = setup(t, true); quiet.SwaggerStudioTheme.set(theme);
+    const reduced = quiet.SwaggerStudioResponseEffects.start(quiet.document.getElementById('response'));
+    assert.equal(reduced.node.querySelector('.storm-lane'), null); reduced.remove();
+  }
+});

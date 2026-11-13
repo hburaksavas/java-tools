@@ -143,3 +143,47 @@
 .brsvs-response-fx:is(.ice,.petals)[data-state=pending] .response-scene b { animation-iteration-count:infinite; }
 .brsvs-response-fx:is(.tide,.ice,.petals):is([data-state=error],[data-state=warning],[data-state=cancelled]) .response-scene { display:none; }
 @media(prefers-reduced-motion:reduce) { .response-scene { display:none; } }
+
+/* A small breaching whale follows Ocean execution along the upper waterline. */
+.brsvs-response-fx .whale-lane { position:absolute; left:0; right:0; top:-57px; height:57px; overflow:hidden; color:var(--fx-color); }
+.ocean-whale { position:absolute; bottom:-29px; left:-100px; width:92px; height:54px; overflow:visible; animation:brsvs-whale-breach 3.3s ease-in-out infinite; transform-origin:50% 70%; }
+.whale-body { fill:#379eb3; stroke:#87dce4; stroke-width:1; }
+.whale-belly { fill:#b4e5e9; }
+.whale-fin { fill:#237e98; }
+.whale-spout { opacity:0; animation:brsvs-whale-spout 3.3s ease-in-out infinite; transform-origin:76px 22px; }
+.brsvs-response-fx.tide[data-state=success] { animation:brsvs-fade .3s 3.3s ease-out both; }
+.brsvs-response-fx.tide[data-state=success] :is(.ocean-whale,.whale-spout) { animation-iteration-count:1; animation-fill-mode:both; }
+.brsvs-response-fx.tide:is([data-state=error],[data-state=warning],[data-state=cancelled]) .whale-lane { display:none; }
+@keyframes brsvs-whale-breach { 0% { left:-100px; transform:translateY(25px) rotate(-12deg); opacity:0; } 12% { opacity:1; } 38% { transform:translateY(-18px) rotate(-7deg); } 55% { transform:translateY(-18px) rotate(3deg); } 85% { opacity:1; transform:translateY(12px) rotate(15deg); } 100% { left:100%; transform:translateY(30px) rotate(20deg); opacity:0; } }
+@keyframes brsvs-whale-spout { 0%,24%,68%,100% { opacity:0; transform:scaleY(.2); } 38%,48% { opacity:.8; transform:scaleY(1); } 60% { opacity:0; transform:translateY(-5px) scaleY(1.1); } }
+@media(prefers-reduced-motion:reduce) { .whale-lane { display:none; } }
+
+/* Winter companion builds itself from snowballs just above the response edge. */
+.snowman-lane { position:absolute; right:10px; top:-76px; width:72px; height:76px; overflow:hidden; }
+.winter-snowman { display:block; width:68px; height:75px; overflow:visible; }
+.winter-snowman g { transform-box:fill-box; transform-origin:50% 100%; animation:brsvs-snowman-build .65s cubic-bezier(.2,.9,.3,1.2) both; }
+.winter-snowman .snowman-middle { animation-delay:.25s; }
+.winter-snowman .snowman-head { animation-delay:.5s; }
+.brsvs-response-fx.ice[data-state=success] { animation:brsvs-fade .4s 3s ease-out both; }
+.brsvs-response-fx.ice[data-state=success] .winter-snowman { animation:brsvs-snowman-greet 1.2s 1s ease-in-out both; transform-origin:50% 100%; }
+.brsvs-response-fx.ice:is([data-state=error],[data-state=warning],[data-state=cancelled]) .snowman-lane { display:none; }
+@keyframes brsvs-snowman-build { from { opacity:0; transform:translateY(25px) scale(.3) rotate(-12deg); } to { opacity:1; transform:translateY(0) scale(1) rotate(0); } }
+@keyframes brsvs-snowman-greet { 0%,100% { transform:rotate(0); } 30% { transform:rotate(-6deg); } 65% { transform:rotate(5deg); } }
+@media(prefers-reduced-motion:reduce) { .snowman-lane { display:none; } }
+
+/* A distant, single slow lightning glow; no full-screen flash or repeated strobe. */
+#brsvs-theme-effects:is(.rain,.rain-heavy)::before { content:''; position:absolute; top:-8vh; right:-8vw; width:55vw; height:40vh; background:radial-gradient(ellipse,#b8cfe8,transparent 65%); opacity:0; animation:brsvs-distant-lightning 23s 4s ease-in-out infinite; }
+#brsvs-theme-effects:is(.rain,.rain-heavy)::after { content:''; position:absolute; top:8vh; right:17vw; width:30px; height:95px; background:#bed8e8; clip-path:polygon(48% 0,90% 0,57% 39%,100% 39%,15% 100%,35% 57%,0 57%); opacity:0; animation:brsvs-distant-bolt 23s 4s ease-in-out infinite; }
+@keyframes brsvs-distant-lightning { 0%,80%,100% { opacity:0; } 88% { opacity:.055; } }
+@keyframes brsvs-distant-bolt { 0%,80%,100% { opacity:0; } 88% { opacity:.2; } }
+.storm-lane { position:absolute; right:12px; top:-64px; width:84px; height:64px; color:var(--fx-color); }
+.storm-lane svg { width:84px; height:64px; overflow:visible; }
+.storm-cloud { fill:#3f6178; stroke:#8db2c8; stroke-width:1.2; }
+.storm-bolt { fill:#e5d49a; opacity:0; animation:brsvs-execute-lightning 2.2s ease-in-out both; }
+.storm-rain { opacity:.55; animation:brsvs-cloud-rain 2.2s ease-out both; }
+.brsvs-response-fx.storm[data-state=pending] :is(.storm-bolt,.storm-rain) { animation-iteration-count:infinite; }
+.brsvs-response-fx.storm[data-state=success] { animation:brsvs-fade .4s 2.2s ease-out both; }
+.brsvs-response-fx.storm:is([data-state=error],[data-state=warning],[data-state=cancelled]) .storm-lane { display:none; }
+@keyframes brsvs-execute-lightning { 0%,100% { opacity:0; transform:translateY(-3px); } 35%,55% { opacity:.9; transform:translateY(0); } }
+@keyframes brsvs-cloud-rain { 0% { opacity:0; transform:translateY(-3px); } 45% { opacity:.6; } 100% { opacity:0; transform:translateY(5px); } }
+@media(prefers-reduced-motion:reduce) { .storm-lane { display:none; } }

@@ -48,3 +48,5 @@ Java örneğinde `/api/demo-response` endpoint'ini seçin. `status=200`, `404` v
 | bosphorus | Bosphorus | Boğaz mavisi, süzülen martılar | Execute ile şehir hatları vapuru |
 
 Ocean, Winter ve Sakura (0.3.11): ufukta su yansımaları ve köpük izi; rüzgârla savrulan kar ve kristalleşme; farklı tonlarda çentikli taç yapraklar ve köşede çiçeklenme.
+
+0.3.12: Ocean’da yüzeye çıkan balina; Winter’da kar toplarından oluşan kardan adam; Rainy Night ve Monsoon’da uzak şimşek ve Execute fırtına bulutu.
