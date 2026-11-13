@@ -115,7 +115,7 @@
     const sys = ui?.getSystem?.() || ui;
     let base = core.baseUrl(spec, op, specUrl, location.href);
     try { const selectedServer = sys?.oas3Selectors?.selectedServer?.(`${op.path}:${op.method.toLowerCase()}`) || sys?.oas3Selectors?.selectedServer?.(); if (selectedServer) base = new URL(selectedServer, specUrl || location.href).href; } catch {}
-    return { values: Object.create(null), form: Object.create(null), files: Object.create(null), body: '', auth: '', base, contentType: types.find(core.isJson) || types[0] || '', accept: '' };
+    return { values: Object.create(null), form: Object.create(null), files: Object.create(null), bodies: Object.create(null), body: undefined, auth: '', base, contentType: types.find(core.isJson) || types[0] || '', accept: '' };
   }
   function editor(op) {
     const draft = drafts.get(op.id) || newDraft(op); drafts.set(op.id, draft);
@@ -135,7 +135,7 @@
     const contents = core.bodyInfo(spec, op), types = Object.keys(contents);
     if (types.length) {
       const typeField = el('label', undefined, 'field'); typeField.append(el('span', 'Request content type')); const type = el('select'); type.setAttribute('aria-label', 'Request content type'); types.forEach(t => type.append(new Option(t, t))); type.value = draft.contentType;
-      type.onchange = () => { if (busy) return; draft.contentType = type.value; draft.files = Object.create(null); render(); }; typeField.append(type); area.append(typeField);
+      type.onchange = () => { if (busy) return; draft.bodies[draft.contentType] = draft.body; draft.contentType = type.value; draft.body = draft.bodies[type.value]; draft.files = Object.create(null); render(); }; typeField.append(type); area.append(typeField);
       const definition = contents[draft.contentType], s = core.schema(spec, definition.schema);
       if (draft.contentType === 'multipart/form-data' || draft.contentType === 'application/x-www-form-urlencoded') {
         for (const [name, raw] of Object.entries(s.properties || {})) {
@@ -146,8 +146,12 @@
           area.append(f.wrap);
         }
       } else {
+        if (draft.body === undefined) {
+          const example = core.bodyExample(spec, op, draft.contentType);
+          draft.body = core.isJson(draft.contentType) ? JSON.stringify(example ?? {}, null, 2) : typeof example === 'string' ? example : '';
+        }
         const body = field(core.isJson(draft.contentType) ? 'JSON request body' : 'Request body', draft.body, 'textarea'); body.input.placeholder = '{\n  \n}'; body.input.oninput = () => draft.body = body.input.value; area.append(body.wrap);
-        const tools = el('div', undefined, 'row'); tools.append(button('Generate example', () => { if (busy) return; const example = core.bodyExample(spec, op, draft.contentType); draft.body = core.isJson(draft.contentType) ? JSON.stringify(example ?? {}, null, 2) : typeof example === 'string' ? example : ''; body.input.value = draft.body; }));
+        const tools = el('div', undefined, 'row');
         if (core.isJson(draft.contentType)) tools.append(button('Format JSON', () => { try { draft.body = JSON.stringify(JSON.parse(body.input.value), null, 2); body.input.value = draft.body; validation.textContent = 'JSON formatted.'; } catch (e) { validation.textContent = e.message; } }));
         const validation = el('p', '', 'notice'); validation.setAttribute('aria-live', 'polite'); area.append(tools, validation);
       }

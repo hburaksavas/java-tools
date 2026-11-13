@@ -45,7 +45,11 @@ test('welcome dashboard, grouping, persistent tabs/favorites, transient request 
 });
 test('schema examples and theme selection update both views and survive reload', async t => {
   const env = setup(t), { w, data } = env; await w.SwaggerStudio.open(data); clickOp(env.shadow, 'POST/pets'); let shadow = env.shadow;
-  [...shadow.querySelectorAll('button')].find(b => b.textContent === 'Generate example').click(); assert.match(shadow.querySelector('textarea').value, /"name": "Ada"/);
+  assert.equal([...shadow.querySelectorAll('button')].some(b => b.textContent === 'Generate example'), false);
+  assert.match(shadow.querySelector('textarea').value, /"name": "Ada"/);
+  shadow.querySelector('textarea').value = ''; shadow.querySelector('textarea').dispatchEvent(new w.Event('input'));
+  clickOp(shadow, 'GET/health'); clickOp(env.shadow, 'POST/pets'); shadow = env.shadow;
+  assert.equal(shadow.querySelector('textarea').value, '', 'an intentionally cleared draft is not regenerated');
   const theme = shadow.querySelector('[aria-label="Theme for Studio and Swagger"]'); theme.value = 'light'; theme.dispatchEvent(new w.Event('change'));
   assert.equal(w.document.documentElement.dataset.studioTheme, 'light'); assert.equal(w.localStorage.getItem('brsvs:studio:theme-v2'), 'light'); assert.match(w.document.getElementById('brsvs-swagger-theme').textContent, /\.swagger-ui/);
   [...shadow.querySelectorAll('button')].find(b => b.textContent === 'Settings').click();

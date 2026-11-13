@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.3.2
+# Swagger UI Studio 0.3.3
 
 Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir API çalışma alanı. `/swagger-ui/index.html` açılınca Studio otomatik başlar. Eklenti ve ayrı frontend sunucusu gerekmez.
 
@@ -8,6 +8,7 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 - Swagger ile paylaşılan bearer, API key, basic ve OAuth yetkilendirmesi. Güncel token her istekte Swagger'dan okunur; request ve response interceptor'ları çalışır. **Authorize**, Swagger'ın kendi yetkilendirme penceresini açar; ardından **Open API Studio** ile dönün.
 - Tag grupları, arama, sekmeler, favoriler; tarayıcı yeniden açılınca çalışma düzeni geri gelir.
 - Şemadan örnek JSON, JSON biçimlendirme ve temel tip/zorunlu alan doğrulaması; alan açıklamaları, typed query parametreleri, URL-encoded form ve multipart dosya yükleme.
+- İstek gövdesi endpoint ilk açıldığında otomatik örnekle doldurulur; Generate example düğmesi yoktur. Yazılan veya bilinçli olarak temizlenen taslak sekmeye dönüşte korunur; içerik türlerinin taslakları ayrı tutulur.
 - Kompakt görünüm; Studio ve standart Swagger için tek bir ortak tema seçimi. Midnight ve Daylight sade; Winter kar yağışlı, Cosmic yıldızlı, Forest yeşil paletlidir. System işletim sisteminin açık/koyu tercihini izler. Efektler tema paketinin parçasıdır ve Studio kapansa da Swagger'da devam eder. Düşük hareket tercihi animasyonları kapatır.
 - İstek bitince yanıt alanına kontrollü kaydırma, klavye odağı ve kısa vurgu animasyonu. Endpoint sekmeleri arasında editör kaydırma konumu korunur.
 - Kaydedilmiş tüm fikirlerle **23 tema + System**: Aurora, Sakura, Circuit, Ocean ve diğerleri. Her temanın bekleme/başarı/uyarı/hata/iptal tepkisi vardır; Studio ve standart Swagger aynı motoru kullanır. Tam liste ve örnekler: [THEMES.md](THEMES.md).
@@ -20,11 +21,11 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 <dependency>
     <groupId>com.brsvs</groupId>
     <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
-    <version>0.3.2</version>
+    <version>0.3.3</version>
 </dependency>
 ```
 
-Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.2) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
+Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.3) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
 
 Repository ZIP'ini örneğin `vendor/studio-maven` klasörüne açıp tüketen projeye şu repository'yi ekleyebilirsiniz. ZIP, starter'ın parent POM'unu da içerir; diğer bağımlılıklar Maven Central'dan çözülür.
 
@@ -59,7 +60,7 @@ Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici
 
 ```powershell
 ./mvnw.cmd verify
-java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.2.jar
+java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.3.jar
 ```
 
 [Swagger UI / Studio](http://127.0.0.1:8087/swagger-ui/index.html) adresini açın. Springdoc, [OpenAPI tanımını](http://127.0.0.1:8087/v3/api-docs) gerçek controller'lardan üretir. Müşteri oluşturma/listeleme, sipariş, sağlık, auth/interceptor kontrolü, dosya ve form endpoint'leri vardır. Veriler bellekte tutulur; sunucu yalnız `127.0.0.1` üzerinde çalışır.
