@@ -13,7 +13,7 @@ const spec = {
 function setup(t) {
   const dom = new JSDOM('<html><head></head><body><button id="return">Swagger</button><div class="swagger-ui">Original Swagger</div></body></html>', { url: 'https://api.example.org/docs', runScripts: 'outside-only' }); t.after(() => dom.window.close());
   const w = dom.window; w.alert = message => { throw new Error(message); }; w.matchMedia = query => ({ matches: false, addEventListener() {} });
-  for (const name of ['core.js', 'theme.js']) w.eval(fs.readFileSync(require.resolve(`../${name}`), 'utf8'));
+  for (const name of ['core.js', 'theme.js', 'response-effects.js']) w.eval(fs.readFileSync(require.resolve(`../${name}`), 'utf8'));
   w.SwaggerStudioBridge = { authSummary: () => ['bearer'], openAuth: () => {}, send: async () => ({ status: 200, text: '{"ok":true}', headers: {} }) };
   w.eval(fs.readFileSync(require.resolve('../studio.js'), 'utf8'));
   const data = { specUrl: 'https://api.example.org/openapi.json', spec, ui: {}, config: {} };
@@ -35,6 +35,7 @@ test('welcome dashboard, grouping, persistent tabs/favorites, transient request 
   w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true })); assert.equal(shadow.activeElement, shadow.querySelector('.search'));
   w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true })); await new Promise(r => setTimeout(r, 20)); assert.match(shadow.querySelector('.response').textContent, /"ok": true/);
   assert.equal(shadow.activeElement, shadow.querySelector('.response'), 'response receives focus after completion');
+  assert.equal(w.document.querySelector('.brsvs-response-fx').dataset.state, 'success');
   assert.equal(shadow.querySelector('.response').classList.contains('arrived'), true);
   w.SwaggerStudio.close(); await w.SwaggerStudio.open(data); shadow = env.shadow;
   assert.equal(shadow.querySelectorAll('.tab').length, 2); assert.equal(shadow.querySelector('[aria-label="Toggle favorite"]').textContent, '★');

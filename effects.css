@@ -1,0 +1,78 @@
+/* Background scenes: limited particles, no pointer capture, no motion over the response text. */
+#brsvs-theme-effects.rain span,#brsvs-theme-effects.rain-heavy span{width:1px;height:42px;background:linear-gradient(transparent,var(--st-accent));opacity:.18;animation:brsvs-rain 1.5s linear infinite!important;transform:rotate(12deg)}
+#brsvs-theme-effects.rain-heavy span{height:95px;width:2px;opacity:.12}
+#brsvs-theme-effects.petals span{width:9px;height:15px;border-radius:90% 0 90% 0;background:var(--st-snow);opacity:.28;animation:brsvs-petal 15s linear infinite!important}
+#brsvs-theme-effects.leaves span{color:var(--st-snow);opacity:.25;animation:brsvs-petal 18s linear infinite!important}
+#brsvs-theme-effects.embers span{top:auto!important;bottom:-20px;width:3px;height:3px;border-radius:50%;background:var(--st-accent);box-shadow:0 0 9px var(--st-accent);animation:brsvs-rise 14s linear infinite!important;opacity:.45}
+#brsvs-theme-effects.fireflies span{width:3px;height:3px;border-radius:50%;background:var(--st-accent);box-shadow:0 0 10px var(--st-accent);animation:brsvs-firefly 8s ease-in-out infinite!important}
+#brsvs-theme-effects.dust span{width:2px;height:2px;border-radius:50%;background:var(--st-accent);animation:brsvs-dust 20s linear infinite!important;opacity:.22}
+#brsvs-theme-effects.constellations span{opacity:.35;animation:brsvs-shimmer 8s ease-in-out infinite!important}
+#brsvs-theme-effects.constellations span:nth-child(4n)::after{content:'';position:absolute;width:60px;height:1px;top:8px;left:5px;background:linear-gradient(90deg,var(--st-accent),transparent);transform:rotate(25deg);opacity:.25}
+#brsvs-theme-effects.aurora span,#brsvs-theme-effects.ocean span,#brsvs-theme-effects.mist span{top:auto!important;left:calc(var(--seed)*25% - 10%)!important;bottom:0;width:70vw;height:45vh;border-radius:50%;background:radial-gradient(ellipse,var(--st-accent),transparent 68%);opacity:.055;animation:brsvs-breathe 18s ease-in-out infinite!important;filter:blur(30px)}
+#brsvs-theme-effects.aurora span{bottom:auto;top:-15vh!important;height:70vh;transform:rotate(-25deg);background:linear-gradient(110deg,transparent,#4fd8aa66,#aa78ec44,transparent)}
+#brsvs-theme-effects.mist span{height:20vh;opacity:.05;filter:blur(45px)}
+#brsvs-theme-effects.neon span{top:calc(15% + var(--seed)*27%)!important;left:0!important;width:120vw;height:1px;background:linear-gradient(90deg,transparent,var(--st-accent),transparent);opacity:.1;animation:brsvs-dust 15s linear infinite!important}
+#brsvs-theme-effects.scan{background:repeating-linear-gradient(0deg,transparent,transparent 4px,#8ada9305 5px);opacity:.6}
+#brsvs-theme-effects.scan span{top:0!important;left:0!important;width:100%;height:1px;background:var(--st-accent);opacity:.05;animation:brsvs-rain 30s linear infinite!important}
+#brsvs-theme-effects.grid,#brsvs-theme-effects.circuit{background-image:linear-gradient(var(--st-accent) 1px,transparent 1px),linear-gradient(90deg,var(--st-accent) 1px,transparent 1px);background-size:60px 60px;opacity:.035}
+#brsvs-theme-effects.circuit{opacity:.075;background-size:120px 80px}
+#brsvs-theme-effects.circuit span{top:calc(20% + var(--seed)*25%)!important;left:0!important;width:70px;height:2px;background:var(--st-accent);box-shadow:0 0 8px var(--st-accent);animation:brsvs-dust 8s linear infinite!important;opacity:.8}
+#brsvs-theme-effects.eclipse span,#brsvs-theme-effects.heat span{top:15%!important;left:65%!important;width:200px;height:200px;border:1px solid var(--st-accent);border-radius:50%;box-shadow:0 0 55px var(--st-soft);opacity:.12;animation:brsvs-breathe 18s ease-in-out infinite!important}
+#brsvs-theme-effects.heat span{top:calc(20% + var(--seed)*10%)!important;left:calc(40% + var(--seed)*10%)!important;opacity:.04}
+#brsvs-theme-effects.paper{background-image:repeating-linear-gradient(17deg,transparent,transparent 3px,#73644909 4px);opacity:.3}
+#brsvs-theme-effects.grid span,#brsvs-theme-effects.paper span{display:none}
+@keyframes brsvs-rain{from{translate:0 -10vh}to{translate:-12vw 115vh}}
+@keyframes brsvs-petal{to{transform:translate3d(var(--drift),110vh,0) rotate(480deg)}}
+@keyframes brsvs-rise{to{transform:translate3d(var(--drift),-110vh,0);opacity:0}}
+@keyframes brsvs-firefly{0%,100%{opacity:.05;translate:0 0}50%{opacity:.5;translate:20px -30px}}
+@keyframes brsvs-dust{from{translate:-10vw 0}to{translate:100vw 25px}}
+@keyframes brsvs-breathe{0%,100%{scale:1;translate:-20px 0}50%{scale:1.15;translate:20px -15px}}
+#brsvs-theme-effects.ocean span::after{content:'';position:absolute;left:50%;bottom:0;width:12px;height:12px;border:1px solid var(--st-accent);border-radius:50%;animation:brsvs-rise 20s linear infinite}
+#brsvs-theme-effects.constellations span:last-child{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--st-accent));rotate:-25deg;animation:brsvs-shoot 16s linear infinite!important}
+#brsvs-theme-effects.scan::after{content:'';position:absolute;left:16px;bottom:18px;width:7px;height:12px;background:var(--st-accent);opacity:.15;animation:brsvs-shimmer 3s steps(2,end) infinite}
+@keyframes brsvs-shoot{0%,90%{opacity:0;translate:-5vw -15vh}92%{opacity:.5}100%{opacity:0;translate:55vw 35vh}}
+/* Response overlays are fixed above each panel and never move or obscure its content. */
+.brsvs-response-fx{position:fixed;pointer-events:none!important;z-index:2147483647;border:1px solid var(--fx-color,var(--st-accent));border-radius:9px;box-sizing:border-box;overflow:visible;opacity:.8;transition:opacity .25s;contain:layout style;--fx-color:var(--st-accent)}
+.brsvs-response-fx[data-state=warning]{--fx-color:#d8a342}
+.brsvs-response-fx[data-state=error]{--fx-color:#e47791}
+.brsvs-response-fx[data-state=cancelled]{--fx-color:var(--st-muted);animation:brsvs-fade .45s ease-out both}
+.brsvs-response-fx::before{content:'';position:absolute;inset:-2px;border:1px solid var(--fx-color);border-radius:inherit;opacity:.4;animation:brsvs-response-ring .65s ease-out both}
+.brsvs-response-fx[data-state=pending]::before{inset:-1px;border:0;border-top:2px solid var(--fx-color);animation:brsvs-edge 1.6s ease-in-out infinite}
+.brsvs-response-fx[data-state=error]::before{animation:brsvs-error .8s ease-out both}
+.brsvs-response-fx span{position:absolute;top:0;left:var(--x);width:3px;height:3px;border-radius:50%;background:var(--fx-color);animation:brsvs-edge-particle .7s ease-out both;animation-delay:var(--delay);opacity:0}
+.brsvs-response-fx.ice span{width:7px;height:7px;border-radius:0;clip-path:polygon(50% 0,60% 38%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 38%)}
+.brsvs-response-fx.petals span,.brsvs-response-fx.leaves span{width:6px;height:10px;border-radius:90% 0 90% 0;animation-name:brsvs-response-leaf}
+.brsvs-response-fx.constellation span{width:4px;height:4px;box-shadow:0 0 6px var(--fx-color)}
+.brsvs-response-fx.constellation span::after{content:'';position:absolute;left:0;width:22px;height:1px;rotate:20deg;background:var(--fx-color);opacity:.5}
+.brsvs-response-fx.ripple::before,.brsvs-response-fx.eclipse::before{border-radius:50%;inset:-3px 35% auto;height:18px;animation-name:brsvs-ripple}
+.brsvs-response-fx.ink::before{border-width:3px;filter:blur(2px);animation-name:brsvs-ink}
+.brsvs-response-fx.terminal{border-style:dashed}
+.brsvs-response-fx.terminal span{width:10px;height:2px;border-radius:0;animation-timing-function:steps(4,end)}
+.brsvs-response-fx.blueprint{border-style:dashed}
+.brsvs-response-fx.blueprint::before{inset:-5px;border-radius:0;clip-path:polygon(0 0,15% 0,15% 3px,3px 3px,3px 25%,0 25%,0 0,100% 100%,85% 100%,85% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 75%,100% 75%,100% 100%)}
+.brsvs-response-fx.circuit::before,.brsvs-response-fx.neon::before{inset:-1px;border:0;border-top:2px solid var(--fx-color);animation:brsvs-edge .7s ease-out both}
+.brsvs-response-fx.heat::before,.brsvs-response-fx.aurora::before{box-shadow:0 0 13px var(--fx-color);opacity:.2}
+.brsvs-response-fx.embers span{box-shadow:0 0 6px var(--fx-color);animation-name:brsvs-edge-particle}
+.brsvs-response-fx.fireflies span{box-shadow:0 0 8px var(--fx-color);border-radius:50%;animation-duration:.95s}
+.brsvs-response-fx.dust span{width:2px;height:2px;animation-duration:.9s}
+.brsvs-response-fx[data-state=success]{animation:brsvs-fade 1s ease-out both}
+.brsvs-response-fx[data-state=pending] span{display:none}
+.brsvs-response-fx.constellation[data-state=pending]::after,.brsvs-response-fx.circuit[data-state=pending]::after,.brsvs-response-fx.fireflies[data-state=pending]::after{content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:var(--fx-color);box-shadow:0 0 6px var(--fx-color);animation:brsvs-orbit 2.5s linear infinite}
+.brsvs-response-fx.circuit[data-state=pending]::after{border-radius:1px;width:12px;height:2px}
+.brsvs-response-fx.ice[data-state=pending]{border-style:dotted}
+.brsvs-response-fx.terminal[data-state=pending]::before{animation-timing-function:steps(8,end)}
+.brsvs-response-fx[data-state=error] span,.brsvs-response-fx[data-state=warning] span,.brsvs-response-fx[data-state=cancelled] span{display:none}
+.brsvs-response-fx[data-state=error]::before,.brsvs-response-fx[data-state=warning]::before{inset:-2px;border:1px solid var(--fx-color);border-radius:inherit;clip-path:none;animation:brsvs-error .8s ease-out both}
+.brsvs-response-fx.reduced{animation:none!important;box-shadow:none}
+.brsvs-response-fx.reduced::before,.brsvs-response-fx.reduced span{display:none!important}
+.brsvs-response-fx.reduced::after{display:none!important}
+@keyframes brsvs-orbit{0%,100%{top:-3px;left:0}25%{top:-3px;left:100%}50%{top:100%;left:100%}75%{top:100%;left:0}}
+@keyframes brsvs-response-ring{from{opacity:.6;box-shadow:0 0 0 0 var(--st-soft)}to{opacity:0;box-shadow:0 0 0 6px transparent}}
+@keyframes brsvs-edge{0%{clip-path:inset(0 100% 0 0)}70%,100%{clip-path:inset(0 0 0 0)}}
+@keyframes brsvs-edge-particle{0%{opacity:0;translate:0 0}30%{opacity:.8}100%{opacity:0;translate:var(--dx) -16px}}
+@keyframes brsvs-response-leaf{0%{opacity:0;translate:0 0}30%{opacity:.6}100%{opacity:0;translate:var(--dx) 16px;rotate:90deg}}
+@keyframes brsvs-ripple{from{scale:.7;opacity:.6}to{scale:1.7;opacity:0}}
+@keyframes brsvs-ink{from{opacity:.5;filter:blur(0)}to{opacity:0;filter:blur(5px)}}
+@keyframes brsvs-error{from{opacity:.65}to{opacity:0}}
+@keyframes brsvs-fade{to{opacity:0}}
+@media(prefers-reduced-motion:reduce){#brsvs-theme-effects{display:none}.brsvs-response-fx,.brsvs-response-fx::before,.brsvs-response-fx span{animation:none!important}.brsvs-response-fx::before,.brsvs-response-fx span{display:none!important}}

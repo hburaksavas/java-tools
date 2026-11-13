@@ -53,7 +53,7 @@
     const shell = el('section', undefined, 'shell'); shell.setAttribute('role', 'dialog'); shell.setAttribute('aria-modal', 'true'); shell.setAttribute('aria-label', 'Swagger UI Studio');
     const top = el('header', undefined, 'top'), brand = el('div', undefined, 'brand');
     if (config.logoUrl) { try { const url = new URL(config.logoUrl, location.href); if (url.origin === location.origin && ['http:', 'https:'].includes(url.protocol)) { const img = el('img', undefined, 'logo'); img.src = url.href; img.alt = ''; brand.append(img); } } catch {} }
-    brand.append(el('h1', config.title || '◈ API STUDIO'));
+    brand.append(el('h1', config.title || 'API Studio'));
     const auth = button('Authorize', () => {
       if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
@@ -108,7 +108,7 @@
     if (!activity.length) session.append(el('p', 'Response status and timing will appear here after you send a request.', 'empty'));
     for (const a of activity.slice(-4).reverse()) { const row = el('div', undefined, 'activity'); row.append(el('span', `${a.method} ${a.path}`), el('span', `${a.status || 'Error'} · ${a.ms} ms`)); session.append(row); }
     lower.append(methods, session); area.append(lower);
-    const footer = el('div', undefined, 'footer'); for (const [key, text] of [['Ctrl K', 'Find endpoint'], ['Ctrl Enter', 'Send request'], ['Alt W', 'Close endpoint tab'], ['Esc', 'Return to Swagger']]) { const item = el('span'); item.append(el('kbd', key, 'shortcut'), document.createTextNode(` ${text}`)); footer.append(item); } area.append(footer); return area;
+    const footer = el('div', undefined, 'footer'); for (const [key, text] of [['Ctrl K', 'Find endpoint'], ['Ctrl Enter', 'Execute'], ['Alt W', 'Close endpoint tab'], ['Esc', 'Return to Swagger']]) { const item = el('span'); item.append(el('kbd', key, 'shortcut'), document.createTextNode(` ${text}`)); footer.append(item); } area.append(footer); return area;
   }
   function newDraft(op) {
     const types = Object.keys(core.bodyInfo(spec, op));
@@ -154,7 +154,7 @@
       const model = el('details'); model.append(el('summary', 'Request schema'), el('pre', JSON.stringify(s, null, 2))); area.append(model);
     }
     area.append(el('p', 'Uses Swagger authorization and request/response interceptors. Request data stays in memory until Studio closes.', 'notice'));
-    const controls = el('div', undefined, 'row'), send = button('Send request ↗', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel); area.append(controls);
+    const controls = el('div', undefined, 'row'), send = button('Execute', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel); area.append(controls);
     const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.tabIndex = -1; area.append(output); if (draft.response) show(draft.response);
     function focusResponse() {
       const main = shadow.querySelector('.main'); if (!main || !output.isConnected) return;
@@ -174,16 +174,17 @@
     async function run() {
       if (busy) return;
       let options; try { options = core.requestOptions(spec, op, draft, specUrl, location.href); } catch (e) { show({ error: e.message }); focusResponse(); return; }
-      busy = true; send.setAttribute('aria-disabled', 'true'); send.textContent = 'Sending…'; cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(el('p', 'Waiting for response…', 'pending'));
+      busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(el('p', 'Waiting for response…', 'pending'));
+      const feedback = window.SwaggerStudioResponseEffects?.start(output);
       try {
         const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: draft.auth, confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
         if (current !== generation) return;
         let body = response.text ?? response.data ?? ''; if (typeof body !== 'string') body = JSON.stringify(body, null, 2); try { body = JSON.stringify(JSON.parse(body), null, 2); } catch {}
         if (response.headers?.['x-studio-truncated'] === 'true') body += '\n[Response truncated at 1 MiB]';
         draft.response = { status: response.status, statusText: response.statusText, ms: Math.round(performance.now() - start), headers: Object.entries(response.headers || {}).map(([k,v]) => `${k}: ${v}`).join('\n'), body };
-        activity.push({ method: op.method, path: op.path, status: response.status, ms: draft.response.ms }); activity = activity.slice(-100); show(draft.response); focusResponse();
-      } catch (e) { if (current === generation) { draft.response = { error: e.name === 'AbortError' ? 'Request cancelled.' : `${e.message}. Check network, CORS, certificate and page policy restrictions.` }; show(draft.response); focusResponse(); activity.push({ method: op.method, path: op.path, status: 0, ms: Math.round(performance.now() - start) }); } }
-      finally { if (current === generation) { busy = false; send.removeAttribute('aria-disabled'); send.textContent = 'Send request ↗'; cancel.hidden = true; output.removeAttribute('aria-busy'); } }
+        activity.push({ method: op.method, path: op.path, status: response.status, ms: draft.response.ms }); activity = activity.slice(-100); show(draft.response); focusResponse(); feedback?.finish(response.status);
+      } catch (e) { if (current === generation) { draft.response = { error: e.name === 'AbortError' ? 'Request cancelled.' : `${e.message}. Check network, CORS, certificate and page policy restrictions.` }; show(draft.response); focusResponse(); feedback?.finish(undefined, e); activity.push({ method: op.method, path: op.path, status: 0, ms: Math.round(performance.now() - start) }); } }
+      finally { if (current === generation) { busy = false; send.removeAttribute('aria-disabled'); send.removeAttribute('aria-busy'); send.textContent = 'Execute'; cancel.hidden = true; output.removeAttribute('aria-busy'); } }
     }
     return area;
   }
@@ -192,7 +193,7 @@
     const backdrop = el('div', undefined, 'settings-backdrop'), panel = el('section', undefined, 'settings'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Studio settings');
     const header = el('div', undefined, 'heading'); header.append(el('h2', 'Make it yours'), el('span', undefined, 'grow'), button('Close settings', () => { settingsOpen = false; backdrop.remove(); })); panel.append(header);
     const theme = el('label', undefined, 'field'); theme.append(el('span', 'Shared Studio + Swagger theme'), themePicker()); panel.append(theme);
-    panel.append(el('p', 'Each theme includes its own colors and effects in both Studio and Swagger. Winter brings snow; Cosmic brings stars. Reduced-motion preferences are respected.', 'notice'));
+    panel.append(el('p', 'Each theme pairs its palette and background with response feedback for waiting, success, warning, failure and cancellation. Reduced-motion preferences are respected.', 'notice'));
     panel.append(el('p', 'Favorites, open tabs, recent endpoints and appearance stay in this browser. Tokens, request bodies and responses are never saved by Studio.', 'notice'));
     panel.append(button('Reset workspace preferences', () => { favorites = []; tabs = []; recent = []; selected = null; persist(); settingsOpen = false; render(); }));
     backdrop.append(panel); shadow.querySelector('.shell').append(backdrop); panel.querySelector('button').focus();

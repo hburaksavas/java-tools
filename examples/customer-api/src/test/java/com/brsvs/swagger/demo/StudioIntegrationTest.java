@@ -26,13 +26,22 @@ class StudioIntegrationTest {
                 .andExpect(content().string(containsString("localStorage")));
         mvc.perform(get("/swagger-ui/studio/studio.css")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/theme.js")).andExpect(status().isOk());
+        mvc.perform(get("/swagger-ui/studio/response-effects.js")).andExpect(status().isOk());
+        mvc.perform(get("/swagger-ui/studio/effects.css")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/config.json")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("BRsvs API Studio"))
+                .andExpect(jsonPath("$.title").value("API Studio"))
                 .andExpect(jsonPath("$.welcomeTitle").value("Your API starts here."));
         mvc.perform(get("/swagger-ui/swagger-initializer.js")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("/v3/api-docs/swagger-config")))
                 .andExpect(content().string(containsString("X-Demo-Client")))
                 .andExpect(content().string(not(containsString("./studio/bootstrap.js"))));
+    }
+
+    @Test void responsePreviewProducesSuccessWarningAndFailureWithoutChangingData() throws Exception {
+        mvc.perform(get("/api/demo-response").param("status", "200")).andExpect(status().isOk());
+        mvc.perform(get("/api/demo-response").param("status", "404")).andExpect(status().isNotFound());
+        mvc.perform(get("/api/demo-response").param("status", "503")).andExpect(status().isServiceUnavailable());
+        mvc.perform(get("/api/demo-response").param("delayMillis", "6000")).andExpect(status().isBadRequest());
     }
 
     @Test void realOpenApiAndRequestsWork() throws Exception {

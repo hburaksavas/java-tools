@@ -1,6 +1,6 @@
 # Tema fikirleri
 
-13 Kasım 2026. Bu dosya fikir havuzudur; aşağıdaki temalar henüz uygulanmadı.
+13 Kasım 2026. Bu dosya tasarım fikirlerinin kaydıdır. Listelenen temalar 0.3.0 sürümünde uygulandı; güncel kullanım için THEMES.md dosyasına bakın.
 
 Her tema renk paleti, arka plan hareketi ve küçük etkileşimleri birlikte tanımlar. Studio ve Swagger aynı seçimi kullanır. Hareketler tıklamaları engellemez; reduced-motion tercihinde kapanır. Kod ve yanıt alanlarının okunabilirliği korunur.
 
@@ -17,7 +17,7 @@ Her tema renk paleti, arka plan hareketi ve küçük etkileşimleri birlikte tan
 | Terminal | Siyah, fosfor yeşili | Hafif tarama çizgileri ve imleç |
 | Blueprint | Teknik mavi, beyaz | Izgara ve endpoint açılışında çizim animasyonu |
 
-İlk adaylar: Aurora, Rainy Night ve Sakura.
+İlk öncelikler Aurora, Rainy Night ve Sakura idi; tüm liste artık tema kataloğundadır.
 
 ## Yeni öneriler
 

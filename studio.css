@@ -134,7 +134,7 @@ a { color: var(--st-accent); }
 .pending::before { content: ''; width: 10px; height: 10px; border: 2px solid var(--st-line); border-top-color: var(--st-accent); border-radius: 50%; animation: spin .7s linear infinite; }
 .arrived { animation: response-in .75s ease-out; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes response-in { from { box-shadow: 0 0 0 3px var(--st-soft), 0 0 28px var(--st-soft); border-color: var(--st-accent); transform: translateY(5px); } to { box-shadow: none; transform: translateY(0); } }
+@keyframes response-in { from { box-shadow: 0 0 0 3px var(--st-soft), 0 0 28px var(--st-soft); border-color: var(--st-accent); } to { box-shadow: none; } }
 @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; scroll-behavior: auto !important; } .snow { display: none; } }
 @media (max-width: 1050px) { .top small { display: none; } .hero-mark { display: none; } .layout { grid-template-columns: 200px 1fr; } }
 @media (max-width: 760px) {

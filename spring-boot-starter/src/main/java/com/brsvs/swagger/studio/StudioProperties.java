@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("brsvs.swagger.studio")
 public class StudioProperties {
-    private String title = "API STUDIO";
+    private String title = "API Studio";
     private String logoUrl = "";
     private String welcomeTitle = "";
     private String welcomeMessage = "";

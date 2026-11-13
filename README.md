@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.2.2
+# Swagger UI Studio 0.3.0
 
 Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir API çalışma alanı. `/swagger-ui/index.html` açılınca Studio otomatik başlar. Eklenti ve ayrı frontend sunucusu gerekmez.
 
@@ -10,6 +10,7 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 - Şemadan örnek JSON, JSON biçimlendirme ve temel tip/zorunlu alan doğrulaması; alan açıklamaları, typed query parametreleri, URL-encoded form ve multipart dosya yükleme.
 - Kompakt görünüm; Studio ve standart Swagger için tek bir ortak tema seçimi. Midnight ve Daylight sade; Winter kar yağışlı, Cosmic yıldızlı, Forest yeşil paletlidir. System işletim sisteminin açık/koyu tercihini izler. Efektler tema paketinin parçasıdır ve Studio kapansa da Swagger'da devam eder. Düşük hareket tercihi animasyonları kapatır.
 - İstek bitince yanıt alanına kontrollü kaydırma, klavye odağı ve kısa vurgu animasyonu. Endpoint sekmeleri arasında editör kaydırma konumu korunur.
+- Kaydedilmiş tüm fikirlerle **23 tema + System**: Aurora, Sakura, Circuit, Ocean ve diğerleri. Her temanın bekleme/başarı/uyarı/hata/iptal tepkisi vardır; Studio ve standart Swagger aynı motoru kullanır. Tam liste ve örnekler: [THEMES.md](THEMES.md).
 - `Ctrl+K`: arama, `Ctrl+Enter`: istek gönderme, `Alt+W`: aktif endpoint sekmesini kapatma, `Esc`: ayarları kapatma veya standart Swagger'a dönüş.
 
 ## Spring Boot entegrasyonu
@@ -18,11 +19,11 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 <dependency>
     <groupId>com.brsvs</groupId>
     <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
-    <version>0.2.2</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
-Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.2.2) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
+Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.0) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
 
 Repository ZIP'ini örneğin `vendor/studio-maven` klasörüne açıp tüketen projeye şu repository'yi ekleyebilirsiniz. ZIP, starter'ın parent POM'unu da içerir; diğer bağımlılıklar Maven Central'dan çözülür.
 
@@ -42,11 +43,11 @@ brsvs:
   swagger:
     studio:
       enabled: true
-      title: Payment API Studio
+      title: API Studio
       logo-url: /assets/logo.svg
       welcome-title: Welcome to Payment API
       welcome-message: Explore the API and try a request.
-      theme: winter # system, dark, light, winter, cosmic, forest; kullanıcı tercihi varsa onu korur
+      theme: aurora # Tüm değerler THEMES.md içinde; kullanıcı tercihi varsa onu korur
 ```
 
 `enabled: false` özgün Swagger HTML'ini geri getirir. Başlangıç ayarları `/swagger-ui/studio/config.json` altında sunulur ve OpenAPI dokümanına eklenmez. Logo yalnız aynı origin HTTP(S) adresinden yüklenir. Context path kullanılan projede logo adresine context path'i ekleyin veya uygun göreli adres kullanın.
@@ -57,7 +58,7 @@ Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici
 
 ```powershell
 ./mvnw.cmd verify
-java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.2.2.jar
+java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.0.jar
 ```
 
 [Swagger UI / Studio](http://127.0.0.1:8087/swagger-ui/index.html) adresini açın. Springdoc, [OpenAPI tanımını](http://127.0.0.1:8087/v3/api-docs) gerçek controller'lardan üretir. Müşteri oluşturma/listeleme, sipariş, sağlık, auth/interceptor kontrolü, dosya ve form endpoint'leri vardır. Veriler bellekte tutulur; sunucu yalnız `127.0.0.1` üzerinde çalışır.
@@ -74,7 +75,7 @@ Spring Security kurallarına dokunulmaz. `/swagger-ui/**` ve API dokümanı içi
 
 ## Entegrasyon ayrıntıları ve sınırlar
 
-Starter mevcut `SwaggerIndexTransformer` bean'ini dekore eder; özel transformer ve Swagger initializer çalışmaya devam eder. Beş harici JS dosyası ve bir CSS aynı uygulamadan sunulur. Swagger API tanımı 20 saniyede yüklenmezse standart ekran açık kalır ve **Retry API Studio** ile yeniden denenebilir.
+Starter mevcut `SwaggerIndexTransformer` bean'ini dekore eder; özel transformer ve Swagger initializer çalışmaya devam eder. Altı harici JS dosyası ve iki CSS aynı uygulamadan sunulur. Response plugin'i istek içeriğini kaydetmeden Swagger action'larını izler. Özel initializer kullanan uygulamalar Swagger'ı `response-effects.js` yüklendikten sonra başlatmalıdır. Swagger API tanımı 20 saniyede yüklenmezse standart ekran açık kalır ve **Retry API Studio** ile yeniden denenebilir.
 
 Yerel `$ref`, yaygın JSON/form/query şekilleri desteklenir. Şema doğrulaması temel tip, enum, required, sayı aralığı ve boyutlarla sınırlıdır; tam JSON Schema doğrulayıcısı değildir. Harici `$ref` çözümü, çoklu doküman seçimi, raw binary body ve elle cookie-header düzenleme henüz yoktur. Swagger'da cookie tabanlı login kullanın. Şema/proje değişince sayfayı yenileyin. Strict nonce-only CSP politikaları için tema/efekt stillerine uygulamaya özel entegrasyon gerekir; starter CSP'yi gevşetmez. Somut transformer sınıfına doğrudan injection yapan kurulumlar interface dekorasyonuna uyarlanmalıdır.
 

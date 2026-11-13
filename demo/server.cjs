@@ -23,6 +23,8 @@ const assets = {
   '/studio.js': [path.join(root, 'studio.js'), 'text/javascript'],
   '/studio.css': [path.join(root, 'studio.css'), 'text/css'],
   '/theme.js': [path.join(root, 'theme.js'), 'text/javascript'],
+  '/response-effects.js': [path.join(root, 'response-effects.js'), 'text/javascript'],
+  '/effects.css': [path.join(root, 'effects.css'), 'text/css'],
   '/swagger-bridge.js': [path.join(root, 'swagger-bridge.js'), 'text/javascript'],
   '/swagger-ui.css': [path.join(swaggerRoot, 'swagger-ui.css'), 'text/css'],
   '/swagger-ui-bundle.js': [path.join(swaggerRoot, 'swagger-ui-bundle.js'), 'text/javascript']
