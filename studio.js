@@ -1,6 +1,7 @@
 (() => {
   if (window.SwaggerStudio) return;
-  const core = window.SwaggerStudioCore, bridge = window.SwaggerStudioBridge;
+  const core = window.SwaggerStudioCore, bridge = window.SwaggerStudioBridge, syntax = window.SwaggerStudioJson;
+  const jsonCode = (text, force = false) => syntax ? syntax.code(text, force) : el('pre', text);
   const source = [...document.scripts].find(s => new URL(s.src, location.href).pathname.endsWith('/studio.js'))?.src || new URL('studio.js', location.href).href;
   const styleUrl = new URL('studio.css', source); styleUrl.search = new URL(source).search; const stylesheet = styleUrl.href;
   let host, shadow, spec, ui, config, ops = [], specUrl, storageKey, selected = null, tabs = [], favorites = [], recent = [], drafts = new Map(), controller, busy = false, generation = 0, activity = [], searchTerm = '', favoriteOnly = false, savedFocus, oldOverflow, renderedId, overviewScroll = 0;
@@ -181,14 +182,15 @@
         const body = field(core.isJson(draft.contentType) ? 'JSON request body' : 'Request body', draft.body, 'textarea'); body.input.id = 'studio-request-body'; body.input.placeholder = '{\n  \n}'; body.input.oninput = () => draft.body = body.input.value;
         const bodyField = el('div', undefined, 'field body-field'), header = el('div', undefined, 'body-heading');
         const caption = el('label', core.isJson(draft.contentType) ? 'JSON request body' : 'Request body'); caption.htmlFor = body.input.id; header.append(caption);
+        const jsonEditor = core.isJson(draft.contentType) ? syntax?.editor(body.input) : undefined;
         const validation = el('p', '', 'notice'); validation.setAttribute('aria-live', 'polite'); validation.hidden = true;
         if (core.isJson(draft.contentType)) {
-          const format = button('{ }', () => { try { draft.body = JSON.stringify(JSON.parse(body.input.value), null, 2); body.input.value = draft.body; validation.textContent = 'JSON formatted.'; } catch (e) { validation.textContent = e.message; } validation.hidden = false; }, 'format-icon');
+          const format = button('{ }', () => { try { draft.body = JSON.stringify(JSON.parse(body.input.value), null, 2); body.input.value = draft.body; jsonEditor?.refresh(); validation.textContent = 'JSON formatted.'; } catch (e) { validation.textContent = e.message; } validation.hidden = false; }, 'format-icon');
           format.title = 'Format JSON'; format.setAttribute('aria-label', 'Format JSON'); header.append(format);
         }
-        bodyField.append(header, body.input, validation); area.append(bodyField);
+        bodyField.append(header, jsonEditor?.element || body.input, validation); area.append(bodyField);
       }
-      const model = el('details'); model.append(el('summary', 'Request schema'), el('pre', JSON.stringify(s, null, 2))); area.append(model);
+      const model = el('details'); model.append(el('summary', 'Request schema'), jsonCode(JSON.stringify(s, null, 2), true)); area.append(model);
     }
     area.append(el('p', `${secured ? 'Uses Swagger authorization and request/response interceptors.' : 'Uses Swagger request/response interceptors.'} Request data stays in memory until Studio closes.`, 'notice'));
     const controls = el('div', undefined, 'request-actions'), send = button('Execute', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel);
@@ -214,7 +216,7 @@
       output.replaceChildren(); if (result.error) { output.append(responseHeader(), responseStage(), el('p', result.error, 'error')); return; }
       const status = el('div', undefined, 'response-heading'); status.append(el('h3', 'Response'), el('strong', `${result.status} ${result.statusText || ''}`, `status ${result.status < 400 ? 'ok' : 'fail'}`), el('span', `${result.ms} ms`, 'muted'), el('span', undefined, 'grow'));
       const copy = button('Copy body', async () => { try { await navigator.clipboard.writeText(result.body); copy.textContent = 'Copied'; } catch { copy.textContent = 'Copy unavailable'; } }, 'text-button'); status.append(copy); output.append(status, responseStage());
-      const details = el('details'); details.append(el('summary', 'Response headers'), el('pre', result.headers)); output.append(details, el('pre', result.body));
+      const details = el('details'); details.append(el('summary', 'Response headers'), el('pre', result.headers)); output.append(details, jsonCode(result.body));
     }
     async function run() {
       if (busy) return;

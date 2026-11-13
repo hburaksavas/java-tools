@@ -200,3 +200,17 @@ a { color: var(--st-accent); }
 
 
 @media(prefers-reduced-motion:reduce) { .response-stage { display:none; } }
+
+/* Native editable JSON with a non-interactive, scroll-synchronized syntax layer. */
+.json-key { color:var(--st-json-key,var(--st-accent)); }
+.json-string { color:var(--st-json-string,var(--st-text)); }
+.json-number { color:var(--st-json-number,var(--st-text)); }
+.json-literal { color:var(--st-json-literal,var(--st-text)); }
+.json-punctuation { color:var(--st-json-punctuation,var(--st-muted)); }
+.json-editor { position:relative; background:var(--st-input); border-radius:6px; }
+.json-editor .json-mirror,.json-editor .json-input { font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:normal; tab-size:2; padding:11px; white-space:pre; overflow-wrap:normal; word-break:normal; text-align:left; }
+.json-editor .json-mirror { position:absolute; inset:0; margin:0; max-height:none; border:1px solid transparent; border-radius:6px; background:transparent; overflow:hidden; pointer-events:none; user-select:none; }
+.json-editor .json-input { position:relative; display:block; background:transparent; color:transparent; -webkit-text-fill-color:transparent; caret-color:var(--st-text); min-height:155px; resize:vertical; overflow:auto; }
+.json-editor .json-input::selection { background:color-mix(in srgb,var(--st-accent) 25%,transparent); }
+.json-editor .json-input::placeholder { color:var(--st-muted); -webkit-text-fill-color:var(--st-muted); }
+@media(forced-colors:active) { .json-editor .json-mirror { display:none; } .json-editor .json-input { color:CanvasText; -webkit-text-fill-color:CanvasText; } }

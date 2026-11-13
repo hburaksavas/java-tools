@@ -28,6 +28,7 @@ class StudioIntegrationTest {
                 .andExpect(content().string(containsString("localStorage")));
         mvc.perform(get("/swagger-ui/studio/studio.css")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/theme.js")).andExpect(status().isOk());
+        mvc.perform(get("/swagger-ui/studio/json.js")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/scenes.js")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/playful.js")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/response-effects.js")).andExpect(status().isOk());

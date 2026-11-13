@@ -13,7 +13,7 @@ const spec = {
 function setup(t) {
   const dom = new JSDOM('<html><head><script src="/studio/studio.js?v=revision"></script><script src="/studio/theme.js?v=revision"></script></head><body><button id="return">Swagger</button><div class="swagger-ui">Original Swagger</div></body></html>', { url: 'https://api.example.org/docs', runScripts: 'outside-only' }); t.after(() => dom.window.close());
   const w = dom.window; w.alert = message => { throw new Error(message); }; w.matchMedia = query => ({ matches: false, addEventListener() {} });
-  for (const name of ['core.js', 'theme.js', 'playful.js', 'response-effects.js']) w.eval(fs.readFileSync(require.resolve(`../${name}`), 'utf8'));
+  for (const name of ['core.js', 'json.js', 'theme.js', 'playful.js', 'response-effects.js']) w.eval(fs.readFileSync(require.resolve(`../${name}`), 'utf8'));
   w.SwaggerStudioBridge = { authSummary: () => ['bearer'], openAuth: () => {}, send: async () => ({ status: 200, text: '{"ok":true}', headers: {} }) };
   w.eval(fs.readFileSync(require.resolve('../studio.js'), 'utf8'));
   const data = { specUrl: 'https://api.example.org/openapi.json', spec, ui: {}, config: {} };

@@ -23,6 +23,7 @@ const assets = {
   '/studio.js': [path.join(root, 'studio.js'), 'text/javascript'],
   '/studio.css': [path.join(root, 'studio.css'), 'text/css'],
   '/scenes.js': [path.join(root, 'scenes.js'), 'text/javascript'],
+  '/json.js': [path.join(root, 'json.js'), 'text/javascript'],
   '/theme.js': [path.join(root, 'theme.js'), 'text/javascript'],
   '/motion.js': [path.join(root, 'motion.js'), 'text/javascript'],
   '/playful.js': [path.join(root, 'playful.js'), 'text/javascript'],

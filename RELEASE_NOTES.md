@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.19
+# Swagger UI Studio 0.3.20
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.20 adds theme-aware JSON syntax colors to editable Studio request bodies, response bodies and schema examples. Native editing, selection, scrolling and formatting are retained; text is rendered safely without interpreting HTML. Token colors meet 4.5:1 contrast on code/input backgrounds across every theme and atmosphere, and are shared with Swagger code blocks. Large documents retain complete plain-text rendering beyond the highlighting budget.
 
 0.3.19 aligns request and response as equal cards with matching headers and no response-only top offset. Execute moves into the request header as a compact shadow-free button. Companion scenes render inside the response card; side-by-side remains available down to narrower desktop widths, with mobile stacking and saved layout preferences retained. Script and stylesheet URLs now carry a content fingerprint so deployed updates refresh stale cached assets automatically.
 

@@ -86,7 +86,7 @@
   `; document.head.append(effectsStyle);
   function current() { return preference === 'system' ? query?.matches ? 'dark' : 'light' : preference; }
   function palette() { return { ...themes[current()].palette, ...atmospherePalettes[current()]?.[atmosphere()] }; }
-  function variables() { return Object.entries(palette()).filter(([k]) => k !== 'mode').map(([k,v]) => `--st-${k}:${v}`).join(';'); }
+  function variables() { const p = palette(), tokens = window.SwaggerStudioJson?.palette(p) || {}; return Object.entries({ ...p, ...tokens }).filter(([k]) => k !== 'mode').map(([k,v]) => `--st-${k}:${v}`).join(';'); }
   function raiseEffects() { if (layer) document.documentElement.append(layer); }
   function effects() {
     motionCleanup?.(); motionCleanup = undefined;
@@ -127,7 +127,11 @@
       html[data-studio-theme] .swagger-ui :is(.model-box,.model-container,section.models .model-container){background:${p.input}}
       html[data-studio-theme] .swagger-ui :is(.opblock-description-wrapper p,.opblock-external-docs-wrapper p,.renderedMarkdown p,.response-col_description){color:${p.text}}
       html[data-studio-theme] .swagger-ui :is(.highlight-code,.microlight,.highlight-code pre,.highlight-code code){background:${p.code}!important;color:${p.text}!important}
-      html[data-studio-theme] .swagger-ui .highlight-code *{background:transparent!important;color:${p.text}!important}
+      html[data-studio-theme] .swagger-ui .highlight-code *{background:transparent!important}
+      html[data-studio-theme] .swagger-ui :is(.highlight-code,.microlight) :is(.hljs-attr,.hljs-attribute,.token.property){color:var(--st-json-key,${p.accent})!important}
+      html[data-studio-theme] .swagger-ui :is(.highlight-code,.microlight) :is(.hljs-string,.token.string){color:var(--st-json-string,${p.text})!important}
+      html[data-studio-theme] .swagger-ui :is(.highlight-code,.microlight) :is(.hljs-number,.token.number){color:var(--st-json-number,${p.text})!important}
+      html[data-studio-theme] .swagger-ui :is(.highlight-code,.microlight) :is(.hljs-literal,.token.boolean,.token.null){color:var(--st-json-literal,${p.text})!important}
       html[data-studio-theme] .swagger-ui .btn.authorize{color:${p.accent};border-color:${p.accent}}
       html[data-studio-theme] .swagger-ui .opblock{background:${p.panel};box-shadow:none}
       html[data-studio-theme] .swagger-ui .opblock-summary{background:${p.input}}

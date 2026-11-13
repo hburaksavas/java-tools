@@ -17,6 +17,7 @@ final class StudioIndexTransformer implements SwaggerIndexTransformer {
             <script src="./studio/swagger-bridge.js" defer></script>
             <script src="./studio/motion.js" defer></script>
             <script src="./studio/scenes.js" defer></script>
+            <script src="./studio/json.js" defer></script>
             <script src="./studio/theme.js" defer></script>
             <script src="./studio/playful.js" defer></script>
             <script src="./studio/response-effects.js" defer></script>
@@ -34,7 +35,7 @@ final class StudioIndexTransformer implements SwaggerIndexTransformer {
     private static String assetRevision() {
         try {
             var digest = MessageDigest.getInstance("SHA-256");
-            for (String name : new String[] { "core.js", "swagger-bridge.js", "motion.js", "scenes.js", "theme.js", "playful.js", "response-effects.js", "studio.js", "bootstrap.js", "studio.css", "effects.css" }) {
+            for (String name : new String[] { "json.js", "core.js", "swagger-bridge.js", "motion.js", "scenes.js", "theme.js", "playful.js", "response-effects.js", "studio.js", "bootstrap.js", "studio.css", "effects.css" }) {
                 try (var input = StudioIndexTransformer.class.getResourceAsStream("/META-INF/swagger-ui-studio/" + name)) {
                     if (input == null) throw new IllegalStateException("Missing Studio asset: " + name);
                     digest.update(input.readAllBytes());
