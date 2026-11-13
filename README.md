@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.2.1
+# Swagger UI Studio 0.2.2
 
 Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir API çalışma alanı. `/swagger-ui/index.html` açılınca Studio otomatik başlar. Eklenti ve ayrı frontend sunucusu gerekmez.
 
@@ -8,7 +8,7 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 - Swagger ile paylaşılan bearer, API key, basic ve OAuth yetkilendirmesi. Güncel token her istekte Swagger'dan okunur; request ve response interceptor'ları çalışır. **Authorize**, Swagger'ın kendi yetkilendirme penceresini açar; ardından **Open API Studio** ile dönün.
 - Tag grupları, arama, sekmeler, favoriler; tarayıcı yeniden açılınca çalışma düzeni geri gelir.
 - Şemadan örnek JSON, JSON biçimlendirme ve temel tip/zorunlu alan doğrulaması; alan açıklamaları, typed query parametreleri, URL-encoded form ve multipart dosya yükleme.
-- Kompakt görünüm; Studio ve standart Swagger için eşlenik açık/koyu/sistem teması. Başlık, aynı origin logo ve karşılama metni uygulamadan ayarlanır. Üst çubuktaki Snow/Stars efektleri düşük hareket tercihini izler; örnek projede kar açıktır.
+- Kompakt görünüm; Studio ve standart Swagger için tek bir ortak tema seçimi. Midnight ve Daylight sade; Winter kar yağışlı, Cosmic yıldızlı, Forest yeşil paletlidir. System işletim sisteminin açık/koyu tercihini izler. Efektler tema paketinin parçasıdır ve Studio kapansa da Swagger'da devam eder. Düşük hareket tercihi animasyonları kapatır.
 - İstek bitince yanıt alanına kontrollü kaydırma, klavye odağı ve kısa vurgu animasyonu. Endpoint sekmeleri arasında editör kaydırma konumu korunur.
 - `Ctrl+K`: arama, `Ctrl+Enter`: istek gönderme, `Alt+W`: aktif endpoint sekmesini kapatma, `Esc`: ayarları kapatma veya standart Swagger'a dönüş.
 
@@ -18,11 +18,11 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 <dependency>
     <groupId>com.brsvs</groupId>
     <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
 </dependency>
 ```
 
-Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.2.1) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
+Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.2.2) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
 
 Repository ZIP'ini örneğin `vendor/studio-maven` klasörüne açıp tüketen projeye şu repository'yi ekleyebilirsiniz. ZIP, starter'ın parent POM'unu da içerir; diğer bağımlılıklar Maven Central'dan çözülür.
 
@@ -46,17 +46,18 @@ brsvs:
       logo-url: /assets/logo.svg
       welcome-title: Welcome to Payment API
       welcome-message: Explore the API and try a request.
-      theme: system  # system, dark, light — kullanıcı tercihi varsa onu korur
-      effect: none   # none, snow, stars — kullanıcı tercihi varsa onu korur
+      theme: winter # system, dark, light, winter, cosmic, forest; kullanıcı tercihi varsa onu korur
 ```
 
 `enabled: false` özgün Swagger HTML'ini geri getirir. Başlangıç ayarları `/swagger-ui/studio/config.json` altında sunulur ve OpenAPI dokümanına eklenmez. Logo yalnız aynı origin HTTP(S) adresinden yüklenir. Context path kullanılan projede logo adresine context path'i ekleyin veya uygun göreli adres kullanın.
+
+Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici aynı ayarı değiştirir. Tema tek bir origin genelinde tarayıcıda saklanır; Studio/Swagger geçişi onu değiştirmez. Eski `effect` ayarı kaldırılmıştır; kar için `theme: winter`, yıldızlar için `theme: cosmic` kullanın. Önceki açık/koyu tema tercihleriniz korunur.
 
 ## Gerçek Spring Boot örneği
 
 ```powershell
 ./mvnw.cmd verify
-java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.2.1.jar
+java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.2.2.jar
 ```
 
 [Swagger UI / Studio](http://127.0.0.1:8087/swagger-ui/index.html) adresini açın. Springdoc, [OpenAPI tanımını](http://127.0.0.1:8087/v3/api-docs) gerçek controller'lardan üretir. Müşteri oluşturma/listeleme, sipariş, sağlık, auth/interceptor kontrolü, dosya ve form endpoint'leri vardır. Veriler bellekte tutulur; sunucu yalnız `127.0.0.1` üzerinde çalışır.

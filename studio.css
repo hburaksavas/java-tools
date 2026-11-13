@@ -130,14 +130,9 @@ a { color: var(--st-accent); }
 .settings { background: var(--st-panel); border: 1px solid var(--st-line); border-radius: 12px; padding: 22px; width: min(420px, 95%); max-height: 90%; overflow: auto; box-shadow: 0 15px 70px #0005; }
 .settings h2 { font-size: 19px; }
 .settings .field > select { width: 100%; }
-.snow { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; user-select: none; }
-.flake { position: absolute; top: -22px; color: var(--st-snow); animation: fall linear infinite; opacity: .6; filter: drop-shadow(0 0 2px #a497ff22); }
-.stars .flake { color: var(--st-accent); animation-name: shimmer; }
 .pending { color: var(--st-muted); display: flex; align-items: center; gap: 9px; font-size: 11px; }
 .pending::before { content: ''; width: 10px; height: 10px; border: 2px solid var(--st-line); border-top-color: var(--st-accent); border-radius: 50%; animation: spin .7s linear infinite; }
 .arrived { animation: response-in .75s ease-out; }
-@keyframes fall { to { transform: translate3d(60px, 105vh, 0) rotate(130deg); } }
-@keyframes shimmer { 0%,100% { opacity: .12; transform: scale(.7); } 50% { opacity: .75; transform: scale(1.15); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes response-in { from { box-shadow: 0 0 0 3px var(--st-soft), 0 0 28px var(--st-soft); border-color: var(--st-accent); transform: translateY(5px); } to { box-shadow: none; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; scroll-behavior: auto !important; } .snow { display: none; } }
