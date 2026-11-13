@@ -46,3 +46,5 @@ Standart Swagger entegrasyonu initializer'a bir Swagger plugin'i ekler. Mevcut p
 Java örneğinde `/api/demo-response` endpoint'ini seçin. `status=200`, `404` veya `503`; `delayMillis=2000` ile bekleme ve sonucu gözleyin. Gecikme sırasında Studio'da **Cancel** ile iptali deneyin. Gecikme 0–5000 ms arasında sınırlandırılır. Bu endpoint yalnız örnek uygulamadadır.
 
 | bosphorus | Bosphorus | Boğaz mavisi, süzülen martılar | Execute ile şehir hatları vapuru |
+
+Ocean, Winter ve Sakura (0.3.11): ufukta su yansımaları ve köpük izi; rüzgârla savrulan kar ve kristalleşme; farklı tonlarda çentikli taç yapraklar ve köşede çiçeklenme.

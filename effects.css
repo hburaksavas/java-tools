@@ -113,3 +113,33 @@
 @keyframes brsvs-ferry-sail { 0% { left:-75px; transform:translateY(0) rotate(-1deg); } 30% { transform:translateY(-2px) rotate(1deg); } 65% { transform:translateY(0) rotate(-1deg); } 100% { left:calc(100% + 10px); transform:translateY(-1px) rotate(1deg); } }
 @keyframes brsvs-ferry-water { to { background-position:45px 0; } }
 @media(prefers-reduced-motion:reduce) { .brsvs-response-fx .ferry-boat { display:none; } }
+
+/* Ocean: travelling highlights and two slow wave fronts, kept at the horizon. */
+#brsvs-theme-effects.organic.ocean .mote { height:2px; border-radius:50%; background:linear-gradient(90deg,transparent,#b9f3f8,transparent); box-shadow:0 0 8px #75d9df44; }
+#brsvs-theme-effects.organic.ocean::before,#brsvs-theme-effects.organic.ocean::after { content:''; position:absolute; left:-15%; bottom:-7vh; width:130%; height:19vh; border-top:2px solid #75d9df44; border-radius:48% 52% 0 0; background:linear-gradient(#75d9df0b,transparent); animation:brsvs-sea-swell 13s ease-in-out infinite alternate; }
+#brsvs-theme-effects.organic.ocean::after { bottom:-11vh; height:22vh; animation-duration:19s; animation-delay:-7s; animation-direction:alternate-reverse; }
+@keyframes brsvs-sea-swell { from { transform:translate(-3%,12px) rotate(-2deg); } to { transform:translate(3%,-8px) rotate(2deg); } }
+/* Winter: nearby crystalline flakes among fine, distant snow. */
+#brsvs-theme-effects.organic.snow span:nth-child(5n) .mote { width:calc(var(--mote-size)*2); height:calc(var(--mote-size)*2); border-radius:0; background:#dff8ff; clip-path:polygon(45% 0,55% 0,57% 32%,80% 12%,88% 20%,68% 43%,100% 45%,100% 55%,68% 57%,88% 80%,80% 88%,57% 68%,55% 100%,45% 100%,43% 68%,20% 88%,12% 80%,32% 57%,0 55%,0 45%,32% 43%,12% 20%,20% 12%,43% 32%); }
+#brsvs-theme-effects.snow::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 85% 0,#83d7ef0d,transparent 55%); }
+/* Sakura: asymmetric notched petals, soft rose shadows and varied tones. */
+#brsvs-theme-effects.organic.petals .mote { border-radius:75% 30% 70% 35%; clip-path:polygon(50% 10%,65% 0,88% 12%,100% 40%,85% 73%,30% 100%,5% 70%,0 38%,18% 10%,35% 0); background:linear-gradient(135deg,#ffe8f0,#d87c9e); box-shadow:inset 1px 1px 2px #fff8; }
+#brsvs-theme-effects.organic.petals .tone-1 { background:linear-gradient(135deg,#fff2f7,#e9a9c4); }
+#brsvs-theme-effects.organic.petals .tone-2 { background:linear-gradient(135deg,#f6cddd,#bd648d); }
+/* Theme-specific execution scenes stay on the panel perimeter. */
+.response-scene { position:absolute; inset:0; border-radius:inherit; overflow:hidden; }
+.response-scene b { position:absolute; display:block; }
+.brsvs-response-fx:is(.tide,.ice,.petals)[data-state=success] { animation:brsvs-fade .35s 1.65s ease-out both; }
+.brsvs-response-fx:is(.tide,.ice,.petals) > span { display:none; }
+.brsvs-response-fx.tide .response-scene::before,.brsvs-response-fx.tide .response-scene::after { content:''; position:absolute; bottom:-5px; left:-25%; width:150%; height:12px; border-top:2px solid var(--fx-color); border-radius:50%; background:linear-gradient(var(--st-soft),transparent); animation:brsvs-response-surf 1.8s ease-in-out infinite; }
+.brsvs-response-fx.tide .response-scene::after { bottom:-8px; animation-delay:-.9s; opacity:.45; }
+.brsvs-response-fx.tide .response-scene b { bottom:1px; left:calc(var(--n)*15%); width:20px; height:2px; border-radius:50%; background:var(--fx-color); animation:brsvs-foam 1.6s calc(var(--n)*-.2s) ease-in-out infinite; }
+@keyframes brsvs-response-surf { 0%,100% { transform:translateX(-8%) rotate(-1deg); } 50% { transform:translateX(8%) rotate(1deg); } }
+@keyframes brsvs-foam { 0%,100% { opacity:0; transform:translateX(-12px) scaleX(.4); } 50% { opacity:.8; transform:translateX(12px) scaleX(1); } }
+.brsvs-response-fx.ice .response-scene b { top:-1px; left:calc(4% + var(--n)*15%); width:13px; height:13px; background:var(--fx-color); clip-path:polygon(45% 0,55% 0,58% 36%,90% 15%,100% 25%,65% 47%,100% 50%,65% 57%,90% 90%,80% 100%,55% 65%,50% 100%,45% 65%,10% 90%,0 80%,35% 55%,0 50%,35% 45%,10% 10%,20% 0,45% 35%); animation:brsvs-crystallize 1.8s calc(var(--n)*.09s) ease-out both; transform-origin:50% 0; }
+@keyframes brsvs-crystallize { 0% { opacity:0; transform:scale(.1) rotate(-30deg); } 35%,65% { opacity:.9; transform:scale(1) rotate(0); } 100% { opacity:0; transform:scale(.65) translateY(5px); } }
+.brsvs-response-fx.petals .response-scene b { right:calc(5px + var(--n)*3px); bottom:3px; width:9px; height:15px; background:var(--fx-color); border-radius:80% 20% 65% 35%; transform-origin:50% 100%; animation:brsvs-bloom 1.8s calc(var(--n)*.04s) ease-out both; --angle:calc(var(--n)*36deg - 100deg); }
+@keyframes brsvs-bloom { 0% { opacity:0; transform:rotate(var(--angle)) scale(0); } 35%,65% { opacity:.65; transform:rotate(var(--angle)) scale(1); } 100% { opacity:0; transform:translate(-14px,-3px) rotate(calc(var(--angle) + 30deg)) scale(.5); } }
+.brsvs-response-fx:is(.ice,.petals)[data-state=pending] .response-scene b { animation-iteration-count:infinite; }
+.brsvs-response-fx:is(.tide,.ice,.petals):is([data-state=error],[data-state=warning],[data-state=cancelled]) .response-scene { display:none; }
+@media(prefers-reduced-motion:reduce) { .response-scene { display:none; } }

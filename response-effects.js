@@ -23,6 +23,12 @@
       if (recipe === 'ferry' && !motion?.matches && !node.querySelector('.ferry-boat')) {
         const boat = document.createElement('i'); boat.className = 'ferry-boat'; boat.append(document.createElement('b')); node.append(boat);
       } else if (recipe !== 'ferry' || motion?.matches) node.querySelector('.ferry-boat')?.remove();
+      node.querySelector('.response-scene')?.remove();
+      if (['tide', 'ice', 'petals'].includes(recipe) && !motion?.matches) {
+        const scene = document.createElement('i'); scene.className = 'response-scene';
+        for (let i = 0; i < 7; i++) { const shape = document.createElement('b'); shape.style.setProperty('--n', i); scene.append(shape); }
+        node.append(scene);
+      }
       node.dataset.theme = window.SwaggerStudioTheme?.current() || 'dark';
     }
     function position(time) {
@@ -47,7 +53,7 @@
         const particle = document.createElement('span');
         particle.style.setProperty('--x', `${8 + i * 10}%`); particle.style.setProperty('--dx', `${i % 2 ? 12 : -12}px`); particle.style.setProperty('--delay', `${i * 15}ms`); node.append(particle);
       }
-      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : node.classList.contains('ferry') ? 2800 : 1000);
+      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : node.classList.contains('ferry') ? 2800 : node.querySelector('.response-scene') ? 2000 : 1000);
     }
     active.add(record); refresh(); document.documentElement.append(node); frame = raf(position);
     timer = window.setTimeout(remove, 120000);

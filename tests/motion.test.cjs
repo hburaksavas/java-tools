@@ -48,3 +48,13 @@ test('gulls cross horizontally in both directions without falling through the pa
     assert.equal(Math.sign(x(bird.frames.at(-1)) - x(bird.frames[0])), seed > .5 ? 1 : -1);
   }
 });
+
+test('Ocean highlights loop near the horizon instead of falling across content', () => {
+  const water = motion.particle('ocean', () => .5);
+  assert.equal(water.frames[0].transform, water.frames.at(-1).transform);
+  for (const frame of water.frames) {
+    const y = Number(frame.transform.match(/,(-?[0-9.]+)vh/)[1]);
+    assert.ok(y > 65 && y < 100);
+  }
+  assert.equal(water.frames[0].opacity, 0);
+});

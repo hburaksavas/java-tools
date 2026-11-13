@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.10
+# Swagger UI Studio 0.3.11
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.11 improves Ocean, Winter and Sakura: looping horizon highlights and wave fronts, wind-driven layered snow, and notched rose petals with broader gliding paths. Execute now produces edge foam, growing ice crystals or a corner blossom. Shared by Studio and Swagger with reduced-motion support.
 
 0.3.10 adds Copy API details next to the favorite icon: formatted URL, method, current request and last response. Before execution, explicit OpenAPI examples or generated response schema samples are used and labelled as examples.
 

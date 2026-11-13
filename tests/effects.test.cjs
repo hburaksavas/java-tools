@@ -83,3 +83,17 @@ test('Bosphorus ferry follows execution and is removed on theme change or reduce
   assert.equal(quiet.node.querySelector('.ferry-boat'), null);
   assert.equal(reduced.document.getElementById('brsvs-theme-effects'), null); quiet.remove();
 });
+
+test('Ocean Winter and Sakura execution scenes refresh, clean up and respect reduced motion', t => {
+  for (const theme of ['ocean', 'winter', 'sakura']) {
+    const w = setup(t); w.SwaggerStudioTheme.set(theme);
+    const effect = w.SwaggerStudioResponseEffects.start(w.document.getElementById('response'));
+    assert.equal(effect.node.querySelectorAll('.response-scene b').length, 7);
+    effect.finish(200); assert.equal(effect.node.querySelectorAll('.response-scene').length, 1);
+    w.SwaggerStudioTheme.set('dark'); assert.equal(effect.node.querySelector('.response-scene'), null);
+    effect.remove(); assert.equal(w.document.querySelector('.brsvs-response-fx'), null);
+    const quiet = setup(t, true); quiet.SwaggerStudioTheme.set(theme);
+    const reduced = quiet.SwaggerStudioResponseEffects.start(quiet.document.getElementById('response'));
+    assert.equal(reduced.node.querySelector('.response-scene'), null); reduced.remove();
+  }
+});
