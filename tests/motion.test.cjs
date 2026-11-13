@@ -1,0 +1,39 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { JSDOM } = require('jsdom');
+const fs = require('node:fs');
+const motion = require('../motion.js');
+test('leaves have curved paths, varied depth/speed/phase and independent tumble timing', () => {
+  let seed = 817;
+  const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+  const samples = Array.from({ length: 30 }, () => motion.particle('leaves', random));
+  assert.equal(new Set(samples.map(p => p.duration)).size, 30);
+  assert.equal(new Set(samples.map(p => p.phase)).size, 30);
+  assert.ok(samples.some(p => p.depth < .6) && samples.some(p => p.depth > .8));
+  for (const p of samples) {
+    const positions = p.frames.map(f => [...f.transform.matchAll(/(-?[0-9.]+)(?:vw|vh)/g)].map(m => Number(m[1])));
+    const slopes = positions.slice(1).map((v,i) => v[0] - positions[i][0]);
+    assert.ok(Math.max(...slopes) - Math.min(...slopes) > .05, 'wind changes the horizontal velocity');
+    assert.equal(p.frames[0].opacity, 0); assert.equal(p.frames.at(-1).opacity, 0);
+  }
+});
+test('rain falls, embers rise and fireflies loop without falling', () => {
+  const y = frame => Number(frame.transform.match(/,(-?[0-9.]+)vh/)[1]);
+  const rain = motion.particle('rain'), embers = motion.particle('embers'), firefly = motion.particle('fireflies');
+  assert.ok(y(rain.frames.at(-1)) > y(rain.frames[0]));
+  assert.ok(y(embers.frames.at(-1)) < y(embers.frames[0]));
+  assert.equal(firefly.frames[0].transform, firefly.frames.at(-1).transform);
+  assert.ok(rain.duration < embers.duration);
+});
+test('mount cancels old animations and pauses when the document is hidden', t => {
+  const dom = new JSDOM('<div id="layer"></div>', { runScripts: 'outside-only' }); t.after(() => dom.window.close());
+  const w = dom.window, calls = []; let hidden = false;
+  Object.defineProperty(w.document, 'hidden', { get: () => hidden });
+  w.Element.prototype.animate = function (frames, options) { const a = { frames, options, currentTime: 0, cancelled: false, paused: false, pause() { this.paused = true; }, play() { this.paused = false; }, cancel() { this.cancelled = true; } }; calls.push(a); return a; };
+  w.eval(fs.readFileSync(require.resolve('../motion.js'), 'utf8'));
+  const cleanup = w.SwaggerStudioMotion.mount(w.document.getElementById('layer'), 'leaves', 12);
+  assert.equal(calls.length, 24); assert.equal(w.document.querySelectorAll('.mote').length, 12);
+  assert.ok(new Set(calls.filter((_,i) => i % 2 === 0).map(a => a.currentTime)).size > 1);
+  hidden = true; w.document.dispatchEvent(new w.Event('visibilitychange')); assert.ok(calls.every(a => a.paused));
+  cleanup(); assert.ok(calls.every(a => a.cancelled));
+});

@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.1
+# Swagger UI Studio 0.3.2
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.2 replaces the straight, uniform particle motion with independent wind curves, depth-dependent speed/size, randomized phases and separate leaf/petal tumbling. Embers rise, dust drifts and fireflies loop locally. Ambient Web Animations pause in hidden tabs and are cancelled when changing themes.
 
 - Implements all saved theme concepts: Rainy Night, Aurora, Sakura, Ember, Ocean, Cyberpunk, Terminal, Blueprint, Eclipse, Paper & Ink, Observatory, Autumn, Monsoon, Circuit, Sandstorm, Bioluminescence, Infrared and Zen, alongside the existing presets.
 - Adds waiting, success, warning, failure and cancellation feedback around response edges. JSON text and panel position remain unchanged.

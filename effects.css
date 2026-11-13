@@ -76,3 +76,19 @@
 @keyframes brsvs-error{from{opacity:.65}to{opacity:0}}
 @keyframes brsvs-fade{to{opacity:0}}
 @media(prefers-reduced-motion:reduce){#brsvs-theme-effects{display:none}.brsvs-response-fx,.brsvs-response-fx::before,.brsvs-response-fx span{animation:none!important}.brsvs-response-fx::before,.brsvs-response-fx span{display:none!important}}
+
+/* Organic ambient motion uses independent paths and an inner shape that can tumble separately. */
+#brsvs-theme-effects.organic span{top:0!important;left:0!important;bottom:auto!important;width:0!important;height:0!important;background:none!important;border:0!important;box-shadow:none!important;filter:none!important;animation:none!important;font-size:0!important}
+#brsvs-theme-effects.organic span::after{display:none}
+#brsvs-theme-effects.organic .mote{position:absolute;display:block;width:var(--mote-size);height:var(--mote-size);background:var(--st-snow);border-radius:50%;will-change:transform;transform-origin:50% 50%;backface-visibility:visible}
+#brsvs-theme-effects.organic.leaves .mote{height:calc(var(--mote-size)*1.55);border-radius:8% 90% 12% 80%;background:linear-gradient(125deg,#d5a15e,#a66b37)}
+#brsvs-theme-effects.organic.leaves .tone-1{background:linear-gradient(125deg,#d5ab65,#b1813e)}
+#brsvs-theme-effects.organic.leaves .tone-2{background:linear-gradient(125deg,#bc8564,#8c5744)}
+#brsvs-theme-effects.organic.leaves .tone-3{background:linear-gradient(125deg,#d4b278,#ac854d)}
+#brsvs-theme-effects.organic.leaves .mote::after{content:'';position:absolute;left:48%;top:10%;width:1px;height:95%;background:#674b343b;rotate:-18deg}
+#brsvs-theme-effects.organic.petals .mote{height:calc(var(--mote-size)*1.45);border-radius:80% 20% 70% 35%;background:linear-gradient(135deg,#f3c7da,var(--st-snow))}
+#brsvs-theme-effects.organic.snow .mote{box-shadow:0 0 2px #ffffff30}
+#brsvs-theme-effects.organic.rain .mote,#brsvs-theme-effects.organic.rain-heavy .mote{width:1px;height:var(--streak-length);border-radius:50%;background:linear-gradient(transparent,var(--st-accent));transform:rotate(9deg)}
+#brsvs-theme-effects.organic.rain-heavy .mote{width:1.5px}
+#brsvs-theme-effects.organic.embers .mote,#brsvs-theme-effects.organic.fireflies .mote{background:var(--st-accent);box-shadow:0 0 7px var(--st-accent)}
+#brsvs-theme-effects.organic.dust .mote{width:2px;height:2px;background:var(--st-accent)}

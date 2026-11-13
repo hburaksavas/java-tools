@@ -35,7 +35,7 @@
   const key = 'brsvs:studio:theme-v2';
   const query = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null;
   const motion = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
-  let preference = 'system', explicit = false, layer;
+  let preference = 'system', explicit = false, layer, motionCleanup;
   try {
     const saved = localStorage.getItem(key) || localStorage.getItem('brsvs:studio:theme');
     if (Object.hasOwn(themes, saved)) { preference = saved; explicit = true; }
@@ -54,18 +54,23 @@
   function variables() { return Object.entries(palette()).filter(([k]) => k !== 'mode').map(([k,v]) => `--st-${k}:${v}`).join(';'); }
   function raiseEffects() { if (layer) document.documentElement.append(layer); }
   function effects() {
+    motionCleanup?.(); motionCleanup = undefined;
     layer?.remove(); layer = undefined;
     const effect = themes[current()].effect;
     if (effect === 'none' || motion?.matches) return;
     layer = document.createElement('div'); layer.id = 'brsvs-theme-effects'; layer.className = effect; layer.setAttribute('aria-hidden', 'true');
     const scenes = ['aurora','ocean','neon','scan','grid','eclipse','paper','circuit','heat','mist'];
     const count = effect === 'snow' ? 42 : effect === 'stars' ? 30 : scenes.includes(effect) ? 3 : 24;
+    motionCleanup = window.SwaggerStudioMotion?.mount(layer, effect, count);
+    if (motionCleanup) { raiseEffects(); return; }
     for (let i = 0; i < count; i++) {
       const flake = document.createElement('span'); flake.textContent = effect === 'stars' || effect === 'constellations' ? '✦' : effect === 'snow' ? i % 4 ? '•' : '❄' : effect === 'leaves' ? '❧' : '';
       flake.style.left = `${Math.random() * 100}%`; flake.style.fontSize = `${effect === 'snow' ? 11 + Math.random() * 9 : 7 + Math.random() * 7}px`;
       if (['stars','constellations','fireflies','dust'].includes(effect)) flake.style.top = `${Math.random() * 100}%`;
       flake.style.setProperty('--seed', i); flake.style.setProperty('--drift', `${20 + Math.random() * 80}px`);
-      flake.style.animationDuration = `${effect === 'snow' ? 7 + Math.random() * 10 : 2 + Math.random() * 4}s`; flake.style.animationDelay = `-${Math.random() * 20}s`; layer.append(flake);
+      const duration = effect === 'snow' ? 10 + Math.random() * 20 : 12 + Math.random() * 16;
+      flake.style.setProperty('--ambient-duration', `${duration}s`);
+      flake.style.animationDuration = `${duration}s`; flake.style.animationDelay = `-${Math.random() * duration}s`; layer.append(flake);
     }
     raiseEffects();
   }
