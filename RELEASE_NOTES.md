@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.7
+# Swagger UI Studio 0.3.8
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.8 adds responsive side-by-side request/response panels and a layout switch. The preference persists across endpoints and reloads and syncs across same-origin browser tabs. Narrow screens stack panels automatically. Visible responses receive focus without scrolling.
 
 0.3.7 removes the duplicate Overview entry from the sidebar. Overview remains available in the tab bar.
 

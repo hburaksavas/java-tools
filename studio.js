@@ -17,6 +17,13 @@
     if (definition?.description) wrap.append(el('small', definition.description));
     return { wrap, input };
   }
+  const layoutKey = 'brsvs:studio:request-layout';
+  let requestLayout = read(layoutKey) === 'stacked' ? 'stacked' : 'split';
+  function applyLayout() {
+    const editor = shadow?.querySelector('.editor');
+    if (editor) editor.dataset.layout = requestLayout;
+    for (const control of shadow?.querySelectorAll('[data-request-layout]') || []) control.setAttribute('aria-pressed', String(control.dataset.requestLayout === requestLayout));
+  }
   function themePicker() { return window.SwaggerStudioTheme.picker(); }
   function close() {
     if (!host) return;
@@ -121,7 +128,13 @@
     const draft = drafts.get(op.id) || newDraft(op); drafts.set(op.id, draft);
     const area = el('div', undefined, 'editor'), heading = el('div', undefined, 'heading');
     const star = button(favorites.includes(op.id) ? '★' : '☆', () => { if (busy) return; favorites = favorites.includes(op.id) ? favorites.filter(x => x !== op.id) : [...favorites, op.id]; persist(); render(); }); star.setAttribute('aria-label', 'Toggle favorite');
-    heading.append(el('span', op.method, `method ${op.method}`), el('h2', op.path), star); area.append(heading, el('p', [op.summary, op.description].filter(Boolean).join('\n'), 'description'));
+    const layouts = el('div', undefined, 'layout-picker'); layouts.setAttribute('role', 'group'); layouts.setAttribute('aria-label', 'Request and response layout');
+    for (const [value, label] of [['split', 'Side by side'], ['stacked', 'Stacked']]) {
+      const control = button(label, () => { requestLayout = value; try { localStorage.setItem(layoutKey, JSON.stringify(value)); } catch {} applyLayout(); });
+      control.dataset.requestLayout = value; control.setAttribute('aria-pressed', String(requestLayout === value)); layouts.append(control);
+    }
+    area.dataset.layout = requestLayout;
+    heading.append(el('span', op.method, `method ${op.method}`), el('h2', op.path), star, el('span', undefined, 'grow'), layouts); area.append(heading, el('p', [op.summary, op.description].filter(Boolean).join('\n'), 'description'));
     const base = field('Server URL', draft.base); base.input.oninput = () => draft.base = base.input.value; area.append(base.wrap);
     const schemes = bridge.authSummary(ui); area.append(el('p', schemes.length ? `Using Swagger authorization: ${schemes.join(', ')}` : 'Authorization is shared with Swagger. Use Authorize to sign in.', 'notice'));
     const authDetails = el('details'); authDetails.append(el('summary', 'Override Authorization header for this request'));
@@ -164,12 +177,17 @@
     }
     area.append(el('p', 'Uses Swagger authorization and request/response interceptors. Request data stays in memory until Studio closes.', 'notice'));
     const controls = el('div', undefined, 'row'), send = button('Execute', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel); area.append(controls);
-    const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.tabIndex = -1; area.append(output); if (draft.response) show(draft.response);
+    const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.tabIndex = -1; const panels = el('div', undefined, 'request-response'), request = el('section', undefined, 'request'); request.setAttribute('aria-label', 'Request');
+    for (const node of [...area.children].slice(2)) request.append(node);
+    output.append(el('h3', 'Response'), el('p', 'Execute a request to see the response.', 'empty'));
+    panels.append(request, output); area.append(panels); if (draft.response) show(draft.response);
     function focusResponse() {
       const main = shadow.querySelector('.main'); if (!main || !output.isConnected) return;
       const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       const top = Math.max(0, main.scrollTop + output.getBoundingClientRect().top - main.getBoundingClientRect().top - 58);
-      if (main.scrollTo) main.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' }); else main.scrollTop = top;
+      const bounds = output.getBoundingClientRect(), viewport = main.getBoundingClientRect();
+      const visible = bounds.top >= viewport.top + 54 && bounds.top < viewport.bottom - 64;
+      if (!visible && main.scrollTo) main.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' }); else if (!visible) main.scrollTop = top;
       output.focus({ preventScroll: true });
       output.classList.remove('arrived');
       if (!reduced) { void output.offsetWidth; output.classList.add('arrived'); }
@@ -229,5 +247,8 @@
     }
   });
   window.addEventListener('studio-theme-changed', () => { if (host) for (const select of shadow.querySelectorAll('[aria-label="Theme for Studio and Swagger"]')) select.value = window.SwaggerStudioTheme.preference(); });
+  window.addEventListener('storage', event => {
+    if (event.key === layoutKey || event.key === null) { requestLayout = read(layoutKey) === 'stacked' ? 'stacked' : 'split'; if (host) applyLayout(); }
+  });
   window.SwaggerStudio = { open, close };
 })();

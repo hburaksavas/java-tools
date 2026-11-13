@@ -72,3 +72,22 @@ test('shared themes respect reduced motion and migrate previous color preference
   assert.equal(w.SwaggerStudioTheme.preference(), 'dark'); w.SwaggerStudioTheme.configure({ theme: 'winter' }); assert.equal(w.SwaggerStudioTheme.preference(), 'dark');
   w.SwaggerStudioTheme.set('winter'); assert.equal(w.document.documentElement.dataset.studioTheme, 'winter'); assert.equal(w.document.getElementById('brsvs-theme-effects'), null);
 });
+
+test('request layout persists across endpoints and reloads, syncs tabs without losing request state', async t => {
+  const env = setup(t), { w, data } = env; await w.SwaggerStudio.open(data);
+  clickOp(env.shadow, 'POST/pets');
+  const body = env.shadow.querySelector('textarea'); body.value = '{"name":"Kept"}'; body.dispatchEvent(new w.Event('input'));
+  env.shadow.querySelector('[data-request-layout="stacked"]').click();
+  assert.equal(env.shadow.querySelector('.editor').dataset.layout, 'stacked');
+  assert.equal(env.shadow.querySelector('textarea'), body);
+  clickOp(env.shadow, 'GET/health'); assert.equal(env.shadow.querySelector('.editor').dataset.layout, 'stacked');
+  w.SwaggerStudio.close();
+  delete w.SwaggerStudio; w.eval(fs.readFileSync(require.resolve('../studio.js'), 'utf8'));
+  await w.SwaggerStudio.open(data); assert.equal(env.shadow.querySelector('.editor').dataset.layout, 'stacked');
+  clickOp(env.shadow, 'POST/pets');
+  w.localStorage.setItem('brsvs:studio:request-layout', JSON.stringify('split'));
+  w.dispatchEvent(new w.StorageEvent('storage', { key: 'brsvs:studio:request-layout' }));
+  assert.equal(env.shadow.querySelector('.editor').dataset.layout, 'split');
+  assert.equal(env.shadow.querySelector('[data-request-layout="split"]').getAttribute('aria-pressed'), 'true');
+  assert.ok(env.shadow.querySelector('.request textarea'));
+});
