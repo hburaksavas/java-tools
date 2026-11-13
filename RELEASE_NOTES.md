@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.6
+# Swagger UI Studio 0.3.7
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.7 removes the duplicate Overview entry from the sidebar. Overview remains available in the tab bar.
 
 0.3.6 removes the redundant Settings button and dialog. Theme selection remains directly in the toolbar; Escape returns straight to Swagger.
 

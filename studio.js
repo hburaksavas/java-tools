@@ -58,7 +58,7 @@
       if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
     top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'), auth, themePicker(), button('Swagger ↗', close));
-    const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side'); side.append(button('⌂ Overview', () => select(null), 'home-button'));
+    const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side');
     const search = el('input', undefined, 'search'); search.placeholder = 'Find endpoint · Ctrl K'; search.setAttribute('aria-label', 'Search endpoints'); search.value = searchTerm; side.append(search);
     const check = el('input'); check.type = 'checkbox'; check.checked = favoriteOnly;
     const filter = el('label', undefined, 'filter'); filter.append(check, el('span', 'Favorites only')); side.append(filter);

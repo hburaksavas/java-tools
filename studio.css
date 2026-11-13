@@ -51,7 +51,6 @@ label > span { display: block; }
 .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 0; }
 .side { padding: 12px 10px; border-right: 1px solid var(--st-line); overflow: auto; background: var(--st-panel); }
 .search { margin: 12px 0 8px; font-size: 11px; padding: 8px; }
-.home-button { width: 100%; text-align: left; background: var(--st-soft); border-color: transparent; color: var(--st-accent); font-size: 12px; }
 .filter { display: flex; gap: 7px; align-items: center; font-size: 10px; color: var(--st-muted); margin: 10px 3px 16px; }
 .filter input { width: auto; accent-color: var(--st-accent); }
 .group { margin: 17px 0 6px 6px; color: var(--st-muted); font-size: 9px; letter-spacing: .11em; text-transform: uppercase; }
