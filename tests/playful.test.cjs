@@ -14,14 +14,14 @@ function session(w, random = () => .5) {
   const effect = w.SwaggerStudioPlayful.attach(node, { now: () => now, random });
   return { node, effect, advance(ms) { now = ms; effect.tick(); }, finish(code, state = code >= 500 ? 'error' : code >= 300 ? 'warning' : 'success') { node.dataset.state = state; effect.finish(code); } };
 }
-test('HTTP zoo preserves status semantics, special teapot, error smoke and cleanup on theme change', t => {
+test('HTTP status feedback stays on the response without extra character badges', t => {
   const w = setup(t), target = w.document.getElementById('target'); w.SwaggerStudioTheme.set('ocean');
   for (const [code, state] of [[200, 'success'], [400, 'warning'], [500, 'error'], [418, 'warning']]) {
     const fx = w.SwaggerStudioResponseEffects.start(target); fx.finish(code);
-    assert.ok(fx.node.querySelector(`.http-zoo.${state}`));
-    assert.equal(!!fx.node.querySelector('.mascot-smoke'), code === 500);
-    if (code === 418) assert.match(fx.node.querySelector('.http-zoo').textContent, /Tea time/);
-    w.SwaggerStudioTheme.set('winter'); assert.equal(fx.node.querySelectorAll('.http-zoo').length, 1);
+    assert.equal(fx.node.dataset.state,state); assert.equal(fx.node.querySelector('.http-zoo'),null);
+    assert.equal(fx.node.querySelector('.mascot-smoke'),null);
+
+    w.SwaggerStudioTheme.set('winter'); assert.equal(fx.node.querySelectorAll('.http-zoo').length, 0);
     assert.equal(target.textContent, 'Readable response'); fx.remove();
   }
 });
@@ -71,7 +71,7 @@ test('endpoint travel replaces previous journey and clears on close', t => {
   w.dispatchEvent(new w.CustomEvent('studio-closed')); assert.equal(w.document.querySelector('.endpoint-traveller'), null);
 });
 
-test('real Swagger execution shares teapot and five-success celebration with Studio', async t => {
+test('real Swagger execution preserves status and streaks without character badges', async t => {
   const w = setup(t); delete w.SwaggerStudioResponseEffects;
   w.eval(fs.readFileSync(require.resolve('swagger-ui-dist/swagger-ui-bundle.js'), 'utf8'));
   w.eval(fs.readFileSync(require.resolve('../response-effects.js'), 'utf8'));
@@ -84,7 +84,7 @@ test('real Swagger execution shares teapot and five-success celebration with Stu
     await sys.specActions.executeRequest({ spec, pathName: '/pets', method: 'get', operation, parameters: {}, requestContentType: 'application/json', responseContentType: 'application/json', fetch: sys.fn.fetch });
     await new Promise(resolve => setTimeout(resolve, 15));
     const node = w.document.querySelector('.brsvs-response-fx');
-    if (i === 0) assert.match(node.querySelector('.http-zoo').textContent, /Tea time/);
+    assert.equal(node.querySelector('.http-zoo'),null);
     assert.equal(!!node.querySelector('.streak-party'), i === 5);
   }
   w.SwaggerStudioResponseEffects.clear(); assert.equal(w.document.querySelector('.brsvs-response-fx'), null);

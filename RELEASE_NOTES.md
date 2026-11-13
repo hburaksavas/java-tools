@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.21
+# Swagger UI Studio 0.3.22
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.22 removes HTTP status character badges, including the 418 teapot. Status/timing stay in the response header; theme Execute scenes, long-request behavior, visitors and streaks remain.
 
 0.3.21 moves Server URL into a compact shared toolbar above the request/response cards. Internal interceptor, memory-lifetime and authorization explanation notices are removed. Server overrides remain per-endpoint in-memory drafts and still drive execution and API copying.
 

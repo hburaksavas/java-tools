@@ -28,24 +28,16 @@
   }
   function attach(node, { now = () => performance.now(), random = Math.random } = {}) {
     const started = now(), rare = random() < .08;
-    let done = false, removed = false, stage = 0, status, state = 'pending', celebrate = false, streakAtFinish = 0;
+    let done = false, removed = false, stage = 0, state = 'pending', celebrate = false, streakAtFinish = 0;
     const clock = document.createElement('small'); clock.className = 'request-clock'; node.append(clock);
     const interval = window.setInterval(tick, 250);
     function refresh() {
       if (removed) return;
-      for (const element of node.querySelectorAll('.http-zoo,.rare-visitors,.streak-party,.perched-gull')) element.remove();
+      for (const element of node.querySelectorAll('.rare-visitors,.streak-party,.perched-gull')) element.remove();
       if (!clock.isConnected) node.append(clock);
       node.classList.add('playful');
       node.dataset.waitStage = String(stage); clock.hidden = done;
       if (quiet()) return;
-      if (done && state !== 'cancelled') {
-        const badge = document.createElement('i'); badge.className = `http-zoo ${state}`;
-        const mood = state === 'warning' ? 'surprised' : state === 'error' ? 'error' : 'happy';
-        badge.append(character(Number(status) === 418 ? 'teapot' : species(), mood));
-        const label = document.createElement('small'); label.textContent = Number(status) === 418 ? '418 · Tea time' : status ? String(status) : 'Network error'; badge.append(label);
-        if (state === 'error') { const smoke = document.createElement('b'); smoke.className = 'mascot-smoke'; badge.append(smoke); }
-        node.append(badge);
-      }
       if (stage >= 1 && !done && theme() === 'bosphorus') {
         const gull = document.createElement('i'); gull.className = 'perched-gull'; node.querySelector('.ferry-boat')?.append(gull);
       }
@@ -70,7 +62,7 @@
     }
     function finish(code, error) {
       if (done || removed) return;
-      done = true; status = code; state = node.dataset.state; window.clearInterval(interval);
+      done = true; state = node.dataset.state; window.clearInterval(interval);
       streak = !error && Number(code) >= 200 && Number(code) < 300 ? streak + 1 : 0;
       streakAtFinish = streak;
       celebrate = streak > 0 && streak % 5 === 0;
