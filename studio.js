@@ -150,10 +150,15 @@
           const example = core.bodyExample(spec, op, draft.contentType);
           draft.body = core.isJson(draft.contentType) ? JSON.stringify(example ?? {}, null, 2) : typeof example === 'string' ? example : '';
         }
-        const body = field(core.isJson(draft.contentType) ? 'JSON request body' : 'Request body', draft.body, 'textarea'); body.input.placeholder = '{\n  \n}'; body.input.oninput = () => draft.body = body.input.value; area.append(body.wrap);
-        const tools = el('div', undefined, 'row');
-        if (core.isJson(draft.contentType)) tools.append(button('Format JSON', () => { try { draft.body = JSON.stringify(JSON.parse(body.input.value), null, 2); body.input.value = draft.body; validation.textContent = 'JSON formatted.'; } catch (e) { validation.textContent = e.message; } }));
-        const validation = el('p', '', 'notice'); validation.setAttribute('aria-live', 'polite'); area.append(tools, validation);
+        const body = field(core.isJson(draft.contentType) ? 'JSON request body' : 'Request body', draft.body, 'textarea'); body.input.id = 'studio-request-body'; body.input.placeholder = '{\n  \n}'; body.input.oninput = () => draft.body = body.input.value;
+        const bodyField = el('div', undefined, 'field body-field'), header = el('div', undefined, 'body-heading');
+        const caption = el('label', core.isJson(draft.contentType) ? 'JSON request body' : 'Request body'); caption.htmlFor = body.input.id; header.append(caption);
+        const validation = el('p', '', 'notice'); validation.setAttribute('aria-live', 'polite'); validation.hidden = true;
+        if (core.isJson(draft.contentType)) {
+          const format = button('{ }', () => { try { draft.body = JSON.stringify(JSON.parse(body.input.value), null, 2); body.input.value = draft.body; validation.textContent = 'JSON formatted.'; } catch (e) { validation.textContent = e.message; } validation.hidden = false; }, 'format-icon');
+          format.title = 'Format JSON'; format.setAttribute('aria-label', 'Format JSON'); header.append(format);
+        }
+        bodyField.append(header, body.input, validation); area.append(bodyField);
       }
       const model = el('details'); model.append(el('summary', 'Request schema'), el('pre', JSON.stringify(s, null, 2))); area.append(model);
     }

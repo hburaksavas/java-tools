@@ -80,6 +80,10 @@ label > span { display: block; }
 .field { display: block; margin: 12px 0; }
 .field > span { display: block; color: var(--st-muted); font-size: 10px; margin-bottom: 5px; font-weight: 500; }
 .field small { display: block; margin-top: 4px; font-size: 10px; white-space: pre-wrap; }
+.body-heading { display: flex; align-items: center; justify-content: space-between; min-height: 22px; margin-bottom: 5px; }
+.body-heading label { color: var(--st-muted); font-size: 10px; font-weight: 500; cursor: text; }
+.format-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 22px; padding: 0; border-color: transparent; background: transparent; color: var(--st-muted); font: 600 12px ui-monospace, monospace; }
+.format-icon:hover { color: var(--st-accent); background: var(--st-soft); border-color: transparent; }
 .field select { width: 100%; }
 .field input { height: 34px; }
 .field input[type=file] { height: auto; padding: 6px; }
