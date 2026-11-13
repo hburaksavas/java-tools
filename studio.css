@@ -180,3 +180,10 @@ a { color: var(--st-accent); }
   .request-response { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .request-response > .response { position: static; }
 }
+
+.copy-api { position:relative; width:28px; height:26px; flex:0 0 auto; background:transparent; color:var(--st-muted); }
+.copy-api::before,.copy-api::after { content:''; position:absolute; width:9px; height:11px; border:1.5px solid currentColor; border-radius:2px; }
+.copy-api::before { left:7px; top:5px; }
+.copy-api::after { left:10px; top:8px; background:var(--st-panel); }
+.copy-api:hover { color:var(--st-accent); }
+.copy-status { font-size:10px; color:var(--st-muted); }

@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.9
+# Swagger UI Studio 0.3.10
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.10 adds Copy API details next to the favorite icon: formatted URL, method, current request and last response. Before execution, explicit OpenAPI examples or generated response schema samples are used and labelled as examples.
 
 0.3.9 adds Bosphorus: a coastal blue palette, independent gliding gulls and a City Lines inspired ferry sailing along the response edge on Execute. Shared by Studio and Swagger, with reduced-motion support.
 

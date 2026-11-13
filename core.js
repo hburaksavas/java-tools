@@ -18,24 +18,24 @@
     }, {});
     return { ...merged, ...s, properties: { ...merged.properties, ...s.properties } };
   }
-  function sample(spec, value, depth = 0, seen = new Set()) {
+  function sample(spec, value, depth = 0, seen = new Set(), mode = 'request') {
     if (depth > 6 || value?.$ref && seen.has(value.$ref)) return undefined;
     const next = new Set(seen); if (value?.$ref) next.add(value.$ref);
     const s = schema(spec, value);
     for (const key of ['example', 'default', 'const']) if (s[key] !== undefined) return s[key];
     if (s.examples?.length) return s.examples[0];
     if (s.enum?.length) return s.enum[0];
-    if (s.oneOf || s.anyOf) return sample(spec, (s.oneOf || s.anyOf)[0], depth + 1, next);
+    if (s.oneOf || s.anyOf) return sample(spec, (s.oneOf || s.anyOf)[0], depth + 1, next, mode);
     const type = Array.isArray(s.type) ? s.type.find(t => t !== 'null') : s.type;
     if (type === 'object' || Object.keys(s.properties || {}).length) {
       const result = {};
       for (const [name, child] of Object.entries(s.properties || {})) {
-        if (resolve(spec, child)?.readOnly) continue;
-        const v = sample(spec, child, depth + 1, next); if (v !== undefined) result[name] = v;
+        if (mode === 'response' ? resolve(spec, child)?.writeOnly : resolve(spec, child)?.readOnly) continue;
+        const v = sample(spec, child, depth + 1, next, mode); if (v !== undefined) result[name] = v;
       }
       return result;
     }
-    if (type === 'array') return [sample(spec, s.items, depth + 1, next)].filter(v => v !== undefined);
+    if (type === 'array') return [sample(spec, s.items, depth + 1, next, mode)].filter(v => v !== undefined);
     if (type === 'integer' || type === 'number') return s.minimum ?? 1;
     if (type === 'boolean') return true;
     if (s.format === 'binary' || s.type === 'file') return undefined;
@@ -157,6 +157,50 @@
     if (!entry) return {};
     return entry.example ?? Object.values(entry.examples || {}).map(e => resolve(spec, e)?.value).find(v => v !== undefined) ?? sample(spec, entry.schema);
   }
-  const api = { resolve, schema, sample, operations, baseUrl, bodyInfo, bodyExample, isJson, validate, typedValue, requestOptions };
+  function responseExample(spec, op) {
+    const entries = Object.entries(op.responses || {});
+    const entry = entries.find(([code]) => /^2[0-9Xx]{2}$/.test(code)) || entries.find(([code]) => code === 'default') || entries[0];
+    if (!entry) return { status: '', body: 'No response example or schema is defined.' };
+    const [status, raw] = entry, response = resolve(spec, raw);
+    const contents = response.content || {};
+    const type = Object.keys(contents).find(isJson) || Object.keys(contents)[0] || Object.keys(response.examples || {})[0] || '';
+    const media = contents[type] || {};
+    const example = media.example ?? Object.values(media.examples || {}).map(value => resolve(spec, value)?.value).find(value => value !== undefined) ?? response.examples?.[type];
+    const definition = media.schema || response.schema;
+    return { status, contentType: type, body: example ?? (definition ? sample(spec, definition, 0, new Set(), 'response') : undefined) };
+  }
+  function operationReport(spec, op, draft, built) {
+    const pretty = value => { if (typeof value !== 'string') return JSON.stringify(value, null, 2); try { return JSON.stringify(JSON.parse(value), null, 2); } catch { return value; } };
+    const block = (value, type = '') => { const text = pretty(value) ?? '(empty)'; const fence = '`'.repeat(Math.max(3, ...[...text.matchAll(/`+/g)].map(match => match[0].length + 1))); return `${fence}${type}\n${text}\n${fence}`; };
+    let path = op.path;
+    const query = new URLSearchParams(), parameters = {};
+    for (const p of op.parameters) {
+      const value = draft.values[`${p.in}:${p.name}`]; if (value === undefined || value === '') continue;
+      if (p.in === 'path') path = path.replaceAll(`{${p.name}}`, encodeURIComponent(value));
+      if (p.in === 'query') query.append(p.name, value);
+      parameters[`${p.in}:${p.name}`] = value;
+    }
+    const url = built?.url || `${draft.base.replace(/\/$/, '')}/${path.replace(/^\//, '')}${query.size ? `?${query}` : ''}`;
+    const lines = [`# ${op.method} ${op.path}`, op.summary || '', `URL: ${url}`, '', '## Request'];
+    if (draft.contentType) lines.push(`Content-Type: ${draft.contentType}`);
+    if (Object.keys(parameters).length) lines.push('Parameters:', block(parameters, 'json'));
+    if (Object.keys(draft.form).length || Object.keys(draft.files).length) {
+      const form = { ...draft.form };
+      for (const [key, files] of Object.entries(draft.files)) form[key] = [files].flat().map(file => `[File: ${file.name}, ${file.size} bytes]`);
+      lines.push(block(form, 'json'));
+    } else lines.push(block(draft.body, isJson(draft.contentType) ? 'json' : ''));
+    const response = draft.response;
+    if (response) {
+      lines.push('', '## Response (last execution)', response.error || `Status: ${response.status} ${response.statusText || ''} · ${response.ms} ms`);
+      if (response.headers) lines.push('Headers:', block(response.headers));
+      if (response.body !== undefined) lines.push(block(response.body, 'json'));
+    } else {
+      const example = responseExample(spec, op); lines.push('', '## Example response (OpenAPI, not executed)', `Status: ${example.status || 'unspecified'}`);
+      if (example.contentType) lines.push(`Content-Type: ${example.contentType}`);
+      lines.push(block(example.body, isJson(example.contentType) ? 'json' : ''));
+    }
+    return lines.join('\n');
+  }
+  const api = { resolve, schema, sample, operations, baseUrl, bodyInfo, bodyExample, isJson, validate, typedValue, requestOptions, responseExample, operationReport };
   if (typeof module !== 'undefined') module.exports = api; else root.SwaggerStudioCore = api;
 })(globalThis);

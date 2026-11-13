@@ -128,13 +128,20 @@
     const draft = drafts.get(op.id) || newDraft(op); drafts.set(op.id, draft);
     const area = el('div', undefined, 'editor'), heading = el('div', undefined, 'heading');
     const star = button(favorites.includes(op.id) ? '★' : '☆', () => { if (busy) return; favorites = favorites.includes(op.id) ? favorites.filter(x => x !== op.id) : [...favorites, op.id]; persist(); render(); }); star.setAttribute('aria-label', 'Toggle favorite');
+    const copyApi = button('', async () => {
+      let built; try { built = bridge.build?.(ui, core.requestOptions(spec, op, draft, specUrl, location.href)); } catch {}
+      try { await navigator.clipboard.writeText(core.operationReport(spec, op, draft, built)); copyStatus.textContent = 'API details copied.'; }
+      catch { copyStatus.textContent = 'Copy unavailable. Check clipboard permissions.'; }
+    }, 'copy-api');
+    copyApi.title = 'Copy API details'; copyApi.setAttribute('aria-label', 'Copy API details');
+    const copyStatus = el('span', '', 'copy-status'); copyStatus.setAttribute('role', 'status');
     const layouts = el('div', undefined, 'layout-picker'); layouts.setAttribute('role', 'group'); layouts.setAttribute('aria-label', 'Request and response layout');
     for (const [value, label] of [['split', 'Side by side'], ['stacked', 'Stacked']]) {
       const control = button(label, () => { requestLayout = value; try { localStorage.setItem(layoutKey, JSON.stringify(value)); } catch {} applyLayout(); });
       control.dataset.requestLayout = value; control.setAttribute('aria-pressed', String(requestLayout === value)); layouts.append(control);
     }
     area.dataset.layout = requestLayout;
-    heading.append(el('span', op.method, `method ${op.method}`), el('h2', op.path), star, el('span', undefined, 'grow'), layouts); area.append(heading, el('p', [op.summary, op.description].filter(Boolean).join('\n'), 'description'));
+    heading.append(el('span', op.method, `method ${op.method}`), el('h2', op.path), star, copyApi, copyStatus, el('span', undefined, 'grow'), layouts); area.append(heading, el('p', [op.summary, op.description].filter(Boolean).join('\n'), 'description'));
     const base = field('Server URL', draft.base); base.input.oninput = () => draft.base = base.input.value; area.append(base.wrap);
     const schemes = bridge.authSummary(ui); area.append(el('p', schemes.length ? `Using Swagger authorization: ${schemes.join(', ')}` : 'Authorization is shared with Swagger. Use Authorize to sign in.', 'notice'));
     const authDetails = el('details'); authDetails.append(el('summary', 'Override Authorization header for this request'));

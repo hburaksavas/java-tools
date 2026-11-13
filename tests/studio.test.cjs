@@ -91,3 +91,19 @@ test('request layout persists across endpoints and reloads, syncs tabs without l
   assert.equal(env.shadow.querySelector('[data-request-layout="split"]').getAttribute('aria-pressed'), 'true');
   assert.ok(env.shadow.querySelector('.request textarea'));
 });
+
+test('copy API details uses schema response before execution and last response afterwards', async t => {
+  const env = setup(t), { w, data } = env; let copied;
+  Object.defineProperty(w.navigator, 'clipboard', { value: { writeText: async text => { copied = text; } } });
+  data.spec = JSON.parse(JSON.stringify(spec));
+  data.spec.paths['/pets'].post.responses = { '201': { description: 'Created', content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer', readOnly: true }, password: { type: 'string', writeOnly: true }, name: { type: 'string', example: 'Ada' } } } } } } };
+  await w.SwaggerStudio.open(data); clickOp(env.shadow, 'POST/pets');
+  env.shadow.querySelector('.copy-api').click(); await new Promise(r => setTimeout(r, 0));
+  assert.match(copied, /URL: https:\/\/api.example.org\/pets/);
+  assert.match(copied, /## Request/); assert.match(copied, /Example response/);
+  assert.match(copied, /"id": 1/); assert.ok(!copied.includes('password'));
+  env.shadow.querySelector('.send').click(); await new Promise(r => setTimeout(r, 10));
+  env.shadow.querySelector('.copy-api').click(); await new Promise(r => setTimeout(r, 0));
+  assert.match(copied, /Response \(last execution\)/); assert.match(copied, /"ok": true/);
+  assert.ok(!copied.includes('Example response'));
+});
