@@ -15,9 +15,10 @@
     for (const record of active) if (record.target === target || requestKey && record.requestKey === requestKey) record.remove();
     if (active.size >= 6) active.values().next().value.remove();
     const node = document.createElement('div'); node.setAttribute('aria-hidden', 'true'); node.dataset.state = 'pending';
-    let frame, timer, playful, finished = false, removed = false, lastPaint = -Infinity;
+    let frame, timer, playful, sceneCleanup, finished = false, removed = false, lastPaint = -Infinity;
     const record = { target, requestKey, node, remove, finish, refresh };
     function refresh() {
+      sceneCleanup?.(); sceneCleanup = undefined;
       const recipe = window.SwaggerStudioTheme?.responseRecipe() || 'glow';
       node.className = `brsvs-response-fx ${recipe}${motion?.matches ? ' reduced' : ''}`;
       if (recipe === 'ferry' && !motion?.matches && !node.querySelector('.ferry-boat')) {
@@ -62,6 +63,7 @@
         node.append(scene);
       }
       node.dataset.theme = window.SwaggerStudioTheme?.current() || 'dark';
+      sceneCleanup = window.SwaggerStudioScenes?.response(node, recipe);
       playful?.refresh();
     }
     function position(time) {
@@ -76,7 +78,7 @@
       frame = raf(position);
     }
     function remove() {
-      if (removed) return; removed = true; playful?.remove(); caf(frame); clearTimeout(timer); node.remove(); active.delete(record);
+      if (removed) return; removed = true; sceneCleanup?.(); playful?.remove(); caf(frame); clearTimeout(timer); node.remove(); active.delete(record);
       for (const [key, value] of requests) if (value === record) requests.delete(key);
     }
     function finish(status, error) {
@@ -86,7 +88,7 @@
         const particle = document.createElement('span');
         particle.style.setProperty('--x', `${8 + i * 10}%`); particle.style.setProperty('--dx', `${i % 2 ? 12 : -12}px`); particle.style.setProperty('--delay', `${i * 15}ms`); node.append(particle);
       }
-      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : playful ? 3600 : node.querySelector('.cinema-scene') ? 3000 : node.classList.contains('storm') ? 2600 : node.classList.contains('ice') ? 3400 : node.classList.contains('tide') ? 3600 : node.classList.contains('ferry') ? 2800 : node.querySelector('.response-scene') ? 2000 : 1000);
+      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : node.dataset.featureScene || playful ? 3600 : node.querySelector('.cinema-scene') ? 3000 : node.classList.contains('storm') ? 2600 : node.classList.contains('ice') ? 3400 : node.classList.contains('tide') ? 3600 : node.classList.contains('ferry') ? 2800 : node.querySelector('.response-scene') ? 2000 : 1000);
     }
     active.add(record); refresh(); playful = window.SwaggerStudioPlayful?.attach(node); document.documentElement.append(node); frame = raf(position);
     timer = window.setTimeout(remove, 120000);

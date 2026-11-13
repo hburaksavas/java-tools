@@ -21,12 +21,12 @@ function setup(t, reduced = false) {
   const dom = new JSDOM('<html><head></head><body><section id="response">Readable JSON remains here</section></body></html>', { url: 'https://example.test/swagger-ui/index.html', runScripts: 'outside-only', pretendToBeVisual: true });
   t.after(() => dom.window.close()); const w = dom.window;
   w.matchMedia = query => ({ matches: reduced && query.includes('reduced-motion'), addEventListener() {} });
-  w.eval(source('motion.js')); w.eval(source('theme.js')); w.eval(source('response-effects.js'));
+  w.eval(source('motion.js')); w.eval(source('scenes.js')); w.eval(source('theme.js')); w.eval(source('response-effects.js'));
   return w;
 }
 test('every saved theme has a working palette, bounded scene and response recipe', t => {
   const w = setup(t), themes = w.SwaggerStudioTheme;
-  assert.equal(themes.catalog().length, 20);
+  assert.equal(themes.catalog().length, 28);
   for (const theme of themes.catalog()) {
     themes.set(theme.id); assert.equal(themes.preference(), theme.id);
     assert.ok(themes.responseRecipe()); assert.match(themes.variables(), /--st-accent:#[0-9a-f]{6}/i);

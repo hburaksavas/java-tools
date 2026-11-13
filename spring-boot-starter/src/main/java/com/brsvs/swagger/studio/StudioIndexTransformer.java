@@ -13,6 +13,7 @@ final class StudioIndexTransformer implements SwaggerIndexTransformer {
             <script src="./studio/core.js" defer></script>
             <script src="./studio/swagger-bridge.js" defer></script>
             <script src="./studio/motion.js" defer></script>
+            <script src="./studio/scenes.js" defer></script>
             <script src="./studio/theme.js" defer></script>
             <script src="./studio/playful.js" defer></script>
             <script src="./studio/response-effects.js" defer></script>

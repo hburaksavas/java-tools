@@ -20,13 +20,15 @@ class StudioIntegrationTest {
                 .andExpect(content().string(containsString("swagger-initializer.js")))
                 .andExpect(content().string(containsString("./studio/bootstrap.js")))
                 .andExpect(content().string(containsString("./studio/core.js")))
-                .andExpect(content().string(containsString("./studio/playful.js")));
+                .andExpect(content().string(containsString("./studio/playful.js")))
+                .andExpect(content().string(containsString("./studio/scenes.js")));
         mvc.perform(get("/swagger-ui/studio/bootstrap.js")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("waitForSwagger")));
         mvc.perform(get("/swagger-ui/studio/studio.js")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("localStorage")));
         mvc.perform(get("/swagger-ui/studio/studio.css")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/theme.js")).andExpect(status().isOk());
+        mvc.perform(get("/swagger-ui/studio/scenes.js")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/playful.js")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/response-effects.js")).andExpect(status().isOk());
         mvc.perform(get("/swagger-ui/studio/effects.css")).andExpect(status().isOk());

@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @SpringBootApplication
-@io.swagger.v3.oas.annotations.OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Customer Platform", version = "0.3.17", description = "Local API Studio playground"))
+@io.swagger.v3.oas.annotations.OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Customer Platform", version = "0.3.18", description = "Local API Studio playground"))
 @SecurityScheme(name = "demoBearer", type = SecuritySchemeType.HTTP, scheme = "bearer", description = "Local demo token: demo-token")
 public class CustomerApiApplication {
     public static void main(String[] args) { SpringApplication.run(CustomerApiApplication.class, args); }

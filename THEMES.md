@@ -1,6 +1,6 @@
-# Tema ve response kataloğu — 0.3.0
+# Tema ve response kataloğu — 0.3.18
 
-Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve response tepkisi tek seçimle değişir. `System` dışında 19 tema vardır.
+Tüm temalar Studio ve standart Swagger için ortak renk, ortam ve Execute sahnesi kullanır. System dışında 27 tema vardır.
 
 | Ayar değeri | Tema | Arka plan | Response dokunuşu |
 | --- | --- | --- | --- |
@@ -17,38 +17,37 @@ Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve 
 | cyberpunk | Cyberpunk | Neon çizgiler | Neon kenar darbesi |
 | blueprint | Blueprint | Teknik ızgara | Köşe/çizim vurgusu |
 | paper | Paper & Ink | Kâğıt dokusu | Mürekkep kenarı |
-| autumn | Autumn | Sonbahar yaprakları | Sıcak yapraklar |
-| monsoon | Monsoon | Yoğun yağmur izleri | Su halkası |
-| bioluminescence | Bioluminescence | Belirip sönen ışık noktaları | Parlayan noktalar |
 | digital-rain | Digital Rain | Seyrek kod sütunları | Kenarda kod çözülmesi |
 | arrakis | Arrakis | Kum tepeleri ve yatay kum | Kum solucanı geçişi |
 | hyperspace | Hyperspace | Radyal yıldız alanı | Kenarda hiperuzay sıçraması |
-
-## İstek durumları
-
-- Bekleme: temanın kenar ilerlemesi; Cosmic/Circuit/Bioluminescence için dolaşan ışık.
-- 2xx: temaya özgü yaklaşık bir saniyelik başarı tepkisi.
-- 3xx/4xx: kehribar uyarı kenarı; HTTP durum etiketi görünür kalır.
-- 5xx ve ağ hatası: belirgin hata kenarı; metin ve JSON yerinde kalır.
-- İptal: bekleme hareketi söner.
-
-Efektler panelin konumunu değiştirmez; veri üzerine katman basmaz, tıklamaları yakalamaz ve istek içeriğini okumaz. Hareket azaltma tercihinde arka plan animasyonları kapanır ve response yalnız sabit kenar vurgusu gösterir. Efekt katmanları tamamlanınca temizlenir; en fazla altı eşzamanlı response katmanı tutulur.
-
-Standart Swagger entegrasyonu initializer'a bir Swagger plugin'i ekler. Mevcut plugin'ler, auth, request/response interceptor'ları ve action dönüş değerleri korunur. Özel uygulamalar Swagger'ı kendileri başlatıyorsa `response-effects.js` dosyasını bu başlatmadan önce yüklemelidir.
-
-## Canlı deneme
-
-Java örneğinde `/api/demo-response` endpoint'ini seçin. `status=200`, `404` veya `503`; `delayMillis=2000` ile bekleme ve sonucu gözleyin. Gecikme sırasında Studio'da **Cancel** ile iptali deneyin. Gecikme 0–5000 ms arasında sınırlandırılır. Bu endpoint yalnız örnek uygulamadadır.
-
+| orient-express | Orient Express | Gece, pencere ışıkları, buhar | Işıklı tren |
+| koi-garden | Koi Garden | Nilüferler, su halkaları ve koi | Dönen koi çifti |
+| moonbase | Moonbase | Ay tozu ve uzak Dünya | Süzülen astronot |
+| coral-reef | Coral Reef | Mercan, kabarcıklar ve ışık | Deniz kaplumbağası |
+| clockwork | Clockwork | Pirinç mekanizmalar | Dişliler ve açılan kilit |
+| firefly-camp | Firefly Camp | Ateş böcekleri, kamp ateşi, tilki | Ateşin yanına gelen tilki |
+| air-mail | Air Mail | Kâğıt ve bulutlar | Kâğıt uçak ve açılan zarf |
+| volcanic-island | Volcanic Island | Lav damarları ve kül | Dağılan lav kabarcığı |
 | bosphorus | Bosphorus | Boğaz mavisi, süzülen martılar | Execute ile şehir hatları vapuru |
+| autumn | Autumn | Sonbahar yaprakları | Sıcak yapraklar |
+| monsoon | Monsoon | Yoğun yağmur izleri | Su halkası |
+| bioluminescence | Bioluminescence | Belirip sönen ışık noktaları | Parlayan noktalar |
+| orient-express | Orient Express | Gece, pencere ışıkları, buhar | Işıklı tren |
+| koi-garden | Koi Garden | Nilüferler, su halkaları ve koi | Dönen koi çifti |
+| moonbase | Moonbase | Ay tozu ve uzak Dünya | Süzülen astronot |
+| coral-reef | Coral Reef | Mercan, kabarcıklar ve ışık | Deniz kaplumbağası |
+| clockwork | Clockwork | Pirinç mekanizmalar | Dişliler ve açılan kilit |
+| firefly-camp | Firefly Camp | Ateş böcekleri, kamp ateşi, tilki | Ateşin yanına gelen tilki |
+| air-mail | Air Mail | Kâğıt ve bulutlar | Kâğıt uçak ve açılan zarf |
+| volcanic-island | Volcanic Island | Lav damarları ve kül | Dağılan lav kabarcığı |
 
-Ocean, Winter ve Sakura (0.3.11): ufukta su yansımaları ve köpük izi; rüzgârla savrulan kar ve kristalleşme; farklı tonlarda çentikli taç yapraklar ve köşede çiçeklenme.
+## Ortak davranış
 
-0.3.12: Ocean’da yüzeye çıkan balina; Winter’da kar toplarından oluşan kardan adam; Rainy Night ve Monsoon’da uzak şimşek ve Execute fırtına bulutu.
+İstekler bekleme, başarı, uyarı, hata ve iptal durumlarına göre tepki verir. Metin ve JSON yerinde kalır. Azaltılmış hareket tercihi dekoratif animasyonları kapatır; istek süresi görünür kalır.
 
-## Kaldırılan temaların geçişi (0.3.16)
+Bosphorus ve Winter için gündüz, gün batımı ve gece tercihleri tarayıcıda ayrı saklanır. Sekiz yeni temanın kapsamı [THEME_PHASE_ONE.md](THEME_PHASE_ONE.md) dosyasındadır. Koi ve tilki yakınlık tepkileri yalnızca dekoratif boşlukta çalışır; form ve kontrollerde devre dışıdır.
 
-Eski tarayıcı seçimleri ve yapılandırma değerleri aşağıdaki temalara taşınır:
+## Eski tema seçimlerinin geçişi
 
 | Eski | Yeni |
 | --- | --- |

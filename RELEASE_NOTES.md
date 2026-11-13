@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.17
+# Swagger UI Studio 0.3.18
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.18 implements the eight-theme first phase: Orient Express, Koi Garden, Moonbase, Coral Reef, Clockwork, Firefly Camp, Air Mail and Volcanic Island. Each has local SVG ambient and Execute scenes shared by Studio and Swagger. Koi and foxes react to pointer proximity only outside forms and controls. Scene cleanup, hidden-tab pausing and reduced-motion behavior are tested. No other second-phase entertainment features are added.
 
 0.3.17 shows Studio authorization controls only when an operation references a defined security scheme. Global security inheritance and operation-level public overrides are respected. Unused scheme definitions do not produce auth UI.
 

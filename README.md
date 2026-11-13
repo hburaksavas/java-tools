@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.3.17
+# Swagger UI Studio 0.3.18
 
 Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir API çalışma alanı. `/swagger-ui/index.html` açılınca Studio otomatik başlar. Eklenti ve ayrı frontend sunucusu gerekmez.
 
@@ -11,7 +11,7 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 - İstek gövdesi endpoint ilk açıldığında otomatik örnekle doldurulur; Generate example düğmesi yoktur. Yazılan veya bilinçli olarak temizlenen taslak sekmeye dönüşte korunur; içerik türlerinin taslakları ayrı tutulur.
 - Kompakt görünüm; Studio ve standart Swagger için tek bir ortak tema seçimi. Midnight ve Daylight sade; Winter kar yağışlı, Cosmic yıldızlı, Bosphorus martılıdır. System işletim sisteminin açık/koyu tercihini izler. Efektler tema paketinin parçasıdır ve Studio kapansa da Swagger'da devam eder. Düşük hareket tercihi animasyonları kapatır.
 - İstek bitince yanıt alanına kontrollü kaydırma, klavye odağı ve kısa vurgu animasyonu. Endpoint sekmeleri arasında editör kaydırma konumu korunur.
-- **19 tema + System**: Bosphorus, Winter, Sakura, Ocean, Digital Rain, Arrakis, Hyperspace ve diğerleri. Her temanın bekleme/başarı/uyarı/hata/iptal tepkisi vardır; Studio ve standart Swagger aynı motoru kullanır. Tam liste ve örnekler: [THEMES.md](THEMES.md).
+- **27 tema + System**: Bosphorus, Winter, Sakura, Ocean, Digital Rain, Arrakis, Hyperspace ve diğerleri. Her temanın bekleme/başarı/uyarı/hata/iptal tepkisi vardır; Studio ve standart Swagger aynı motoru kullanır. Tam liste ve örnekler: [THEMES.md](THEMES.md).
 - Yaprak/kar parçacıkları bağımsız rüzgâr eğrileri, hız, derinlik ve dönüşlerle hareket eder. Köz yukarı süzülür, toz yana akar, ateş böcekleri döngüsel dolaşır. Sekme görünmezken bu animasyonlar duraklar.
 - `Ctrl+K`: arama, `Ctrl+Enter`: istek gönderme, `Alt+W`: aktif endpoint sekmesini kapatma, `Esc`: ayarları kapatma veya standart Swagger'a dönüş.
 
@@ -21,11 +21,11 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 <dependency>
     <groupId>com.brsvs</groupId>
     <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
-    <version>0.3.17</version>
+    <version>0.3.18</version>
 </dependency>
 ```
 
-Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.17) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
+Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.18) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
 
 Repository ZIP'ini örneğin `vendor/studio-maven` klasörüne açıp tüketen projeye şu repository'yi ekleyebilirsiniz. ZIP, starter'ın parent POM'unu da içerir; diğer bağımlılıklar Maven Central'dan çözülür.
 
@@ -60,7 +60,7 @@ Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici
 
 ```powershell
 ./mvnw.cmd verify
-java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.17.jar
+java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.18.jar
 ```
 
 [Swagger UI / Studio](http://127.0.0.1:8087/swagger-ui/index.html) adresini açın. Springdoc, [OpenAPI tanımını](http://127.0.0.1:8087/v3/api-docs) gerçek controller'lardan üretir. Müşteri oluşturma/listeleme, sipariş, sağlık, auth/interceptor kontrolü, dosya ve form endpoint'leri vardır. Veriler bellekte tutulur; sunucu yalnız `127.0.0.1` üzerinde çalışır.
@@ -107,3 +107,7 @@ HTTP responses show a theme character: happy for 2xx, surprised for 4xx, smoky f
 While waiting, a clock stays visible. At four seconds a gull can land on the Bosphorus ferry; at eight seconds the Ocean whale takes a second breath and Winter's snowman adjusts its scarf. About 8% of requests in Bosphorus, Ocean and Arrakis receive rare visitors. Endpoint tab changes get a short character journey.
 
 Bosphorus and Winter offer Theme light, Day, Sunset and Night beside the theme picker. Choices are saved separately per theme in localStorage and sync across same-origin browser tabs. Reduced motion disables decorative characters, visitors, celebrations and travel while retaining static palettes and elapsed time. The demo endpoint `/api/demo-response` accepts `status=418` and `delayMillis=0..15000` for previewing these scenes.
+
+### Eight scene themes (phase one)
+
+Orient Express, Koi Garden, Moonbase, Coral Reef, Clockwork, Firefly Camp, Air Mail and Volcanic Island each include a shared Studio/Swagger palette, ambient artwork and a distinct Execute scene. Koi reverse direction and the camp fox opens its eyes when the pointer approaches decorative space. Forms, buttons, editors, response text and Swagger operation controls suppress proximity reactions. Decorative layers never capture input, clean up when themes change, pause in hidden tabs and respect reduced motion. Scope and implementation sequence: [THEME_PHASE_ONE.md](THEME_PHASE_ONE.md).
