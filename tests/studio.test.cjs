@@ -20,6 +20,23 @@ function setup(t) {
   return { w, data, get shadow() { return w.document.getElementById('brsvs-studio-host').shadowRoot; } };
 }
 const clickOp = (shadow, text) => [...shadow.querySelectorAll('nav .endpoint')].find(n => n.textContent === text).click();
+
+test('authorization controls follow effective operation security, including public overrides', async t => {
+  const env = setup(t), { w, data } = env;
+  data.spec = JSON.parse(JSON.stringify(spec));
+  data.spec.components = { securitySchemes: { bearer: { type: 'http', scheme: 'bearer' } } };
+  await w.SwaggerStudio.open(data);
+  assert.equal(env.shadow.querySelector('.auth-button'), null, 'unused scheme definitions do not create controls');
+  clickOp(env.shadow, 'GET/health'); assert.equal(env.shadow.querySelector('input[type=password]'), null);
+  assert.ok(!env.shadow.querySelector('.editor').textContent.includes('authorization'));
+  w.SwaggerStudio.close(); data.spec.security = [{ bearer: [] }]; data.spec.paths['/health'].get.security = [];
+  await w.SwaggerStudio.open(data); assert.ok(env.shadow.querySelector('.auth-button'));
+  clickOp(env.shadow, 'GET/pets/{id}'); assert.ok(env.shadow.querySelector('input[type=password]'));
+  clickOp(env.shadow, 'GET/health'); assert.equal(env.shadow.querySelector('input[type=password]'), null);
+  w.SwaggerStudio.close(); delete data.spec.security;
+  data.spec.paths['/pets/{id}'].get.security = [{ bearer: [] }];
+  await w.SwaggerStudio.open(data); assert.ok(env.shadow.querySelector('.auth-button'), 'operation-specific auth also enables Authorize');
+});
 test('welcome dashboard, grouping, persistent tabs/favorites, transient request data, keyboard shortcuts', async t => {
   const env = setup(t), { w, data } = env; await w.SwaggerStudio.open(data); let shadow = env.shadow;
   assert.match(shadow.querySelector('.welcome').textContent, /YOUR API, ONE WORKSPACE/); assert.equal(shadow.querySelectorAll('.stat').length, 4); assert.equal(shadow.querySelectorAll('.group').length, 2); assert.equal(shadow.querySelector('img'), null);

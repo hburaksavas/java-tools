@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.16
+# Swagger UI Studio 0.3.17
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.17 shows Studio authorization controls only when an operation references a defined security scheme. Global security inheritance and operation-level public overrides are respected. Unused scheme definitions do not produce auth UI.
 
 0.3.16 removes Forest, Terminal, Sandstorm, Observatory, Infrared, Zen, Circuit and Eclipse from the theme catalog. Existing browser preferences, cross-tab updates and configured legacy theme names migrate to their closest retained themes. The catalog now contains 19 themes plus System.
 

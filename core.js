@@ -201,6 +201,12 @@
     }
     return lines.join('\n');
   }
-  const api = { resolve, schema, sample, operations, baseUrl, bodyInfo, bodyExample, isJson, validate, typedValue, requestOptions, responseExample, operationReport };
+  function authorizationSchemes(spec, op) {
+    const security = op.security === undefined ? spec.security : op.security;
+    const definitions = spec.components?.securitySchemes || spec.securityDefinitions || {};
+    if (!Array.isArray(security)) return [];
+    return [...new Set(security.flatMap(requirement => requirement && typeof requirement === 'object' ? Object.keys(requirement) : []).filter(name => Object.hasOwn(definitions, name)))];
+  }
+  const api = { resolve, schema, sample, operations, baseUrl, bodyInfo, bodyExample, isJson, validate, typedValue, requestOptions, responseExample, operationReport, authorizationSchemes };
   if (typeof module !== 'undefined') module.exports = api; else root.SwaggerStudioCore = api;
 })(globalThis);

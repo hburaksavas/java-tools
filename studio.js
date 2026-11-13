@@ -67,7 +67,9 @@
     const auth = button('Authorize', () => {
       if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
-    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'), auth, themePicker(), window.SwaggerStudioTheme.atmospherePicker(), button('Swagger ↗', close));
+    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'));
+    if (ops.some(op => core.authorizationSchemes(spec, op).length)) top.append(auth);
+    top.append(themePicker(), window.SwaggerStudioTheme.atmospherePicker(), button('Swagger ↗', close));
     const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side');
     const search = el('input', undefined, 'search'); search.placeholder = 'Find endpoint · Ctrl K'; search.setAttribute('aria-label', 'Search endpoints'); search.value = searchTerm; side.append(search);
     const check = el('input'); check.type = 'checkbox'; check.checked = favoriteOnly;
@@ -129,6 +131,7 @@
   }
   function editor(op) {
     const draft = drafts.get(op.id) || newDraft(op); drafts.set(op.id, draft);
+    const securityNames = core.authorizationSchemes(spec, op), secured = securityNames.length > 0;
     const area = el('div', undefined, 'editor'), heading = el('div', undefined, 'heading');
     const star = button(favorites.includes(op.id) ? '★' : '☆', () => { if (busy) return; favorites = favorites.includes(op.id) ? favorites.filter(x => x !== op.id) : [...favorites, op.id]; persist(); render(); }); star.setAttribute('aria-label', 'Toggle favorite');
     const copyApi = button('', async () => {
@@ -146,9 +149,11 @@
     area.dataset.layout = requestLayout;
     heading.append(el('span', op.method, `method ${op.method}`), el('h2', op.path), star, copyApi, copyStatus, el('span', undefined, 'grow'), layouts); area.append(heading, el('p', [op.summary, op.description].filter(Boolean).join('\n'), 'description'));
     const base = field('Server URL', draft.base); base.input.oninput = () => draft.base = base.input.value; area.append(base.wrap);
-    const schemes = bridge.authSummary(ui); area.append(el('p', schemes.length ? `Using Swagger authorization: ${schemes.join(', ')}` : 'Authorization is shared with Swagger. Use Authorize to sign in.', 'notice'));
-    const authDetails = el('details'); authDetails.append(el('summary', 'Override Authorization header for this request'));
-    const auth = field('Authorization override · memory only', draft.auth, 'password'); auth.input.placeholder = 'Bearer …'; auth.input.oninput = () => draft.auth = auth.input.value; authDetails.append(auth.wrap); area.append(authDetails);
+    if (secured) {
+      const schemes = bridge.authSummary(ui).filter(name => securityNames.includes(name)); area.append(el('p', schemes.length ? `Using Swagger authorization: ${schemes.join(', ')}` : 'Authorization is shared with Swagger. Use Authorize to sign in.', 'notice'));
+      const authDetails = el('details'); authDetails.append(el('summary', 'Override Authorization header for this request'));
+      const auth = field('Authorization override · memory only', draft.auth, 'password'); auth.input.placeholder = 'Bearer …'; auth.input.oninput = () => draft.auth = auth.input.value; authDetails.append(auth.wrap); area.append(authDetails);
+    }
     for (const p of op.parameters.filter(p => !['body', 'formData'].includes(p.in))) {
       const key = `${p.in}:${p.name}`, s = core.schema(spec, p.schema || p); const f = field(`${p.name}${p.required ? ' *' : ''} · ${p.in} · ${s.type || 'string'}`, draft.values[key], 'text', { ...s, description: p.description || s.description });
       if (p.in === 'cookie') { f.input.disabled = true; f.input.placeholder = 'Managed by your browser session'; }
@@ -185,7 +190,7 @@
       }
       const model = el('details'); model.append(el('summary', 'Request schema'), el('pre', JSON.stringify(s, null, 2))); area.append(model);
     }
-    area.append(el('p', 'Uses Swagger authorization and request/response interceptors. Request data stays in memory until Studio closes.', 'notice'));
+    area.append(el('p', `${secured ? 'Uses Swagger authorization and request/response interceptors.' : 'Uses Swagger request/response interceptors.'} Request data stays in memory until Studio closes.`, 'notice'));
     const controls = el('div', undefined, 'row'), send = button('Execute', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel); area.append(controls);
     const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.tabIndex = -1; const panels = el('div', undefined, 'request-response'), request = el('section', undefined, 'request'); request.setAttribute('aria-label', 'Request');
     for (const node of [...area.children].slice(2)) request.append(node);
@@ -214,7 +219,7 @@
       busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(el('p', 'Waiting for response…', 'pending'));
       const feedback = window.SwaggerStudioResponseEffects?.start(output); focusResponse();
       try {
-        const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: draft.auth, confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
+        const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: secured ? draft.auth : '', confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
         if (current !== generation) return;
         let body = response.text ?? response.data ?? ''; if (typeof body !== 'string') body = JSON.stringify(body, null, 2); try { body = JSON.stringify(JSON.parse(body), null, 2); } catch {}
         if (response.headers?.['x-studio-truncated'] === 'true') body += '\n[Response truncated at 1 MiB]';
