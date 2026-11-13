@@ -1,6 +1,6 @@
 # Tema ve response kataloğu — 0.3.0
 
-Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve response tepkisi tek seçimle değişir. `System` dışında 27 tema vardır.
+Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve response tepkisi tek seçimle değişir. `System` dışında 19 tema vardır.
 
 | Ayar değeri | Tema | Arka plan | Response dokunuşu |
 | --- | --- | --- | --- |
@@ -9,28 +9,20 @@ Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve 
 | dark | Midnight | Koyu ve sade | Mor ışık yayılması |
 | winter | Winter | Kar | Kristaller ve buz kenarı |
 | cosmic | Cosmic | Yıldızlar | Takımyıldız parçacıkları |
-| forest | Forest | Sade yeşil palet | Yapraklar ve kehribar uyarı |
 | rainy-night | Rainy Night | İnce yağmur | Su halkası |
 | aurora | Aurora | Yeşil/mor ışık perdeleri | Kenar ışığı |
 | sakura | Sakura | Pembe yapraklar | Kısa yaprak dağılımı |
 | ember | Ember | Yükselen köz | Köz parçacıkları |
 | ocean | Ocean | Su ışığı ve kabarcıklar | Su halkası |
 | cyberpunk | Cyberpunk | Neon çizgiler | Neon kenar darbesi |
-| terminal | Terminal | Tarama çizgileri ve imleç | Kesikli, adımlı ilerleme |
 | blueprint | Blueprint | Teknik ızgara | Köşe/çizim vurgusu |
-| eclipse | Eclipse | Tutulma halesi | Altın halka |
 | paper | Paper & Ink | Kâğıt dokusu | Mürekkep kenarı |
-| observatory | Observatory | Takımyıldızlar ve kayan yıldız | Yıldız bağlantıları |
 | autumn | Autumn | Sonbahar yaprakları | Sıcak yapraklar |
 | monsoon | Monsoon | Yoğun yağmur izleri | Su halkası |
-| circuit | Circuit | Devre ızgarası ve ışık darbeleri | Kenarda ilerleyen elektrik darbesi |
-| sandstorm | Sandstorm | İnce toz akışı | Kenarda kum parçacıkları |
 | bioluminescence | Bioluminescence | Belirip sönen ışık noktaları | Parlayan noktalar |
-| infrared | Infrared | Sıcak ışık halkaları | Isı kenarı |
 | digital-rain | Digital Rain | Seyrek kod sütunları | Kenarda kod çözülmesi |
 | arrakis | Arrakis | Kum tepeleri ve yatay kum | Kum solucanı geçişi |
 | hyperspace | Hyperspace | Radyal yıldız alanı | Kenarda hiperuzay sıçraması |
-| zen | Zen | Hafif sis | Tek sakin halka |
 
 ## İstek durumları
 
@@ -53,3 +45,18 @@ Java örneğinde `/api/demo-response` endpoint'ini seçin. `status=200`, `404` v
 Ocean, Winter ve Sakura (0.3.11): ufukta su yansımaları ve köpük izi; rüzgârla savrulan kar ve kristalleşme; farklı tonlarda çentikli taç yapraklar ve köşede çiçeklenme.
 
 0.3.12: Ocean’da yüzeye çıkan balina; Winter’da kar toplarından oluşan kardan adam; Rainy Night ve Monsoon’da uzak şimşek ve Execute fırtına bulutu.
+
+## Kaldırılan temaların geçişi (0.3.16)
+
+Eski tarayıcı seçimleri ve yapılandırma değerleri aşağıdaki temalara taşınır:
+
+| Eski | Yeni |
+| --- | --- |
+| forest | bioluminescence |
+| terminal | digital-rain |
+| sandstorm | arrakis |
+| observatory | cosmic |
+| infrared | ember |
+| zen | paper |
+| circuit | cyberpunk |
+| eclipse | cosmic |

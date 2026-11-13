@@ -11,31 +11,25 @@
     dark: { label: '◑ Midnight', effect: 'none', palette: dark },
     winter: { label: '❄ Winter', effect: 'snow', palette: { ...dark, bg: '#091622', panel: '#102131', input: '#162b3d', line: '#29455a', accent: '#83d7ef', soft: '#183b4d', snow: '#e2f6ff' } },
     cosmic: { label: '✦ Cosmic', effect: 'stars', palette: { ...dark, bg: '#120d20', panel: '#1b142d', input: '#251d3b', line: '#3d2e57', accent: '#c5a0ff', soft: '#38244f', snow: '#e4d4ff' } },
-    forest: { label: '♧ Forest', effect: 'none', palette: { ...dark, bg: '#0b1714', panel: '#10231d', input: '#183128', line: '#2a493c', accent: '#8cdbb3', soft: '#204334', snow: '#b4efd1' } },
     'rainy-night': { label: '☂ Rainy Night', effect: 'rain', palette: { ...dark, bg: '#0c1726', panel: '#142437', input: '#1b3046', accent: '#8cbedc', soft: '#213e56', line: '#30485f' } },
     aurora: { label: '≋ Aurora', effect: 'aurora', palette: { ...dark, bg: '#091920', panel: '#102a30', input: '#19383e', accent: '#7ee6c1', soft: '#1b4644', line: '#2a4b50' } },
     sakura: { label: '❀ Sakura', effect: 'petals', palette: { ...light, bg: '#fbf3f5', panel: '#fffafb', input: '#f8edf1', accent: '#b95380', soft: '#f5dce7', line: '#e8cfd9', snow: '#d989aa' } },
     ember: { label: '◈ Ember', effect: 'embers', palette: { ...dark, bg: '#1c1210', panel: '#2a1b16', input: '#38251d', accent: '#efa56f', soft: '#513021', line: '#55382b', snow: '#ffd19a' } },
     ocean: { label: '≈ Ocean', effect: 'ocean', palette: { ...dark, bg: '#071d2b', panel: '#0c2b3c', input: '#133b4d', accent: '#75d9df', soft: '#164957', line: '#275265' } },
     cyberpunk: { label: '⌁ Cyberpunk', effect: 'neon', palette: { ...dark, bg: '#160d1a', panel: '#24152b', input: '#34203d', accent: '#f391d8', soft: '#4d2452', line: '#57345e', snow: '#77e9ef' } },
-    terminal: { label: '> Terminal', effect: 'scan', palette: { ...dark, bg: '#08100b', panel: '#0d1c12', input: '#14281b', text: '#c8ebce', muted: '#85a88c', accent: '#8ada93', soft: '#1c3c26', line: '#2d4c35' } },
     blueprint: { label: '▦ Blueprint', effect: 'grid', palette: { ...dark, bg: '#102647', panel: '#16335b', input: '#20426b', accent: '#b2d9ff', soft: '#2a517b', line: '#44658c', snow: '#d0e6ff' } },
-    eclipse: { label: '◉ Eclipse', effect: 'eclipse', palette: { ...dark, bg: '#171615', panel: '#23211e', input: '#302d27', accent: '#e6c57c', soft: '#463d29', line: '#514831' } },
     paper: { label: '▤ Paper & Ink', effect: 'paper', palette: { ...light, bg: '#f3efe5', panel: '#fcf9f0', input: '#eee9dc', text: '#283547', muted: '#70766d', accent: '#3f607f', soft: '#dbe2e5', line: '#d6d2c5' } },
-    observatory: { label: '⋆ Observatory', effect: 'constellations', palette: { ...dark, bg: '#0b1325', panel: '#141f35', input: '#202d46', accent: '#b7c9ed', soft: '#2b3856', line: '#394962' } },
     'digital-rain': { label: '⌗ Digital Rain', effect: 'code-rain', palette: { ...dark, bg: '#06110c', panel: '#0b1d14', input: '#102b1e', text: '#d1efdf', muted: '#86ac98', line: '#244c37', accent: '#72e8a4', soft: '#163e2a', code: '#07170e', snow: '#8feabb' } },
     arrakis: { label: '∿ Arrakis', effect: 'desert', palette: { ...dark, bg: '#1b150f', panel: '#292016', input: '#382b1c', text: '#f0dfbf', muted: '#b5a082', line: '#59452c', accent: '#e0b36d', soft: '#49351e', code: '#21190f', snow: '#d4ad73' } },
     hyperspace: { label: '» Hyperspace', effect: 'starfield', palette: { ...dark, bg: '#070e1c', panel: '#0e1c31', input: '#152b46', text: '#dcecfb', muted: '#88a9c4', line: '#284c6a', accent: '#8edcff', soft: '#193c57', code: '#091425', snow: '#c7eaff' } },
     bosphorus: { label: '≈ Bosphorus', effect: 'gulls', palette: { ...light, bg: '#eaf3f6', panel: '#f8fcfd', input: '#e3eff4', text: '#173c50', muted: '#59788b', accent: '#16759a', soft: '#cde6ee', line: '#b7d4df', code: '#f1f8fa', snow: '#375d72' } },
     autumn: { label: '❧ Autumn', effect: 'leaves', palette: { ...light, bg: '#f7efe3', panel: '#fff8ef', input: '#f2e5d5', text: '#48312a', muted: '#8b6c5e', accent: '#a55738', soft: '#efd5bd', line: '#e1c8af', snow: '#ae6a35' } },
     monsoon: { label: '☔ Monsoon', effect: 'rain-heavy', palette: { ...dark, bg: '#0b1b1e', panel: '#122b2e', input: '#1a3b3e', accent: '#85c8bf', soft: '#23494a', line: '#335354' } },
-    circuit: { label: '⌘ Circuit', effect: 'circuit', palette: { ...dark, bg: '#081c24', panel: '#0f2b35', input: '#163b47', accent: '#74d8ff', soft: '#1e4c59', line: '#2a5262' } },
-    sandstorm: { label: '∴ Sandstorm', effect: 'dust', palette: { ...light, bg: '#efe4d0', panel: '#faf0de', input: '#e8d9c0', text: '#463a2b', muted: '#83735d', accent: '#9e6347', soft: '#dfc4a1', line: '#ceba9c' } },
     bioluminescence: { label: '⁕ Bioluminescence', effect: 'fireflies', palette: { ...dark, bg: '#061b1a', panel: '#0d2b29', input: '#143c37', accent: '#8df0c5', soft: '#205344', line: '#2b544a', snow: '#b6ffce' } },
-    infrared: { label: '◌ Infrared', effect: 'heat', palette: { ...dark, bg: '#1c1018', panel: '#2d1824', input: '#3d2030', accent: '#f29b98', soft: '#582b38', line: '#5e3444' } },
-    zen: { label: '○ Zen', effect: 'mist', palette: { ...light, bg: '#eff1eb', panel: '#f8faf4', input: '#e7ece0', text: '#36483b', muted: '#73816f', accent: '#608568', soft: '#d5e2cf', line: '#cbd6c4' } }
   };
-  const responseRecipes = { 'digital-rain': 'decode', arrakis: 'sandworm', hyperspace: 'jump', bosphorus: 'ferry', system: 'glow', light: 'ripple', dark: 'glow', winter: 'ice', cosmic: 'constellation', forest: 'leaves', 'rainy-night': 'storm', aurora: 'aurora', sakura: 'petals', ember: 'embers', ocean: 'tide', cyberpunk: 'neon', terminal: 'terminal', blueprint: 'blueprint', eclipse: 'eclipse', paper: 'ink', observatory: 'constellation', autumn: 'leaves', monsoon: 'storm', circuit: 'circuit', sandstorm: 'dust', bioluminescence: 'fireflies', infrared: 'heat', zen: 'ripple' };
+  const responseRecipes = { 'digital-rain': 'decode', arrakis: 'sandworm', hyperspace: 'jump', bosphorus: 'ferry', system: 'glow', light: 'ripple', dark: 'glow', winter: 'ice', cosmic: 'constellation', 'rainy-night': 'storm', aurora: 'aurora', sakura: 'petals', ember: 'embers', ocean: 'tide', cyberpunk: 'neon', blueprint: 'blueprint', paper: 'ink', autumn: 'leaves', monsoon: 'storm', bioluminescence: 'fireflies' };
+  const retiredThemes = { forest: 'bioluminescence', terminal: 'digital-rain', sandstorm: 'arrakis', observatory: 'cosmic', infrared: 'ember', zen: 'paper', circuit: 'cyberpunk', eclipse: 'cosmic' };
+  const canonical = value => typeof value === 'string' ? (Object.hasOwn(retiredThemes, value) ? retiredThemes[value] : value) : undefined;
   const atmosphereKey = 'brsvs:studio:atmosphere-v1';
   const atmosphereThemes = new Set(['bosphorus', 'winter']);
   const atmosphereChoices = ['default', 'day', 'sunset', 'night'];
@@ -62,7 +56,8 @@
   let preference = 'system', explicit = false, layer, motionCleanup;
   try {
     const saved = localStorage.getItem(key) || localStorage.getItem('brsvs:studio:theme');
-    if (Object.hasOwn(themes, saved)) { preference = saved; explicit = true; }
+    const migrated = canonical(saved);
+    if (migrated && Object.hasOwn(themes, migrated)) { preference = migrated; explicit = true; if (migrated !== saved) localStorage.setItem(key, migrated); }
   } catch {}
   const shared = document.createElement('style'); shared.id = 'brsvs-swagger-theme'; document.head.append(shared);
   const effectsStyle = document.createElement('style'); effectsStyle.textContent = `
@@ -84,7 +79,7 @@
     if (effect === 'none' || motion?.matches) return;
     layer = document.createElement('div'); layer.id = 'brsvs-theme-effects'; layer.className = effect; layer.dataset.atmosphere = atmosphere(); layer.setAttribute('aria-hidden', 'true');
     if (['rain', 'rain-heavy'].includes(effect)) { const bolt = window.SwaggerStudioMotion?.lightningSvg(); if (bolt) { bolt.classList.add('distant-lightning'); layer.append(bolt); } }
-    const scenes = ['aurora','ocean','neon','scan','grid','eclipse','paper','circuit','heat','mist'];
+    const scenes = ['aurora','ocean','neon','grid','paper'];
     const count = effect === 'code-rain' ? 16 : effect === 'desert' ? 28 : effect === 'starfield' ? 32 : effect === 'ocean' ? 14 : effect === 'gulls' ? 9 : effect === 'snow' ? 42 : effect === 'stars' ? 30 : scenes.includes(effect) ? 3 : 24;
     motionCleanup = window.SwaggerStudioMotion?.mount(layer, effect, count);
     if (motionCleanup) { raiseEffects(); return; }
@@ -139,8 +134,8 @@
     for (const [id, label] of [['default', 'Theme light'], ['day', 'Day'], ['sunset', 'Sunset'], ['night', 'Night']]) select.append(new Option(label, id));
     select.onchange = () => setAtmosphere(select.value); syncAtmospherePicker(select); return select;
   }
-  function set(value) { if (!Object.hasOwn(themes, value)) return; preference = value; explicit = true; try { localStorage.setItem(key, value); } catch {} apply(); }
-  function configure(config = {}) { if (!explicit && Object.hasOwn(themes, config.theme)) { preference = config.theme; apply(); } }
+  function set(value) { value = canonical(value); if (!value || !Object.hasOwn(themes, value)) return; preference = value; explicit = true; try { localStorage.setItem(key, value); } catch {} apply(); }
+  function configure(config = {}) { const value = canonical(config.theme); if (!explicit && value && Object.hasOwn(themes, value)) { preference = value; apply(); } }
   function picker() {
     const select = document.createElement('select'); select.setAttribute('aria-label', 'Theme for Studio and Swagger');
     for (const [id, theme] of Object.entries(themes)) select.append(new Option(theme.label, id)); select.value = preference;
@@ -149,7 +144,7 @@
   query?.addEventListener?.('change', apply); motion?.addEventListener?.('change', effects);
   window.addEventListener('studio-opened', raiseEffects);
   window.addEventListener('storage', e => { if (e.key === atmosphereKey || e.key === null) { atmospheres = readAtmospheres(); apply(); }
-    if (e.key === key) { preference = Object.hasOwn(themes, e.newValue) ? e.newValue : 'system'; explicit = !!e.newValue; apply(); } });
+    if (e.key === key) { const value = canonical(e.newValue); preference = value && Object.hasOwn(themes, value) ? value : 'system'; explicit = !!value && Object.hasOwn(themes, value); if (explicit && value !== e.newValue) { try { localStorage.setItem(key, value); } catch {} } apply(); } });
   window.SwaggerStudioTheme = { set, current, preference: () => preference, variables, configure, picker, atmosphere, setAtmosphere, atmospherePicker, syncAtmospherePicker,
     catalog: () => Object.entries(themes).map(([id, theme]) => ({ id, label: theme.label, effect: theme.effect, response: responseRecipes[id] })),
     responseRecipe: () => responseRecipes[current()] };

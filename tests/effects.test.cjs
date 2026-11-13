@@ -3,6 +3,20 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const { JSDOM } = require('jsdom');
 const source = name => fs.readFileSync(require.resolve(`../${name}`), 'utf8');
+test('retired themes migrate saved preferences, configuration and cross-tab updates', t => {
+  const retired = { forest: 'bioluminescence', terminal: 'digital-rain', sandstorm: 'arrakis', observatory: 'cosmic', infrared: 'ember', zen: 'paper', circuit: 'cyberpunk', eclipse: 'cosmic' };
+  for (const [old, current] of Object.entries(retired)) {
+    for (const key of ['brsvs:studio:theme-v2', 'brsvs:studio:theme']) {
+      const dom = new JSDOM('<html><head></head><body></body></html>', { url: 'https://example.test', runScripts: 'outside-only' }); t.after(() => dom.window.close());
+      const w = dom.window; w.matchMedia = () => ({ matches: false, addEventListener() {} }); w.localStorage.setItem(key, old); w.eval(source('theme.js'));
+      assert.equal(w.SwaggerStudioTheme.preference(), current); assert.equal(w.localStorage.getItem('brsvs:studio:theme-v2'), current);
+      assert.ok(!w.SwaggerStudioTheme.catalog().some(theme => Object.hasOwn(retired, theme.id)));
+    }
+    const w = setup(t); w.SwaggerStudioTheme.configure({ theme: old }); assert.equal(w.SwaggerStudioTheme.current(), current);
+    w.localStorage.setItem('brsvs:studio:theme-v2', old); w.dispatchEvent(new w.StorageEvent('storage', { key: 'brsvs:studio:theme-v2', newValue: old }));
+    assert.equal(w.SwaggerStudioTheme.current(), current); assert.equal(w.localStorage.getItem('brsvs:studio:theme-v2'), current);
+  }
+});
 function setup(t, reduced = false) {
   const dom = new JSDOM('<html><head></head><body><section id="response">Readable JSON remains here</section></body></html>', { url: 'https://example.test/swagger-ui/index.html', runScripts: 'outside-only', pretendToBeVisual: true });
   t.after(() => dom.window.close()); const w = dom.window;
@@ -12,7 +26,7 @@ function setup(t, reduced = false) {
 }
 test('every saved theme has a working palette, bounded scene and response recipe', t => {
   const w = setup(t), themes = w.SwaggerStudioTheme;
-  assert.equal(themes.catalog().length, 28);
+  assert.equal(themes.catalog().length, 20);
   for (const theme of themes.catalog()) {
     themes.set(theme.id); assert.equal(themes.preference(), theme.id);
     assert.ok(themes.responseRecipe()); assert.match(themes.variables(), /--st-accent:#[0-9a-f]{6}/i);
