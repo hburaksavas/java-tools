@@ -247,7 +247,7 @@
       if (busy) return;
       let options; try { options = core.requestOptions(spec, op, draft, specUrl, location.href); } catch (e) { show({ error: e.message }); focusResponse(); return; }
       busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(responseHeader(), el('p', 'Waiting for response…', 'pending'), responseSchema());
-      const feedback = window.SwaggerStudioResponseEffects?.start(() => shadow.querySelector('.scene-dock')); focusResponse();
+      const feedback = window.SwaggerStudioResponseEffects?.start(shadow.querySelector('.scene-dock'), 'studio-execute'); focusResponse();
       try {
         const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: secured ? draft.auth : '', confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
         if (current !== generation) return;

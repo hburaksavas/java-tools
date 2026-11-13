@@ -21,6 +21,13 @@ function setup(t) {
 }
 const clickOp = (shadow, text) => [...shadow.querySelectorAll('nav .endpoint')].find(n => n.textContent === text).click();
 
+test('repeated Execute replaces the header scene without adding space or duplicate overlays to response', async t => {
+  const env=setup(t), {w,data}=env; await w.SwaggerStudio.open(data); clickOp(env.shadow,'GET/health');
+  for(let i=0;i<3;i++) { env.shadow.querySelector('.send').click(); await new Promise(resolve=>setTimeout(resolve,15)); assert.equal(w.document.querySelectorAll('.brsvs-response-fx').length,1); assert.equal(env.shadow.querySelector('.response-stage'),null); }
+  assert.match(env.shadow.querySelector('.response > pre').textContent,/"ok": true/);
+  w.SwaggerStudio.close(); assert.equal(w.document.querySelector('.brsvs-response-fx'),null);
+});
+
 test('response schema is available before execution and follows response status and media without changing request drafts', async t => {
   const env=setup(t), {w,data}=env; data.spec=JSON.parse(JSON.stringify(spec));
   data.spec.paths['/pets'].post.responses={200:{content:{'application/json':{schema:{type:'object',properties:{id:{type:'integer'}}}},'application/xml':{schema:{type:'string'}}}},404:{content:{'application/json':{schema:{type:'object',properties:{message:{type:'string'}}}},'application/problem+json':{schema:{type:'object',properties:{error:{type:'string'}}}}}}};

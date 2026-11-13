@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.23
+# Swagger UI Studio 0.3.24
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.24 ensures repeated Studio Execute calls replace the previous header scene instead of stacking overlays.
 
 0.3.23 adds a collapsible response schema viewer with status/media selectors, local reference resolution, status-range/default matching and Swagger 2 support. Studio Execute scenes move into the existing header spacer; the response animation stage is removed so animations do not offset response content.
 
