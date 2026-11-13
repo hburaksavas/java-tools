@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.3.0
+# Swagger UI Studio 0.3.1
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
 
