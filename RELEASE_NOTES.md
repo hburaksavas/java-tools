@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.24
+# Swagger UI Studio 0.3.25
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.25 moves Studio Execute scenes into a fixed bottom-right strip outside the scrolling request/response area. Its height stays constant, so starting or finishing an animation never reflows the response.
 
 0.3.24 ensures repeated Studio Execute calls replace the previous header scene instead of stacking overlays.
 

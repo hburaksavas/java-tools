@@ -68,8 +68,8 @@
     const auth = button('Authorize', () => {
       if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
-    const sceneDock = el('div', undefined, 'scene-dock grow'); sceneDock.dataset.studioDock = 'true'; sceneDock.setAttribute('aria-hidden', 'true');
-    top.append(brand, el('small', spec.info?.title || 'API workspace'), sceneDock);
+    const sceneDock = el('div', undefined, 'scene-dock'); sceneDock.dataset.studioDock = 'true'; sceneDock.setAttribute('aria-hidden', 'true');
+    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'));
     if (ops.some(op => core.authorizationSchemes(spec, op).length)) top.append(auth);
     top.append(themePicker(), window.SwaggerStudioTheme.atmospherePicker(), button('Swagger ↗', close));
     const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side');
@@ -92,7 +92,8 @@
       const t = el('div', undefined, 'tab'); t.append(button(`${op.method} ${op.path}`, () => select(op), selected?.id === id ? 'active' : ''), button('×', () => closeTab(id), 'remove'));
       t.lastChild.setAttribute('aria-label', `Close ${op.method} ${op.path}`); tabbar.append(t);
     }
-    main.append(tabbar, selected ? editor(selected) : dashboard()); layout.append(side, main); shell.append(top, layout); shadow.append(shell);
+    main.append(tabbar, selected ? editor(selected) : dashboard()); layout.append(side, main); const sceneFooter = el('footer', undefined, 'scene-footer'); sceneFooter.setAttribute('aria-hidden', 'true'); sceneFooter.append(sceneDock);
+    shell.append(top, layout, sceneFooter); shadow.append(shell);
     main.scrollTop = selected ? drafts.get(selected.id)?.scrollTop || 0 : overviewScroll;
     renderedId = selected?.id || null;
   }

@@ -21,7 +21,7 @@ function setup(t) {
 }
 const clickOp = (shadow, text) => [...shadow.querySelectorAll('nav .endpoint')].find(n => n.textContent === text).click();
 
-test('repeated Execute replaces the header scene without adding space or duplicate overlays to response', async t => {
+test('repeated Execute replaces the bottom scene without adding space or duplicate overlays to response', async t => {
   const env=setup(t), {w,data}=env; await w.SwaggerStudio.open(data); clickOp(env.shadow,'GET/health');
   for(let i=0;i<3;i++) { env.shadow.querySelector('.send').click(); await new Promise(resolve=>setTimeout(resolve,15)); assert.equal(w.document.querySelectorAll('.brsvs-response-fx').length,1); assert.equal(env.shadow.querySelector('.response-stage'),null); }
   assert.match(env.shadow.querySelector('.response > pre').textContent,/"ok": true/);
@@ -40,7 +40,7 @@ test('response schema is available before execution and follows response status 
   shadow.querySelector('.send').click(); await new Promise(resolve=>setTimeout(resolve,15));
   assert.equal(shadow.querySelector('[aria-label="Schema response status"]').value,'404'); assert.equal(shadow.querySelector('[aria-label="Schema content type"]').value,'application/problem+json');
   assert.match(shadow.querySelector('.response-schema pre').textContent,/"error"/); assert.equal(shadow.querySelector('.response-stage'),null);
-  assert.equal(shadow.querySelector('.scene-dock').closest('header').className,'top');
+  assert.equal(shadow.querySelector('.scene-dock').closest('footer').className,'scene-footer');
 });
 
 test('authorization controls follow effective operation security, including public overrides', async t => {
