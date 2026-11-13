@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.3.5
+# Swagger UI Studio 0.3.6
 
 Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir API çalışma alanı. `/swagger-ui/index.html` açılınca Studio otomatik başlar. Eklenti ve ayrı frontend sunucusu gerekmez.
 
@@ -21,11 +21,11 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 <dependency>
     <groupId>com.brsvs</groupId>
     <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
-    <version>0.3.5</version>
+    <version>0.3.6</version>
 </dependency>
 ```
 
-Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.5) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
+Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.6) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
 
 Repository ZIP'ini örneğin `vendor/studio-maven` klasörüne açıp tüketen projeye şu repository'yi ekleyebilirsiniz. ZIP, starter'ın parent POM'unu da içerir; diğer bağımlılıklar Maven Central'dan çözülür.
 
@@ -60,7 +60,7 @@ Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici
 
 ```powershell
 ./mvnw.cmd verify
-java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.5.jar
+java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.6.jar
 ```
 
 [Swagger UI / Studio](http://127.0.0.1:8087/swagger-ui/index.html) adresini açın. Springdoc, [OpenAPI tanımını](http://127.0.0.1:8087/v3/api-docs) gerçek controller'lardan üretir. Müşteri oluşturma/listeleme, sipariş, sağlık, auth/interceptor kontrolü, dosya ve form endpoint'leri vardır. Veriler bellekte tutulur; sunucu yalnız `127.0.0.1` üzerinde çalışır.
@@ -69,7 +69,7 @@ Auth demosu: **Authorize** içinde `demoBearer` için `demo-token` girin. Studio
 
 ## Depolama ve erişim
 
-`localStorage` yalnız favori ve açık endpoint kimliklerini, son açılan endpoint'leri, aktif sekmeyi ve görünüm tercihlerini saklar. Bunlar sayfa ve API dokümanı bazında ayrılır; tema tüm Studio/Swagger görünümleri için ortaktır. Depolama engelliyse uygulama yine açılır. **Settings → Reset workspace preferences** çalışma alanı tercihlerini sıfırlar.
+`localStorage` yalnız favori ve açık endpoint kimliklerini, son açılan endpoint'leri, aktif sekmeyi ve görünüm tercihlerini saklar. Bunlar sayfa ve API dokümanı bazında ayrılır; tema tüm Studio/Swagger görünümleri için ortaktır. Depolama engelliyse uygulama yine açılır.
 
 Token, istek gövdesi, parametre değeri, dosya ve yanıtlar Studio tarafından diske yazılmaz; Studio kapanınca taslaklar temizlenir. Swagger'ın `persistAuthorization` ayarı uygulamanın kontrolündedir; Studio bunu değiştirmez. Oturum istek metriği yalnız bu sayfada yapılan Studio çağrılarını gösterir, sunucu geneli ölçüm değildir.
 

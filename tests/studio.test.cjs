@@ -52,12 +52,11 @@ test('schema examples and theme selection update both views and survive reload',
   assert.equal(shadow.querySelector('textarea').value, '', 'an intentionally cleared draft is not regenerated');
   const theme = shadow.querySelector('[aria-label="Theme for Studio and Swagger"]'); theme.value = 'light'; theme.dispatchEvent(new w.Event('change'));
   assert.equal(w.document.documentElement.dataset.studioTheme, 'light'); assert.equal(w.localStorage.getItem('brsvs:studio:theme-v2'), 'light'); assert.match(w.document.getElementById('brsvs-swagger-theme').textContent, /\.swagger-ui/);
-  [...shadow.querySelectorAll('button')].find(b => b.textContent === 'Settings').click();
   assert.equal(shadow.querySelector('[aria-label="Visual effect"]'), null, 'effects are part of themes, not a separate control');
   theme.value = 'winter'; theme.dispatchEvent(new w.Event('change')); assert.equal(w.document.querySelectorAll('#brsvs-theme-effects.snow span').length, 42);
   theme.value = 'cosmic'; theme.dispatchEvent(new w.Event('change')); assert.equal(w.document.querySelectorAll('#brsvs-theme-effects.stars span').length, 30);
-  w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape' })); assert.ok(w.document.getElementById('brsvs-studio-host')); assert.equal(shadow.querySelector('.settings-backdrop'), null);
-  w.SwaggerStudio.close(); assert.equal(w.document.querySelectorAll('#brsvs-theme-effects.stars span').length, 30, 'effects remain on standard Swagger');
+  w.document.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape' })); assert.equal(w.document.getElementById('brsvs-studio-host'), null);
+  assert.equal(w.document.querySelectorAll('#brsvs-theme-effects.stars span').length, 30, 'effects remain on standard Swagger');
   assert.equal(w.document.documentElement.dataset.studioTheme, 'cosmic');
   await w.SwaggerStudio.open(data); assert.equal(env.shadow.querySelector('[aria-label="Theme for Studio and Swagger"]').value, 'cosmic');
   assert.equal(w.document.documentElement.lastElementChild.id, 'brsvs-theme-effects', 'effects stay visible above Studio');

@@ -3,7 +3,7 @@
   const core = window.SwaggerStudioCore, bridge = window.SwaggerStudioBridge;
   const source = [...document.scripts].find(s => s.src.endsWith('/studio.js'))?.src || new URL('studio.js', location.href).href;
   const stylesheet = new URL('studio.css', source).href;
-  let host, shadow, spec, ui, config, ops = [], specUrl, storageKey, selected = null, tabs = [], favorites = [], recent = [], drafts = new Map(), controller, busy = false, generation = 0, activity = [], searchTerm = '', favoriteOnly = false, settingsOpen = false, savedFocus, oldOverflow, renderedId, overviewScroll = 0;
+  let host, shadow, spec, ui, config, ops = [], specUrl, storageKey, selected = null, tabs = [], favorites = [], recent = [], drafts = new Map(), controller, busy = false, generation = 0, activity = [], searchTerm = '', favoriteOnly = false, savedFocus, oldOverflow, renderedId, overviewScroll = 0;
   const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
   const button = (label, fn, cls) => { const n = el('button', label, cls); n.type = 'button'; n.onclick = fn; return n; };
   function read(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
@@ -20,7 +20,7 @@
   function themePicker() { return window.SwaggerStudioTheme.picker(); }
   function close() {
     if (!host) return;
-    persist(); generation++; controller?.abort(); host.remove(); host = null; drafts.clear(); busy = false; settingsOpen = false;
+    persist(); generation++; controller?.abort(); host.remove(); host = null; drafts.clear(); busy = false;
     document.documentElement.style.overflow = oldOverflow;
     if (savedFocus?.isConnected) savedFocus.focus();
     window.dispatchEvent(new CustomEvent('studio-closed'));
@@ -57,7 +57,7 @@
     const auth = button('Authorize', () => {
       if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
-    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'), auth, themePicker(), button('Settings', () => openSettings()), button('Swagger ↗', close));
+    top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'), auth, themePicker(), button('Swagger ↗', close));
     const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side'); side.append(button('⌂ Overview', () => select(null), 'home-button'));
     const search = el('input', undefined, 'search'); search.placeholder = 'Find endpoint · Ctrl K'; search.setAttribute('aria-label', 'Search endpoints'); search.value = searchTerm; side.append(search);
     const check = el('input'); check.type = 'checkbox'; check.checked = favoriteOnly;
@@ -197,16 +197,6 @@
     }
     return area;
   }
-  function openSettings() {
-    if (settingsOpen || busy) return; settingsOpen = true;
-    const backdrop = el('div', undefined, 'settings-backdrop'), panel = el('section', undefined, 'settings'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Studio settings');
-    const header = el('div', undefined, 'heading'); header.append(el('h2', 'Make it yours'), el('span', undefined, 'grow'), button('Close settings', () => { settingsOpen = false; backdrop.remove(); })); panel.append(header);
-    const theme = el('label', undefined, 'field'); theme.append(el('span', 'Shared Studio + Swagger theme'), themePicker()); panel.append(theme);
-    panel.append(el('p', 'Each theme pairs its palette and background with response feedback for waiting, success, warning, failure and cancellation. Reduced-motion preferences are respected.', 'notice'));
-    panel.append(el('p', 'Favorites, open tabs, recent endpoints and appearance stay in this browser. Tokens, request bodies and responses are never saved by Studio.', 'notice'));
-    panel.append(button('Reset workspace preferences', () => { favorites = []; tabs = []; recent = []; selected = null; persist(); settingsOpen = false; render(); }));
-    backdrop.append(panel); shadow.querySelector('.shell').append(backdrop); panel.querySelector('button').focus();
-  }
   async function open(data) {
     if (host) { close(); return; }
     savedFocus = document.activeElement; oldOverflow = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
@@ -226,12 +216,12 @@
   }
   document.addEventListener('keydown', e => {
     if (!host) return;
-    if (e.key === 'Escape') { e.preventDefault(); if (settingsOpen) { settingsOpen = false; shadow.querySelector('.settings-backdrop')?.remove(); } else close(); }
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); shadow.querySelector('.search')?.focus(); }
     else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); shadow.querySelector('.send')?.click(); }
     else if (e.altKey && e.key.toLowerCase() === 'w' && selected) { e.preventDefault(); closeTab(selected.id); }
     else if (e.key === 'Tab') {
-      const scope = settingsOpen ? shadow.querySelector('.settings') : shadow;
+      const scope = shadow;
       const nodes = [...scope.querySelectorAll('button,input,textarea,select,[tabindex="0"]')].filter(n => !n.disabled && !n.hidden && n.getClientRects().length && !n.closest('details:not([open])'));
       if (!nodes.length) return; const first = nodes[0], last = nodes.at(-1), active = shadow.activeElement;
       if (e.shiftKey && (active === first || !nodes.includes(active))) { e.preventDefault(); last.focus(); }

@@ -1,14 +1,16 @@
-# Swagger UI Studio 0.3.5
+# Swagger UI Studio 0.3.6
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
 
-0.3.5 adds a compact play icon before Execute; the button's accessible name remains Execute.
+0.3.6 removes the redundant Settings button and dialog. Theme selection remains directly in the toolbar; Escape returns straight to Swagger.
 
-0.3.5 moves JSON formatting to a compact `{ }` icon at the top-right of the request body, aligned with its label. The control retains a Format JSON tooltip and accessible label.
+0.3.6 adds a compact play icon before Execute; the button's accessible name remains Execute.
 
-0.3.5 fills the request body example automatically when an endpoint opens. The Generate example button is removed; edited/cleared drafts remain intact across tab and content-type changes.
+0.3.6 moves JSON formatting to a compact `{ }` icon at the top-right of the request body, aligned with its label. The control retains a Format JSON tooltip and accessible label.
 
-0.3.5 replaces the straight, uniform particle motion with independent wind curves, depth-dependent speed/size, randomized phases and separate leaf/petal tumbling. Embers rise, dust drifts and fireflies loop locally. Ambient Web Animations pause in hidden tabs and are cancelled when changing themes.
+0.3.6 fills the request body example automatically when an endpoint opens. The Generate example button is removed; edited/cleared drafts remain intact across tab and content-type changes.
+
+0.3.6 replaces the straight, uniform particle motion with independent wind curves, depth-dependent speed/size, randomized phases and separate leaf/petal tumbling. Embers rise, dust drifts and fireflies loop locally. Ambient Web Animations pause in hidden tabs and are cancelled when changing themes.
 
 - Implements all saved theme concepts: Rainy Night, Aurora, Sakura, Ember, Ocean, Cyberpunk, Terminal, Blueprint, Eclipse, Paper & Ink, Observatory, Autumn, Monsoon, Circuit, Sandstorm, Bioluminescence, Infrared and Zen, alongside the existing presets.
 - Adds waiting, success, warning, failure and cancellation feedback around response edges. JSON text and panel position remain unchanged.
