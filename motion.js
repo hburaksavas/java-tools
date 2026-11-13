@@ -1,15 +1,16 @@
 (function (root) {
-  const supported = new Set(['snow', 'petals', 'leaves', 'rain', 'rain-heavy', 'embers', 'fireflies', 'dust']);
+  const supported = new Set(['gulls', 'snow', 'petals', 'leaves', 'rain', 'rain-heavy', 'embers', 'fireflies', 'dust']);
   const range = (random, min, max) => min + random() * (max - min);
   function particle(effect, random = Math.random) {
     const depth = range(random, .35, 1), phase = random(), wind = range(random, -12, 12);
     const origin = range(random, -8, 108), wave = range(random, 0, Math.PI * 2), turns = range(random, .5, 1.8);
     const rain = effect === 'rain' || effect === 'rain-heavy', rising = effect === 'embers';
+    const bird = effect === 'gulls', direction = random() > .5 ? 1 : -1;
     const drifting = effect === 'dust', floating = effect === 'fireflies';
     const baseDuration = rain ? range(random, 900, 1700) : rising ? range(random, 10000, 20000) : range(random, 15000, 32000);
     const duration = baseDuration / (.55 + depth * .65), sway = rain ? 0 : range(random, 2, 9) * depth;
     const alpha = rain ? range(random, .08, .2) : range(random, .18, .45) * depth;
-    const size = (effect === 'snow' ? range(random, 2, 5) : effect === 'leaves' || effect === 'petals' ? range(random, 7, 15) : range(random, 2, 4)) * (.5 + depth * .65);
+    const size = bird ? range(random, 14, 28) * depth : (effect === 'snow' ? range(random, 2, 5) : effect === 'leaves' || effect === 'petals' ? range(random, 7, 15) : range(random, 2, 4)) * (.5 + depth * .65);
     const centerY = range(random, 10, 95), centerX = range(random, 2, 98);
     const frames = [];
     for (let i = 0; i <= 24; i++) {
@@ -20,6 +21,7 @@
       if (rain) x = origin - rangeFixed(wind, 5, 11) * p;
       if (drifting) { x = -12 + 125 * p; y = centerY + Math.sin(wave + p * 8) * 5; }
       if (floating) { x = centerX + Math.sin(wave + p * Math.PI * 2) * 2.5; y = centerY + Math.cos(wave + p * Math.PI * 2) * 4; }
+      if (bird) { x = direction === 1 ? -12 + 124 * p : 112 - 124 * p; y = centerY * .55 + 6 + Math.sin(wave + p * 6) * (3 + depth * 5); }
       frames.push({ offset: p, transform: `translate3d(${x.toFixed(3)}vw,${y.toFixed(3)}vh,0)`, opacity: floating ? alpha * (.15 + .85 * Math.sin(p * Math.PI) ** 2) : alpha * envelope });
     }
     return { frames, duration, phase, size, depth, spin: range(random, -160, 160), spinDuration: range(random, 6000, 16000), length: range(random, 16, effect === 'rain-heavy' ? 75 : 42), color: Math.floor(random() * 4) };
@@ -36,6 +38,10 @@
       shape.style.filter = `blur(${((1 - model.depth) * .65).toFixed(2)}px)`;
       carrier.append(shape); layer.append(carrier);
       const movement = carrier.animate(model.frames, { duration: model.duration, iterations: Infinity, easing: 'linear' }); movement.currentTime = model.phase * model.duration; animations.push(movement);
+      if (effect === 'gulls') {
+        shape.style.setProperty('--wing-duration', `${1800 + Math.random() * 1400}ms`);
+        shape.style.setProperty('--wing-phase', `${-Math.random() * 4000}ms`);
+      }
       if (effect === 'leaves' || effect === 'petals') {
         const turn = shape.animate([
           { transform: `rotate(${model.spin}deg) rotateX(20deg) rotateY(10deg)` },

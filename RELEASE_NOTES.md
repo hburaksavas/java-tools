@@ -1,6 +1,8 @@
-# Swagger UI Studio 0.3.8
+# Swagger UI Studio 0.3.9
 
 23 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
+
+0.3.9 adds Bosphorus: a coastal blue palette, independent gliding gulls and a City Lines inspired ferry sailing along the response edge on Execute. Shared by Studio and Swagger, with reduced-motion support.
 
 0.3.8 adds responsive side-by-side request/response panels and a layout switch. The preference persists across endpoints and reloads and syncs across same-origin browser tabs. Narrow screens stack panels automatically. Visible responses receive focus without scrolling.
 

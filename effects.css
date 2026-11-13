@@ -92,3 +92,24 @@
 #brsvs-theme-effects.organic.rain-heavy .mote{width:1.5px}
 #brsvs-theme-effects.organic.embers .mote,#brsvs-theme-effects.organic.fireflies .mote{background:var(--st-accent);box-shadow:0 0 7px var(--st-accent)}
 #brsvs-theme-effects.organic.dust .mote{width:2px;height:2px;background:var(--st-accent)}
+
+/* Bosphorus: distant gulls glide across the sky; the ferry sails along the panel edge. */
+#brsvs-theme-effects.organic.gulls .mote { background:none; border-radius:0; height:9px; }
+#brsvs-theme-effects.gulls .mote::before,#brsvs-theme-effects.gulls .mote::after { content:''; position:absolute; top:0; width:55%; height:65%; border-top:2px solid var(--st-snow); border-radius:80% 90% 0 0; transform-origin:100% 90%; animation:brsvs-gull-wing var(--wing-duration) ease-in-out infinite; animation-delay:var(--wing-phase); }
+#brsvs-theme-effects.gulls .mote::before { left:0; }
+#brsvs-theme-effects.gulls .mote::after { right:0; transform-origin:0 90%; animation-direction:reverse; }
+@keyframes brsvs-gull-wing { 0%,65%,100% { transform:rotate(8deg) scaleY(.65); } 25% { transform:rotate(-14deg) scaleY(1.1); } 40% { transform:rotate(3deg) scaleY(.8); } }
+.brsvs-response-fx.ferry { overflow:hidden; }
+.brsvs-response-fx.ferry::before { inset:auto 0 0; height:3px; border:0; border-radius:0; background:repeating-linear-gradient(90deg,transparent 0 12px,var(--fx-color) 13px 30px,transparent 31px 45px); opacity:.35; animation:brsvs-ferry-water 2s linear infinite; }
+.brsvs-response-fx.ferry .ferry-boat { position:absolute; display:block; left:-75px; bottom:5px; width:62px; height:30px; color:var(--fx-color); animation:brsvs-ferry-sail 2.6s linear infinite; }
+.ferry-boat::before { content:''; position:absolute; bottom:0; width:62px; height:12px; background:currentColor; clip-path:polygon(0 0,100% 0,84% 90%,22% 100%); }
+.ferry-boat::after { content:''; position:absolute; bottom:-3px; left:-22px; width:38px; height:3px; border-top:1px solid currentColor; border-radius:50%; opacity:.5; }
+.ferry-boat b { position:absolute; left:13px; bottom:12px; width:35px; height:11px; background:repeating-linear-gradient(90deg,var(--st-panel) 0 5px,currentColor 5px 8px); border:2px solid currentColor; border-top-width:3px; }
+.ferry-boat b::before { content:''; position:absolute; top:-11px; left:8px; width:6px; height:8px; background:currentColor; box-shadow:12px 3px 0 -1px currentColor; }
+.brsvs-response-fx.ferry[data-state=success] { animation:brsvs-fade .45s 2.3s ease-out both; }
+.brsvs-response-fx.ferry[data-state=success] .ferry-boat { animation-iteration-count:1; animation-fill-mode:both; }
+.brsvs-response-fx.ferry span { display:none; }
+.brsvs-response-fx.ferry[data-state=error] .ferry-boat,.brsvs-response-fx.ferry[data-state=warning] .ferry-boat,.brsvs-response-fx.ferry[data-state=cancelled] .ferry-boat { animation-play-state:paused; opacity:.4; }
+@keyframes brsvs-ferry-sail { 0% { left:-75px; transform:translateY(0) rotate(-1deg); } 30% { transform:translateY(-2px) rotate(1deg); } 65% { transform:translateY(0) rotate(-1deg); } 100% { left:calc(100% + 10px); transform:translateY(-1px) rotate(1deg); } }
+@keyframes brsvs-ferry-water { to { background-position:45px 0; } }
+@media(prefers-reduced-motion:reduce) { .brsvs-response-fx .ferry-boat { display:none; } }

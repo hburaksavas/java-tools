@@ -12,7 +12,7 @@ function setup(t, reduced = false) {
 }
 test('every saved theme has a working palette, bounded scene and response recipe', t => {
   const w = setup(t), themes = w.SwaggerStudioTheme;
-  assert.equal(themes.catalog().length, 24);
+  assert.equal(themes.catalog().length, 25);
   for (const theme of themes.catalog()) {
     themes.set(theme.id); assert.equal(themes.preference(), theme.id);
     assert.ok(themes.responseRecipe()); assert.match(themes.variables(), /--st-accent:#[0-9a-f]{6}/i);
@@ -69,4 +69,17 @@ test('Swagger rejected HTTP 4xx is a warning, not a network failure', async t =>
   const ui = w.SwaggerUIBundle({ spec, dom_id: null, plugins: [() => ({ fn: { execute: async () => { throw Object.assign(new Error('Not found'), { status: 404 }); } } })] });
   const sys = ui.getSystem(); await sys.specActions.executeRequest({ spec, pathName: '/pets', method: 'get', operation: sys.Im.fromJS(spec.paths['/pets'].get), parameters: {} });
   await new Promise(r => setTimeout(r, 20)); assert.equal(w.document.querySelector('.brsvs-response-fx').dataset.state, 'warning');
+});
+
+test('Bosphorus ferry follows execution and is removed on theme change or reduced motion', t => {
+  const w = setup(t); w.SwaggerStudioTheme.set('bosphorus');
+  const effect = w.SwaggerStudioResponseEffects.start(w.document.getElementById('response'));
+  assert.ok(effect.node.querySelector('.ferry-boat'));
+  effect.finish(200); assert.ok(effect.node.querySelector('.ferry-boat'));
+  w.SwaggerStudioTheme.set('winter'); assert.equal(effect.node.querySelector('.ferry-boat'), null);
+  effect.remove();
+  const reduced = setup(t, true); reduced.SwaggerStudioTheme.set('bosphorus');
+  const quiet = reduced.SwaggerStudioResponseEffects.start(reduced.document.getElementById('response'));
+  assert.equal(quiet.node.querySelector('.ferry-boat'), null);
+  assert.equal(reduced.document.getElementById('brsvs-theme-effects'), null); quiet.remove();
 });

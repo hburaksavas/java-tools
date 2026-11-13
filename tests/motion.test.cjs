@@ -37,3 +37,14 @@ test('mount cancels old animations and pauses when the document is hidden', t =>
   hidden = true; w.document.dispatchEvent(new w.Event('visibilitychange')); assert.ok(calls.every(a => a.paused));
   cleanup(); assert.ok(calls.every(a => a.cancelled));
 });
+
+test('gulls cross horizontally in both directions without falling through the page', () => {
+  const x = frame => Number(frame.transform.match(/\((-?[0-9.]+)vw/)[1]);
+  const y = frame => Number(frame.transform.match(/,(-?[0-9.]+)vh/)[1]);
+  for (const seed of [.2, .8]) {
+    const bird = motion.particle('gulls', () => seed);
+    assert.ok(Math.abs(x(bird.frames.at(-1)) - x(bird.frames[0])) > 120);
+    assert.ok(Math.abs(y(bird.frames.at(-1)) - y(bird.frames[0])) < 16);
+    assert.equal(Math.sign(x(bird.frames.at(-1)) - x(bird.frames[0])), seed > .5 ? 1 : -1);
+  }
+});

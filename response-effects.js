@@ -20,6 +20,9 @@
     function refresh() {
       const recipe = window.SwaggerStudioTheme?.responseRecipe() || 'glow';
       node.className = `brsvs-response-fx ${recipe}${motion?.matches ? ' reduced' : ''}`;
+      if (recipe === 'ferry' && !motion?.matches && !node.querySelector('.ferry-boat')) {
+        const boat = document.createElement('i'); boat.className = 'ferry-boat'; boat.append(document.createElement('b')); node.append(boat);
+      } else if (recipe !== 'ferry' || motion?.matches) node.querySelector('.ferry-boat')?.remove();
       node.dataset.theme = window.SwaggerStudioTheme?.current() || 'dark';
     }
     function position(time) {
@@ -44,7 +47,7 @@
         const particle = document.createElement('span');
         particle.style.setProperty('--x', `${8 + i * 10}%`); particle.style.setProperty('--dx', `${i % 2 ? 12 : -12}px`); particle.style.setProperty('--delay', `${i * 15}ms`); node.append(particle);
       }
-      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : 1000);
+      clearTimeout(timer); timer = window.setTimeout(remove, motion?.matches ? 600 : node.classList.contains('ferry') ? 2800 : 1000);
     }
     active.add(record); refresh(); document.documentElement.append(node); frame = raf(position);
     timer = window.setTimeout(remove, 120000);

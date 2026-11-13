@@ -23,6 +23,7 @@
     eclipse: { label: '◉ Eclipse', effect: 'eclipse', palette: { ...dark, bg: '#171615', panel: '#23211e', input: '#302d27', accent: '#e6c57c', soft: '#463d29', line: '#514831' } },
     paper: { label: '▤ Paper & Ink', effect: 'paper', palette: { ...light, bg: '#f3efe5', panel: '#fcf9f0', input: '#eee9dc', text: '#283547', muted: '#70766d', accent: '#3f607f', soft: '#dbe2e5', line: '#d6d2c5' } },
     observatory: { label: '⋆ Observatory', effect: 'constellations', palette: { ...dark, bg: '#0b1325', panel: '#141f35', input: '#202d46', accent: '#b7c9ed', soft: '#2b3856', line: '#394962' } },
+    bosphorus: { label: '≈ Bosphorus', effect: 'gulls', palette: { ...light, bg: '#eaf3f6', panel: '#f8fcfd', input: '#e3eff4', text: '#173c50', muted: '#59788b', accent: '#16759a', soft: '#cde6ee', line: '#b7d4df', code: '#f1f8fa', snow: '#375d72' } },
     autumn: { label: '❧ Autumn', effect: 'leaves', palette: { ...light, bg: '#f7efe3', panel: '#fff8ef', input: '#f2e5d5', text: '#48312a', muted: '#8b6c5e', accent: '#a55738', soft: '#efd5bd', line: '#e1c8af', snow: '#ae6a35' } },
     monsoon: { label: '☔ Monsoon', effect: 'rain-heavy', palette: { ...dark, bg: '#0b1b1e', panel: '#122b2e', input: '#1a3b3e', accent: '#85c8bf', soft: '#23494a', line: '#335354' } },
     circuit: { label: '⌘ Circuit', effect: 'circuit', palette: { ...dark, bg: '#081c24', panel: '#0f2b35', input: '#163b47', accent: '#74d8ff', soft: '#1e4c59', line: '#2a5262' } },
@@ -31,7 +32,7 @@
     infrared: { label: '◌ Infrared', effect: 'heat', palette: { ...dark, bg: '#1c1018', panel: '#2d1824', input: '#3d2030', accent: '#f29b98', soft: '#582b38', line: '#5e3444' } },
     zen: { label: '○ Zen', effect: 'mist', palette: { ...light, bg: '#eff1eb', panel: '#f8faf4', input: '#e7ece0', text: '#36483b', muted: '#73816f', accent: '#608568', soft: '#d5e2cf', line: '#cbd6c4' } }
   };
-  const responseRecipes = { system: 'glow', light: 'ripple', dark: 'glow', winter: 'ice', cosmic: 'constellation', forest: 'leaves', 'rainy-night': 'ripple', aurora: 'aurora', sakura: 'petals', ember: 'embers', ocean: 'ripple', cyberpunk: 'neon', terminal: 'terminal', blueprint: 'blueprint', eclipse: 'eclipse', paper: 'ink', observatory: 'constellation', autumn: 'leaves', monsoon: 'ripple', circuit: 'circuit', sandstorm: 'dust', bioluminescence: 'fireflies', infrared: 'heat', zen: 'ripple' };
+  const responseRecipes = { bosphorus: 'ferry', system: 'glow', light: 'ripple', dark: 'glow', winter: 'ice', cosmic: 'constellation', forest: 'leaves', 'rainy-night': 'ripple', aurora: 'aurora', sakura: 'petals', ember: 'embers', ocean: 'ripple', cyberpunk: 'neon', terminal: 'terminal', blueprint: 'blueprint', eclipse: 'eclipse', paper: 'ink', observatory: 'constellation', autumn: 'leaves', monsoon: 'ripple', circuit: 'circuit', sandstorm: 'dust', bioluminescence: 'fireflies', infrared: 'heat', zen: 'ripple' };
   const key = 'brsvs:studio:theme-v2';
   const query = typeof matchMedia === 'function' ? matchMedia('(prefers-color-scheme: dark)') : null;
   const motion = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -60,7 +61,7 @@
     if (effect === 'none' || motion?.matches) return;
     layer = document.createElement('div'); layer.id = 'brsvs-theme-effects'; layer.className = effect; layer.setAttribute('aria-hidden', 'true');
     const scenes = ['aurora','ocean','neon','scan','grid','eclipse','paper','circuit','heat','mist'];
-    const count = effect === 'snow' ? 42 : effect === 'stars' ? 30 : scenes.includes(effect) ? 3 : 24;
+    const count = effect === 'gulls' ? 9 : effect === 'snow' ? 42 : effect === 'stars' ? 30 : scenes.includes(effect) ? 3 : 24;
     motionCleanup = window.SwaggerStudioMotion?.mount(layer, effect, count);
     if (motionCleanup) { raiseEffects(); return; }
     for (let i = 0; i < count; i++) {

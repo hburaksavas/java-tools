@@ -1,6 +1,6 @@
 # Tema ve response kataloğu — 0.3.0
 
-Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve response tepkisi tek seçimle değişir. `System` dışında 23 tema vardır.
+Tüm temalar hem Studio hem standart Swagger'da çalışır. Renk, arka plan ve response tepkisi tek seçimle değişir. `System` dışında 24 tema vardır.
 
 | Ayar değeri | Tema | Arka plan | Response dokunuşu |
 | --- | --- | --- | --- |
@@ -44,3 +44,5 @@ Standart Swagger entegrasyonu initializer'a bir Swagger plugin'i ekler. Mevcut p
 ## Canlı deneme
 
 Java örneğinde `/api/demo-response` endpoint'ini seçin. `status=200`, `404` veya `503`; `delayMillis=2000` ile bekleme ve sonucu gözleyin. Gecikme sırasında Studio'da **Cancel** ile iptali deneyin. Gecikme 0–5000 ms arasında sınırlandırılır. Bu endpoint yalnız örnek uygulamadadır.
+
+| bosphorus | Bosphorus | Boğaz mavisi, süzülen martılar | Execute ile şehir hatları vapuru |
