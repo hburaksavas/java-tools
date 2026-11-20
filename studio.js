@@ -564,6 +564,14 @@
     else if (e.key === 'Tab') {
       const scope = shadow;
       const nodes = [...scope.querySelectorAll('button,input,textarea,select,summary,[tabindex="0"]')].filter(n => !n.disabled && !n.hidden && n.getClientRects().length && (n.tagName === 'SUMMARY' || !n.closest('details:not([open])')));
+      const bowling = document.querySelector('#brsvs-theme-effects .bowling-control:not(:disabled)');
+      if (bowling?.getClientRects().length) {
+        if (e.shiftKey && shadow.activeElement === nodes[0]) { e.preventDefault(); bowling.focus(); return; }
+        if (!e.shiftKey && shadow.activeElement === nodes.at(-1)) { e.preventDefault(); bowling.focus(); return; }
+        if (document.activeElement === bowling) {
+          e.preventDefault(); (e.shiftKey ? nodes.at(-1) : nodes[0])?.focus(); return;
+        }
+      }
       if (!nodes.length) return; const first = nodes[0], last = nodes.at(-1), active = shadow.activeElement;
       if (e.shiftKey && (active === first || !nodes.includes(active))) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && (active === last || !nodes.includes(active))) { e.preventDefault(); first.focus(); }

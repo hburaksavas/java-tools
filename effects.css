@@ -495,7 +495,7 @@ html[data-studio-theme=bosphorus][data-studio-atmosphere=night] .ferry-boat::aft
 .bowling-arrow { fill:none; stroke:var(--st-accent); stroke-width:1; opacity:.6; }
 .bowling-pin { fill:var(--st-text); stroke:var(--st-panel); stroke-width:.6; transform-origin:0 8px; }
 .pin-stripe { fill:none; stroke:#e994d5; stroke-width:2; }
-.bowling-ball { fill:#8bcfd9; stroke:#c7eff5; stroke-width:.7; transform:translate(80px,109px); }
+.bowling-ball { fill:#8bcfd9; stroke:#c7eff5; stroke-width:.7; transform:translate(240px,164px); }
 .ball-holes { fill:#213249; stroke:none; }
 .environment-bowling:not([data-request-state]) .bowling-ball { animation:bowling-idle 12s ease-in-out infinite; }
 .environment-bowling[data-request-state=pending] .track-bowling .bowling-ball { animation:bowling-approach 1.5s ease-out both; }
@@ -508,10 +508,10 @@ html[data-studio-theme=bosphorus][data-studio-atmosphere=night] .ferry-boat::aft
 .brsvs-response-fx[data-state=cancelled] :is(.bowling-ball,.rolling-marble,.marble-wheel) { animation-play-state:paused; }
 @keyframes marble-roll { from { offset-distance:0%; } to { offset-distance:100%; } }
 @keyframes marble-wheel { to { transform:rotate(360deg); } }
-@keyframes bowling-idle { 0%,65%,100% { transform:translate(80px,109px); } 35% { transform:translate(101px,107px); } }
-@keyframes bowling-approach { from { transform:translate(80px,109px) scale(1); } to { transform:translate(290px,88px) scale(.7); } }
-@keyframes bowling-strike { from { transform:translate(290px,88px) scale(.7); } to { transform:translate(376px,72px) scale(.45); } }
-@keyframes bowling-miss { from { transform:translate(290px,88px) scale(.7); } 40% { transform:translate(370px,114px) scale(.6); } to { transform:translate(461px,121px) scale(.4); opacity:0; } }
+@keyframes bowling-idle { 0%,100% { filter:brightness(1); } 50% { filter:brightness(1.25); } }
+@keyframes bowling-approach { from { transform:translate(240px,164px); } to { transform:translate(240px,122px) scale(.82); } }
+@keyframes bowling-strike { from { transform:translate(240px,122px) scale(.82); } to { transform:translate(240px,27px) scale(.49); } }
+@keyframes bowling-miss { from { transform:translate(240px,122px) scale(.82); } to { transform:translate(344px,34px) scale(.49); opacity:0; } }
 @keyframes bowling-pin-fall { to { transform:translate(12px,8px) rotate(var(--pin-turn)); opacity:.25; } }
 @media(max-width:700px) { .scene-environment > .play-track { width:65vw; opacity:.23; } .feature-scene > .play-track { width:65%; } }
 
@@ -519,16 +519,20 @@ html[data-studio-theme=bosphorus][data-studio-atmosphere=night] .ferry-boat::aft
 .environment-marbles:is([data-request-state=warning],[data-request-state=error]) .rolling-marble { animation-play-state:paused; opacity:.4; }
 
 /* Only the ball handle captures input; the rest of the theme passes clicks through. */
-.environment-bowling .bowling-control { position:absolute; right:calc(22px + min(480px,65vw)*.8333 - 22px); bottom:calc(12px + min(480px,65vw)*.0646 - 22px); width:44px; height:44px; border:1px solid transparent; border-radius:50%; background:transparent; color:var(--st-accent); pointer-events:auto!important; cursor:grab; touch-action:none; }
+.environment-bowling { --bowling-width:min(480px,65vw); --bowling-bottom:118px; }
+.environment-bowling .bowling-control { position:absolute; right:calc(22px + var(--bowling-width)*.5 - 22px); bottom:calc(var(--bowling-bottom) + var(--bowling-width)*.045833 - 22px); width:44px; height:44px; padding:0; border:1px solid transparent; border-radius:50%; background:transparent; pointer-events:auto!important; cursor:grab; touch-action:none; }
+.environment-bowling:is([data-game=rolling],[data-game=result]) .bowling-control { cursor:default; }
+.environment-bowling .bowling-control { transform:translateX(calc(var(--bowling-width)*var(--bowling-aim, 0)*.1395833)); }
+.bowling-shadow { fill:#080812; transform:translate(242px,172px); opacity:.52; }
+.environment-bowling[data-request-state] .bowling-shadow { visibility:hidden; }
 .environment-bowling .bowling-control:is(:hover,:focus-visible,.dragging) { border-color:var(--st-accent); outline:2px solid color-mix(in srgb,var(--st-accent) 25%,transparent); outline-offset:3px; }
 .environment-bowling .bowling-control:disabled { pointer-events:none!important; cursor:default; outline:0; border-color:transparent; }
 .environment-bowling .bowling-control.dragging { cursor:grabbing; }
-.bowling-score { position:absolute; right:26px; bottom:6px; color:var(--st-muted); font:10px ui-monospace,monospace; pointer-events:none; }
+.bowling-score { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; pointer-events:none; }
 .environment-bowling[data-game] .bowling-ball { animation:none!important; }
 .environment-bowling[data-game] .bowling-pin { animation:none!important; }
 .environment-bowling[data-strike=true] .bowling-gutter { animation:bowling-strike-light .9s ease-out 1; }
 @keyframes bowling-strike-light { 0%,100% { opacity:.6; } 35% { opacity:1; stroke:#f8d5f1; filter:drop-shadow(0 0 5px #ec92d5); } }
-@media(max-width:700px) { .bowling-score { font-size:9px; } }
 
 /* Magnetic Lab: a single copper electromagnet and responsive iron beads. */
 .environment-magnetic { background:radial-gradient(ellipse at 80% 100%,#b77b4d0d,transparent 55%); }
@@ -603,3 +607,6 @@ html[data-studio-theme=bosphorus][data-studio-atmosphere=night] .ferry-boat::aft
 .crafted-watchmaker.watch-running .gear-cog.reverse { animation-direction:reverse; }
 .crafted-watchmaker.watch-running .watch-spring { animation:watch-wind 1.4s ease-in-out infinite alternate; transform-origin:310px 75px; }
 @keyframes watch-wind { to { transform:scale(.94); } }
+
+.bowling-pin[data-fallen] { visibility:hidden; }
+.environment-bowling .track-bowling { opacity:.65; bottom:var(--bowling-bottom); }

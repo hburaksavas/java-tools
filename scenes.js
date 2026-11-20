@@ -55,19 +55,24 @@
     environments.add(root); root.dataset.scenePaused = String(!!document.hidden);
     return () => { root.disposeGame?.(); root.disposeScene?.(); for (const actor of root.querySelectorAll('[data-environment-actor]')) { actor.classList.remove('env-near'); reactive.delete(actor); } environments.delete(root); root.remove(); };
   }
+  const bowlingPins = [[240,69],[228,58],[252,58],[216,47],[240,47],[264,47],[204,36],[228,36],[252,36],[276,36]];
   function playTrack(root, kind) {
     const stage = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    stage.setAttribute('viewBox', '0 0 480 140'); stage.setAttribute('aria-hidden', 'true'); stage.classList.add('play-track', `track-${kind}`);
+    stage.setAttribute('viewBox', kind === 'bowling' ? '0 0 480 186' : '0 0 480 140'); stage.setAttribute('aria-hidden', 'true'); stage.classList.add('play-track', `track-${kind}`);
     if (kind === 'marbles') {
       stage.innerHTML = '<path class="marble-support" d="M24 25v105m172-62v62m111-12v12m145-16v16M10 132h456"/><path class="marble-rail" d="M20 29h155q43 0 43 25t-43 25H66q-42 0-42 21t42 21h384"/><path class="marble-rail inner" d="M20 20h155q52 0 52 34t-52 34H66q-33 0-33 12t33 12h384"/><g class="marble-wheel"><circle cx="302" cy="103" r="19"/><path d="M283 103h38m-19-19v38m-13-32 26 26m0-26-26 26"/></g><path class="marble-finish" d="M444 91v33m0-33h20l-4 7h-16"/><g class="rolling-marble"><circle class="marble-glass" r="7"/><path class="marble-glint" d="M-4-1q0-3 4-3"/><path class="marble-swirl" d="M-4 5Q6 2 1-5"/></g><g class="marble-arrived"><circle class="marble-glass" cx="438" cy="105" r="7"/><path class="marble-glint" d="M434 104q0-3 4-3"/></g>';
     } else {
-      stage.innerHTML = '<path class="bowling-lane" d="m20 119 98-85h277l65 85Z"/><path class="bowling-gutter" d="m13 124 97-97m292 0 67 97"/><path class="bowling-guides" d="m82 114 67-70m-4 70 46-70m17 70 25-70m38 70 4-70m59 70-17-70m80 70-38-70"/><path class="bowling-arrow" d="m158 101 8-7 3 7m39 0 5-7 5 7m39 0 2-7 8 7"/>';
+      stage.innerHTML = '<path class="bowling-lane" d="M101 177 178 22h124l77 155Z"/><path class="bowling-gutter" d="m94 179 80-160m132 0 80 160"/><path class="bowling-guides" d="m148 177 50-154m-3 154 24-154m21 154V23m45 154-24-154m71 154-50-154"/><path class="bowling-arrow" d="m205 143 5-7 4 7m22 0 4-8 4 8m22 0 4-7 5 7"/>';
       const rack = document.createElementNS('http://www.w3.org/2000/svg', 'g'); rack.classList.add('bowling-rack');
-      [[374,43],[363,53],[385,53],[352,63],[374,63],[396,63],[341,73],[363,73],[385,73],[407,73]].forEach(([x,y],i) => {
+      bowlingPins.forEach(([x,y],i) => {
         const placement = document.createElementNS('http://www.w3.org/2000/svg', 'g'); placement.setAttribute('transform', `translate(${x} ${y})`);
         placement.innerHTML = `<g class="bowling-pin" style="--pin-delay:${i * 35}ms;--pin-turn:${i % 2 ? 65 : -65}deg"><path d="M-3-13q-4-8 0-11h6q4 3 0 11l-1 5q8 10 5 17H-7q-3-7 5-17Z"/><path class="pin-stripe" d="M-3-11h6m-6 3h6"/></g>`; rack.append(placement);
       });
       stage.append(rack);
+      const shadow = document.createElementNS(stage.namespaceURI, 'ellipse');
+      shadow.classList.add('bowling-shadow');
+      shadow.setAttribute('rx', '12'); shadow.setAttribute('ry', '3.5');
+      stage.append(shadow);
       const ball = document.createElementNS('http://www.w3.org/2000/svg', 'g'); ball.classList.add('bowling-ball');
       ball.innerHTML = '<circle r="11"/><g class="ball-holes"><circle cx="-3" cy="-4" r="1.4"/><circle cx="2" cy="-5" r="1.4"/><circle cx="0" cy="0" r="1.8"/></g><path class="marble-glint" d="M-7-2q0-5 5-5"/>'; stage.append(ball);
     }
@@ -75,86 +80,179 @@
     if (kind === 'bowling') bowlingGame(root, stage);
   }
   function bowlingGame(root, stage) {
-    root.removeAttribute('aria-hidden'); root.parentElement?.removeAttribute('aria-hidden');
-    const control = document.createElement('button'); control.type = 'button'; control.className = 'bowling-control';
-    control.setAttribute('aria-label', 'Bowl: drag back and release, or use arrows to aim and Space to throw');
-    control.title = 'Drag back to bowl · ← → aim · ↑ ↓ power · Space throw';
-    const score = document.createElement('output'); score.className = 'bowling-score'; score.setAttribute('aria-live', 'polite');
-    score.textContent = '← → Aim · Space Bowl'; root.append(control, score);
-    const ball = stage.querySelector('.bowling-ball'), pins = [...stage.querySelectorAll('.bowling-pin')];
-    const positions = [[374,43],[363,53],[385,53],[352,63],[374,63],[396,63],[341,73],[363,73],[385,73],[407,73]];
-    let aim = 0, power = .7, drag, frame, resetTimer, playing = false, disposed = false;
+    root.removeAttribute('aria-hidden');
+    const control = document.createElement('button');
+    control.type = 'button'; control.className = 'bowling-control';
+    control.setAttribute('aria-label', 'Bowl. Arrow keys aim and adjust power. Enter or Space throws.');
+    const score = document.createElement('output');
+    score.className = 'bowling-score'; score.setAttribute('aria-live', 'polite');
+    root.append(control, score);
+    const ball = stage.querySelector('.bowling-ball'), shadow = stage.querySelector('.bowling-shadow'), pins = [...stage.querySelectorAll('.bowling-pin')];
+    let aim = 0, power = .7, drag, frame, timer, playing = false, disposed = false;
+    let shot = 1, nextRack = false;
+    const fallen = new Set();
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+    const launchX = () => 240 + aim * 67;
     const available = () => !disposed && !playing && !root.dataset.requestState && !quiet() && !document.hidden;
-    function cancelDrag() {
-      if (drag && control.hasPointerCapture?.(drag.id)) control.releasePointerCapture(drag.id);
-      drag = undefined; control.classList.remove('dragging');
+
+    function drawBall(x, y, scale = 1, spin = 0, lift = 0) {
+      root.style.setProperty('--bowling-aim', aim);
+      ball.style.transform = `translate(${x}px,${y - lift}px) scale(${scale}) rotate(${spin}deg)`;
+      shadow.style.transform = `translate(${x + 2}px,${y + 8 * scale}px) scale(${scale})`;
+      shadow.style.opacity = String(.52 - lift * .025);
     }
-    function reset() {
-      window.cancelAnimationFrame(frame); window.clearTimeout(resetTimer); cancelDrag(); playing = false;
-      delete root.dataset.game; delete root.dataset.strike;
-      ball.removeAttribute('style'); for (const pin of pins) pin.removeAttribute('data-hit');
-      for (const pin of pins) { pin.style.removeProperty('transform'); pin.style.removeProperty('opacity'); }
+    function showReady() {
+      if (nextRack) { fallen.clear(); nextRack = false; showRack(); }
+      score.textContent = '';
+      drawBall(launchX(), 164);
+    }
+    function showRack() {
+      pins.forEach((pin, index) => {
+        pin.removeAttribute('data-hit');
+        pin.style.removeProperty('transform');
+        pin.style.removeProperty('opacity');
+        pin.toggleAttribute('data-fallen', fallen.has(index));
+      });
+    }
+    function cancelDrag() {
+      const pointer = drag;
+      drag = undefined;
+      control.classList.remove('dragging');
+      if (pointer && control.hasPointerCapture?.(pointer.id)) control.releasePointerCapture(pointer.id);
+      if (root.dataset.game === 'aiming') {
+        delete root.dataset.game;
+        ball.removeAttribute('style');
+      }
+    }
+    function settle() {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      cancelDrag();
+      playing = false;
+      delete root.dataset.game;
+      delete root.dataset.strike;
+      ball.removeAttribute('style');
+      shadow.removeAttribute('style');
+      showRack();
       control.disabled = !!root.dataset.requestState;
     }
+
     function shoot() {
       if (!available()) return;
-      cancelDrag(); playing = true; root.dataset.game = 'rolling'; control.disabled = true;
-      const start = performance.now(), duration = 1050 - power * 400, endY = 71 + aim * 33;
-      const hits = new Set();
-      if (power >= .3) {
-        // Ball-to-pin contact, then neighboring pins transfer the impact through the rack.
-        positions.forEach(([x,y],i) => { const pathY = 109 + (endY - 109) * (x - 80) / 294; if (Math.abs(y-pathY) < 9) hits.add(i); });
-        for (let pass=0; pass<3; pass++) for (const i of [...hits]) positions.forEach(([x,y],j) => {
-          if (Math.hypot(x-positions[i][0],y-positions[i][1]) < 17 && power > .48 + pass * .08) hits.add(j);
+      const pull = drag?.pull || 0;
+      cancelDrag();
+      playing = true; root.dataset.game = 'rolling';
+      const start = performance.now(), duration = 1450 - power * 530;
+      const release = 95 + pull * 1.1;
+      const originX = launchX();
+      drawBall(originX, 164 + pull, 1, -pull);
+      const contacts = new Map();
+      if (power >= .26 && Math.abs(aim) < .95) {
+        bowlingPins.forEach(([x, y], index) => {
+          const impact = (164 - y - 6) / 147;
+          if (!fallen.has(index) && Math.abs(originX - x) <= 6 + power * 7) contacts.set(index, impact);
         });
+        const pocket = Math.abs(originX - 240) >= 8 && Math.abs(originX - 240) <= 16;
+        const passes = power >= .86 && pocket ? 3 : power >= .68 ? 1 : 0;
+        for (let pass = 0; pass < passes; pass++) {
+          for (const [index, impact] of [...contacts]) {
+            const [x, y] = bowlingPins[index];
+            bowlingPins.forEach(([otherX, otherY], neighbor) => {
+              if (fallen.has(neighbor) || contacts.has(neighbor) || otherY >= y) return;
+              if (Math.hypot(otherX - x, otherY - y) <= 17) contacts.set(neighbor, impact + .06);
+            });
+          }
+        }
       }
       function draw(now) {
-        if (disposed || root.dataset.requestState || !root.isConnected) { reset(); return; }
-        const t = Math.min(1,(now-start)/duration), x=80+310*t, y=109+(endY-109)*t;
-        ball.style.transform = `translate(${x}px,${y}px) scale(${1-.55*t}) rotate(${t*540}deg)`;
-        if (t > .82) for (const i of hits) {
-          const fall = Math.min(1,(t-.82)/.18), direction=positions[i][1] < endY ? -1 : 1;
-          pins[i].style.transform = `translate(${fall*12}px,${fall*direction*8}px) rotate(${fall*direction*75}deg)`;
-          pins[i].style.opacity = String(1-fall*.5); pins[i].dataset.hit = 'true';
+        if (!playing || disposed || root.dataset.requestState || !root.isConnected) return;
+        const elapsed = now - start;
+        if (elapsed < release) {
+          const swing = clamp(elapsed / release, 0, 1);
+          drawBall(originX, 164 + pull * (1 - swing * swing), 1, -pull * (1 - swing), Math.sin(swing * Math.PI) * 6);
+          frame = window.requestAnimationFrame(draw);
+          return;
         }
-        if (t<1) frame=window.requestAnimationFrame(draw);
-        else {
-          root.dataset.game = 'result'; root.dataset.strike = String(hits.size===10);
-          score.textContent = hits.size===10 ? 'STRIKE! · 10 / 10' : hits.size ? `${hits.size} / 10 pins` : 'Gutter ball · 0 / 10';
-          resetTimer=window.setTimeout(() => { reset(); score.textContent='← → Aim · Space Bowl'; }, 2000);
+        const time = clamp((elapsed - release) / duration, 0, 1);
+        const t = time * (1.32 - .32 * time);
+        const bounce = time < .18 ? Math.sin(time / .18 * Math.PI) * power * 5 : 0;
+        drawBall(originX, 164 - 147 * t, 1 - .51 * t, t * 520, bounce);
+        for (const [index, impact] of contacts) {
+          if (t < impact) continue;
+          const fall = clamp((t - impact) / .23, 0, 1);
+          const direction = bowlingPins[index][0] < originX ? -1 : 1;
+          pins[index].style.transform = 'translate(' + (fall * direction * 11) + 'px,' + (-fall * 8) + 'px) rotate(' + (fall * direction * 80) + 'deg)';
+          pins[index].style.opacity = String(1 - fall * .78);
+          pins[index].dataset.hit = 'true';
         }
+        if (t < 1) { frame = window.requestAnimationFrame(draw); return; }
+        const strike = shot === 1 && contacts.size === 10;
+        contacts.forEach((_, index) => fallen.add(index));
+        const spare = !strike && fallen.size === 10;
+        root.dataset.game = 'result';
+        root.dataset.strike = String(strike);
+        score.textContent = strike ? 'STRIKE' : spare ? 'SPARE' : contacts.size + ' pins · ' + (10 - fallen.size) + ' left';
+        if (strike || shot === 2) { shot = 1; nextRack = true; }
+        else shot = 2;
+        timer = window.setTimeout(() => { settle(); showReady(); }, 1250);
       }
-      frame=window.requestAnimationFrame(draw);
+      frame = window.requestAnimationFrame(draw);
     }
+
     control.onpointerdown = event => {
-      if (!available() || event.button!==0) return;
-      event.preventDefault(); drag={id:event.pointerId,x:event.clientX,y:event.clientY};
-      control.setPointerCapture?.(event.pointerId); control.classList.add('dragging'); root.dataset.game='aiming';
+      if (!available() || drag || event.button !== 0) return;
+      event.preventDefault();
+      control.focus({ preventScroll: true });
+      drag = { id: event.pointerId, x: event.clientX, y: event.clientY, aim, power, moved: false };
+      control.setPointerCapture?.(event.pointerId);
+      control.classList.add('dragging');
+      root.dataset.game = 'aiming';
     };
     control.onpointermove = event => {
-      if (!drag || drag.id!==event.pointerId) return;
+      if (!drag || drag.id !== event.pointerId) return;
+      const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
+      if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+      drag.moved = true;
       const width = stage.getBoundingClientRect().width || 480;
-      aim = Math.max(-1,Math.min(1,(event.clientX-drag.x)/(width*.15)));
-      power = Math.max(.15,Math.min(1,.25+(event.clientY-drag.y)/(width*.2)));
-      score.textContent=`Aim ${Math.round(aim*30)}° · Power ${Math.round(power*100)}%`;
+      aim = clamp(dx / (width * .22), -1, 1);
+      power = clamp(.24 + dy / (width * .22), .15, 1);
+      drag.pull = clamp(dy * 480 / width, 0, 49);
+      drawBall(launchX(), 164 + drag.pull, 1, -drag.pull);
+      score.textContent = 'Power ' + Math.round(power * 100) + '%';
     };
-    control.onpointerup = event => { if (drag?.id===event.pointerId) shoot(); };
-    control.onpointercancel = () => { reset(); score.textContent='← → Aim · Space Bowl'; };
-    control.onlostpointercapture = () => { if (drag) { drag=undefined; control.classList.remove('dragging'); delete root.dataset.game; } };
+    control.onpointerup = event => { if (drag?.id === event.pointerId) shoot(); };
+    function abortGesture(event) {
+      if (!drag || drag.id !== event.pointerId) return;
+      aim = drag.aim; power = drag.power;
+      cancelDrag(); showReady();
+    }
+    control.onpointercancel = abortGesture;
+    control.onlostpointercapture = abortGesture;
+    control.onclick = event => { if (event.detail === 0) shoot(); };
     control.onkeydown = event => {
+      if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','Enter'].includes(event.key)) event.preventDefault();
+      else return;
       if (!available()) return;
-      if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','Enter'].includes(event.key)) event.preventDefault(); else return;
-      if (event.key===' ' || event.key==='Enter') { shoot(); return; }
-      aim=Math.max(-1,Math.min(1,aim+(event.key==='ArrowLeft'?-.15:event.key==='ArrowRight'?.15:0)));
-      power=Math.max(.15,Math.min(1,power+(event.key==='ArrowUp'?.1:event.key==='ArrowDown'?-.1:0)));
-      score.textContent=`Aim ${Math.round(aim*30)}° · Power ${Math.round(power*100)}%`;
+      if (event.key === ' ' || event.key === 'Enter') { if (!event.repeat) shoot(); return; }
+      const aimDelta = { ArrowLeft: -.12, ArrowRight: .12 }[event.key] || 0;
+      const powerDelta = { ArrowDown: -.1, ArrowUp: .1 }[event.key] || 0;
+      aim = clamp(aim + aimDelta, -1, 1);
+      power = clamp(power + powerDelta, .15, 1);
+      drawBall(launchX(), 164);
+      score.textContent = 'Power ' + Math.round(power * 100) + '%';
     };
-    // API execution takes ownership of the same track and cancels manual play.
-    root.pauseGame=() => { reset(); control.disabled=true; score.textContent='API request in progress'; };
-    root.resumeGame=() => { reset(); score.textContent='← → Aim · Space Bowl'; };
-    const stopHidden=() => { if (document.hidden) reset(); };
-    document.addEventListener('visibilitychange',stopHidden);
-    root.disposeGame=() => { disposed=true; reset(); document.removeEventListener('visibilitychange',stopHidden); };
+
+    root.pauseGame = () => {
+      settle();
+      for (const pin of pins) pin.removeAttribute('data-fallen');
+      control.disabled = true;
+      score.textContent = 'API request in progress';
+    };
+    root.resumeGame = () => { settle(); showReady(); };
+    const stopHidden = () => { if (document.hidden && !root.dataset.requestState) { settle(); showReady(); } };
+    document.addEventListener('visibilitychange', stopHidden);
+    root.disposeGame = () => { disposed = true; settle(); document.removeEventListener('visibilitychange', stopHidden); };
+    showReady();
   }
   function magneticLab(root) {
     const lab = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); lab.setAttribute('viewBox','0 0 460 230'); lab.setAttribute('aria-hidden','true'); lab.classList.add('magnetic-lab');

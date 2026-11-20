@@ -37,11 +37,13 @@ Studio ve standart Swagger ortak renk ve ortam kullanır. Execute sahneleri yaln
 | ripple-tank | Ripple Tank | Petrol mavisi, dokunmayla yayılan girişim dalgaları | Aynı dalga havuzunda istek darbeleri |
 | magnetic-lab | Magnetic Lab | Grafit ve bakır, metal bilyeler ve mıknatıs | Aynı sahnede alan akışı; fare yakınlığında bükülen çizgiler |
 | marble-run | Marble Run | Füme, cam rampalar ve dönen çark | Parkurda ilerleyen cam bilye |
-| neon-bowling | Neon Bowling | Mor neon bowling pisti | Başarıda strike, hatada oluk |
+| neon-bowling | Neon Bowling | Mor neon pist ve iki atışlı mini oyun | Başarıda strike, hatada oluk |
 | cappadocia | Cappadocia | Güneş doğmadan mavi-pembe şafak, peribacaları ve yükselen balonlar | Balon kalkışı ve aralıklı brülör ışığı |
 | autumn | Autumn | Sonbahar yaprakları | Sıcak yapraklar |
 
 ## Ortak davranış
+
+Neon Bowling'de topa tıklayarak atış yapın. Topu geriye çekerek gücü, yana kaydırarak başlangıç noktasını ayarlayın. Topu bırakınca o noktadan düz yuvarlanır. Klavyede ok tuşlarını, ardından Enter veya Boşluk tuşunu kullanın. İlk atıştan sonra ayakta kalan lobutlarla devam edilir. Tüm lobutlar devrilince veya ikinci atış bitince yeni dizilim otomatik kurulur. API isteği tamamlanınca oyun kaldığı tura döner.
 
 İstekler bekleme, başarı, uyarı, hata ve iptal durumlarına göre tepki verir. Metin ve JSON yerinde kalır. Azaltılmış hareket tercihi dekoratif animasyonları kapatır; istek süresi görünür kalır.
 

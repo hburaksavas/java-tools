@@ -106,15 +106,20 @@ test('bowling supports keyboard throws, pin collisions, API ownership and cleanu
   assert.equal(button.disabled,false);
   assert.equal(w.document.getElementById('brsvs-theme-effects').hasAttribute('aria-hidden'),false);
   const key=value=>button.dispatchEvent(new w.KeyboardEvent('keydown',{key:value,bubbles:true,cancelable:true}));
-  key('ArrowUp'); key(' '); assert.equal(root.dataset.game,'rolling');
+  for (let i = 0; i < 3; i++) key('ArrowDown');
+  key(' '); assert.equal(root.dataset.game,'rolling');
   frames.shift()(w.performance.now()+2000);
-  assert.equal(root.dataset.game,'result'); assert.ok(root.querySelectorAll('[data-hit=true]').length>0);
+  assert.equal(root.dataset.game,'result');
+  const hits = root.querySelectorAll('[data-hit=true]').length;
+  assert.ok(hits > 0 && hits < 10);
   assert.match(root.querySelector('output').textContent,/pins|STRIKE/);
   const fx=w.SwaggerStudioResponseEffects.start(w.document.getElementById('response'));
   assert.equal(root.dataset.game,undefined); assert.equal(button.disabled,true);
   key(' '); assert.equal(root.dataset.game,undefined);
   fx.finish(200); assert.equal(root.dataset.requestState,'success');
   fx.remove(); assert.equal(button.disabled,false);
+  assert.equal(root.querySelectorAll('[data-fallen]').length, hits);
+  assert.equal(root.querySelector('output').textContent, '');
   w.SwaggerStudioTheme.set('dark'); assert.equal(root.isConnected,false);
 });
 

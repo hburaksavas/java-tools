@@ -2,6 +2,8 @@
 
 35 theme presets plus System, shared by Studio and standard Swagger, with themed request/response feedback.
 
+Neon Bowling now plays directly from the ball. Pull back for power, slide sideways to choose a starting position, and release to roll straight down the lane. The game retains standing pins for the second shot, resets the rack automatically, and resumes after API feedback.
+
 This release adds JSON/Table response switching with nested-cell expansion and pagination, array editors for query/form/JSON bodies, and a real Swagger URL/body preview. New customer-demo endpoints cover nested/multiple/empty table arrays, error fallback, optional lists, numeric lists, forms and nested bodies. Single comma-containing string values are preserved by the demo's repeated-parameter contract.
 
 0.3.26 adds Bash/Zsh cURL export, a Swagger-backed OpenAPI group picker, request transport progress, and per-endpoint custom request headers with enable/remove controls, validation, case-insensitive overrides and Copy API support. Header drafts stay in memory and clear when Studio closes.
