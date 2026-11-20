@@ -45,16 +45,15 @@ test('rare visitors are chosen once per request and change with the theme', t =>
   const w = setup(t); let draws = 0; w.SwaggerStudioTheme.set('bosphorus');
   const s = session(w, () => { draws++; return .01; }); assert.equal(s.node.querySelectorAll('.rare-visitors svg').length, 3);
   w.SwaggerStudioTheme.set('ocean'); s.effect.refresh(); assert.equal(s.node.querySelectorAll('.rare-visitors svg').length, 1);
-  w.SwaggerStudioTheme.set('arrakis'); s.effect.refresh(); assert.equal(s.node.querySelectorAll('.rare-visitors svg').length, 1);
   s.effect.refresh(); assert.equal(draws, 1); s.effect.remove();
   const usual = session(w, () => .5); assert.equal(usual.node.querySelector('.rare-visitors'), null); usual.effect.remove();
 });
 test('atmospheres persist independently per theme, sync tabs and retain reduced motion palettes', t => {
   const w = setup(t, true), theme = w.SwaggerStudioTheme;
-  theme.set('bosphorus'); theme.setAtmosphere('sunset'); assert.match(theme.variables(), /--st-bg:#f5e9df/);
+  theme.set('bosphorus'); theme.setAtmosphere('day'); assert.match(theme.variables(), /--st-bg:#eaf3f6/);
   theme.set('winter'); theme.setAtmosphere('day'); assert.match(theme.variables(), /--st-bg:#edf5f8/);
-  theme.set('bosphorus'); assert.equal(theme.atmosphere(), 'sunset');
-  delete w.SwaggerStudioTheme; w.eval(fs.readFileSync(require.resolve('../theme.js'), 'utf8')); assert.equal(w.SwaggerStudioTheme.atmosphere(), 'sunset');
+  theme.set('bosphorus'); assert.equal(theme.atmosphere(), 'day');
+  delete w.SwaggerStudioTheme; w.eval(fs.readFileSync(require.resolve('../theme.js'), 'utf8')); assert.equal(w.SwaggerStudioTheme.atmosphere(), 'day');
   w.localStorage.setItem('brsvs:studio:atmosphere-v1', JSON.stringify({ bosphorus: 'night' })); w.dispatchEvent(new w.StorageEvent('storage', { key: 'brsvs:studio:atmosphere-v1' }));
   assert.equal(w.SwaggerStudioTheme.atmosphere(), 'night'); assert.match(w.SwaggerStudioTheme.variables(), /--st-bg:#0a1828/); assert.equal(w.document.getElementById('brsvs-theme-effects'), null);
 });
@@ -71,7 +70,7 @@ test('endpoint travel replaces previous journey and clears on close', t => {
   w.dispatchEvent(new w.CustomEvent('studio-closed')); assert.equal(w.document.querySelector('.endpoint-traveller'), null);
 });
 
-test('real Swagger execution preserves status and streaks without character badges', async t => {
+test('real Swagger execution does not create scenes or celebrations', async t => {
   const w = setup(t); delete w.SwaggerStudioResponseEffects;
   w.eval(fs.readFileSync(require.resolve('swagger-ui-dist/swagger-ui-bundle.js'), 'utf8'));
   w.eval(fs.readFileSync(require.resolve('../response-effects.js'), 'utf8'));
@@ -84,8 +83,31 @@ test('real Swagger execution preserves status and streaks without character badg
     await sys.specActions.executeRequest({ spec, pathName: '/pets', method: 'get', operation, parameters: {}, requestContentType: 'application/json', responseContentType: 'application/json', fetch: sys.fn.fetch });
     await new Promise(resolve => setTimeout(resolve, 15));
     const node = w.document.querySelector('.brsvs-response-fx');
-    assert.equal(node.querySelector('.http-zoo'),null);
-    assert.equal(!!node.querySelector('.streak-party'), i === 5);
+    assert.equal(node, null);
+    assert.equal(sys.specSelectors.responseFor('/pets', 'get').get('status'), code);
   }
   w.SwaggerStudioResponseEffects.clear(); assert.equal(w.document.querySelector('.brsvs-response-fx'), null);
+});
+
+test('Bosphorus removes duplicate light and sunset options and migrates saved choices', t => {
+  const w = setup(t), theme = w.SwaggerStudioTheme;
+  theme.set('bosphorus');
+  for (const old of ['default', 'sunset']) {
+    w.localStorage.setItem('brsvs:studio:atmosphere-v1', JSON.stringify({ bosphorus: old }));
+    w.dispatchEvent(new w.StorageEvent('storage', { key: 'brsvs:studio:atmosphere-v1' }));
+    assert.equal(theme.atmosphere(), 'day');
+  }
+  const picker = theme.atmospherePicker();
+  assert.deepEqual(Array.from(picker.options, option => option.value), ['day', 'night']);
+  theme.set('winter'); theme.syncAtmospherePicker(picker);
+  assert.deepEqual(Array.from(picker.options, option => option.value), ['day', 'night']);
+});
+
+test('Studio responses retain themed feedback without a robot', t => {
+  const w = setup(t), target = w.document.getElementById('target');
+  for (const code of [200, 404, 500]) {
+    const fx = w.SwaggerStudioResponseEffects.start(target, 'studio-execute'); fx.finish(code);
+    assert.equal(fx.node.querySelector('.request-companion'), null);
+    assert.equal(target.textContent, 'Readable response'); fx.remove();
+  }
 });

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const { JSDOM } = require('jsdom');
 const source = name => fs.readFileSync(require.resolve(`../${name}`), 'utf8');
 test('retired themes migrate saved preferences, configuration and cross-tab updates', t => {
-  const retired = { forest: 'bioluminescence', terminal: 'digital-rain', sandstorm: 'arrakis', observatory: 'cosmic', infrared: 'ember', zen: 'paper', circuit: 'cyberpunk', eclipse: 'cosmic' };
+  const retired = { 'forest': 'koi-garden', 'terminal': 'digital-rain', 'sandstorm': 'volcanic-island', 'observatory': 'moonbase', 'infrared': 'volcanic-island', 'zen': 'paper', 'circuit': 'cyberpunk', 'eclipse': 'moonbase', 'bioluminescence': 'koi-garden', 'firefly-camp': 'koi-garden', 'clockwork': 'orient-express', 'hyperspace': 'moonbase', 'arrakis': 'volcanic-island', 'blueprint': 'dark', 'ember': 'volcanic-island', 'aurora': 'ocean', 'cosmic': 'moonbase', 'monsoon': 'rainy-night' };
   for (const [old, current] of Object.entries(retired)) {
     for (const key of ['brsvs:studio:theme-v2', 'brsvs:studio:theme']) {
       const dom = new JSDOM('<html><head></head><body></body></html>', { url: 'https://example.test', runScripts: 'outside-only' }); t.after(() => dom.window.close());
@@ -26,7 +26,7 @@ function setup(t, reduced = false) {
 }
 test('every saved theme has a working palette, bounded scene and response recipe', t => {
   const w = setup(t), themes = w.SwaggerStudioTheme;
-  assert.equal(themes.catalog().length, 28);
+  assert.equal(themes.catalog().length, 36);
   for (const theme of themes.catalog()) {
     themes.set(theme.id); assert.equal(themes.preference(), theme.id);
     assert.ok(themes.responseRecipe()); assert.match(themes.variables(), /--st-accent:#[0-9a-f]{6}/i);
@@ -59,9 +59,9 @@ test('feedback tracks the panel rectangle without moving the panel and removes f
   top = 50; await new Promise(r => setTimeout(r, 65)); assert.equal(effect.node.style.top, '50px'); assert.equal(target.style.transform, '');
   effect.finish(200); await new Promise(r => setTimeout(r, 1050)); assert.equal(effect.node.isConnected, false);
 });
-test('Swagger plugin preserves action results and renders feedback for real Swagger actions', async t => {
+test('Swagger execution preserves action results without Execute effects', async t => {
   const w = setup(t);
-  // Load an actual Swagger instance with the effects installer wrapping its initializer.
+  // Load an actual Swagger instance alongside the Studio effects API.
   delete w.SwaggerStudioResponseEffects;
   w.eval(fs.readFileSync(require.resolve('swagger-ui-dist/swagger-ui-bundle.js'), 'utf8'));
   w.eval(source('response-effects.js'));
@@ -74,15 +74,15 @@ test('Swagger plugin preserves action results and renders feedback for real Swag
   assert.equal(typeof result.then, 'function'); await result;
   await new Promise(r => setTimeout(r, 20));
   const response = sys.specSelectors.responseFor('/pets', 'get'); assert.equal(response.get('status'), 200);
-  assert.equal(w.document.querySelector('.brsvs-response-fx').dataset.state, 'success');
+  assert.equal(w.document.querySelector('.brsvs-response-fx'), null);
 });
-test('Swagger rejected HTTP 4xx is a warning, not a network failure', async t => {
+test('Swagger rejected HTTP 4xx does not create Execute effects', async t => {
   const w = setup(t); delete w.SwaggerStudioResponseEffects;
   w.eval(fs.readFileSync(require.resolve('swagger-ui-dist/swagger-ui-bundle.js'), 'utf8')); w.eval(source('response-effects.js'));
   const spec = { openapi: '3.0.3', info: { title: 'Test', version: '1' }, paths: { '/pets': { get: { operationId: 'pets', responses: {} } } } };
   const ui = w.SwaggerUIBundle({ spec, dom_id: null, plugins: [() => ({ fn: { execute: async () => { throw Object.assign(new Error('Not found'), { status: 404 }); } } })] });
   const sys = ui.getSystem(); await sys.specActions.executeRequest({ spec, pathName: '/pets', method: 'get', operation: sys.Im.fromJS(spec.paths['/pets'].get), parameters: {} });
-  await new Promise(r => setTimeout(r, 20)); assert.equal(w.document.querySelector('.brsvs-response-fx').dataset.state, 'warning');
+  await new Promise(r => setTimeout(r, 20)); assert.equal(w.document.querySelector('.brsvs-response-fx'), null);
 });
 
 test('Bosphorus ferry follows execution and is removed on theme change or reduced motion', t => {
@@ -135,7 +135,7 @@ test('Winter snowman builds during execution and clears on theme change or reduc
 });
 
 test('Rainy Night and Monsoon share lightning feedback with reduced motion and theme cleanup', t => {
-  for (const theme of ['rainy-night', 'monsoon']) {
+  for (const theme of ['rainy-night']) {
     const w = setup(t); w.SwaggerStudioTheme.set(theme);
     const effect = w.SwaggerStudioResponseEffects.start(w.document.getElementById('response'));
     assert.ok(effect.node.querySelector('.storm-bolt'));
@@ -148,7 +148,7 @@ test('Rainy Night and Monsoon share lightning feedback with reduced motion and t
 });
 
 test('cinema themes render distinct execution scenes, preserve text and respect reduced motion', t => {
-  for (const [theme, recipe, selector] of [['digital-rain', 'decode', '.cinema-scene b'], ['arrakis', 'sandworm', '.sandworm-creature'], ['hyperspace', 'jump', '.cinema-scene b']]) {
+  for (const [theme, recipe, selector] of [['digital-rain', 'decode', '.cinema-scene b']]) {
     const w = setup(t); w.SwaggerStudioTheme.set(theme); assert.equal(w.SwaggerStudioTheme.responseRecipe(), recipe);
     const target = w.document.getElementById('response'), effect = w.SwaggerStudioResponseEffects.start(target);
     assert.ok(effect.node.querySelector(selector)); effect.finish(200);

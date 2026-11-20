@@ -1,4 +1,4 @@
-# Swagger UI Studio 0.3.25
+# Swagger UI Studio 0.3.26
 
 Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir API çalışma alanı. `/swagger-ui/index.html` açılınca Studio otomatik başlar. Eklenti ve ayrı frontend sunucusu gerekmez.
 
@@ -9,9 +9,9 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 - Tag grupları, arama, sekmeler, favoriler; tarayıcı yeniden açılınca çalışma düzeni geri gelir.
 - Şemadan örnek JSON, JSON biçimlendirme ve temel tip/zorunlu alan doğrulaması; alan açıklamaları, typed query parametreleri, URL-encoded form ve multipart dosya yükleme.
 - İstek gövdesi endpoint ilk açıldığında otomatik örnekle doldurulur; Generate example düğmesi yoktur. Yazılan veya bilinçli olarak temizlenen taslak sekmeye dönüşte korunur; içerik türlerinin taslakları ayrı tutulur.
-- Kompakt görünüm; Studio ve standart Swagger için tek bir ortak tema seçimi. Midnight ve Daylight sade; Winter kar yağışlı, Cosmic yıldızlı, Bosphorus martılıdır. System işletim sisteminin açık/koyu tercihini izler. Efektler tema paketinin parçasıdır ve Studio kapansa da Swagger'da devam eder. Düşük hareket tercihi animasyonları kapatır.
+- Kompakt görünüm; Studio ve standart Swagger için tek bir ortak tema seçimi. Midnight ve Daylight sade; Winter kar yağışlı, Bosphorus martılıdır. System işletim sisteminin açık/koyu tercihini izler. Efektler tema paketinin parçasıdır ve Studio kapansa da Swagger'da devam eder. Düşük hareket tercihi animasyonları kapatır.
 - İstek bitince yanıt alanına kontrollü kaydırma, klavye odağı ve kısa vurgu animasyonu. Endpoint sekmeleri arasında editör kaydırma konumu korunur.
-- **27 tema + System**: Bosphorus, Winter, Sakura, Ocean, Digital Rain, Arrakis, Hyperspace ve diğerleri. Her temanın bekleme/başarı/uyarı/hata/iptal tepkisi vardır; Studio ve standart Swagger aynı motoru kullanır. Tam liste ve örnekler: [THEMES.md](THEMES.md).
+- **35 tema + System**: Bosphorus, Winter, Sakura, Ocean, Digital Rain ve diğerleri. Her temanın API Studio içinde bekleme/başarı/uyarı/hata/iptal tepkisi vardır; standart Swagger görünümünde Execute efektleri çalışmaz. Tam liste ve örnekler: [THEMES.md](THEMES.md).
 - Yaprak/kar parçacıkları bağımsız rüzgâr eğrileri, hız, derinlik ve dönüşlerle hareket eder. Köz yukarı süzülür, toz yana akar, ateş böcekleri döngüsel dolaşır. Sekme görünmezken bu animasyonlar duraklar.
 - `Ctrl+K`: arama, `Ctrl+Enter`: istek gönderme, `Alt+W`: aktif endpoint sekmesini kapatma, `Esc`: ayarları kapatma veya standart Swagger'a dönüş.
 
@@ -21,11 +21,11 @@ Spring Boot uygulamasından sunulan, Swagger ile aynı adreste çalışan bir AP
 <dependency>
     <groupId>com.brsvs</groupId>
     <artifactId>swagger-ui-studio-spring-boot-starter</artifactId>
-    <version>0.3.25</version>
+    <version>0.3.26</version>
 </dependency>
 ```
 
-Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.25) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
+Maven Central'da yayımlanmadı. Kaynaktan `./mvnw.cmd install` (Linux/macOS: `./mvnw install`) ile yerel Maven deposuna kurun. [GitHub Release](https://github.com/hburaksavas/java-tools/releases/tag/swagger-ui-studio-v0.3.26) ayrıca starter JAR, sources JAR, çalıştırılabilir demo, Maven repository ZIP'i ve SHA256 dosyasını sunar.
 
 Repository ZIP'ini örneğin `vendor/studio-maven` klasörüne açıp tüketen projeye şu repository'yi ekleyebilirsiniz. ZIP, starter'ın parent POM'unu da içerir; diğer bağımlılıklar Maven Central'dan çözülür.
 
@@ -49,18 +49,18 @@ brsvs:
       logo-url: /assets/logo.svg
       welcome-title: Welcome to Payment API
       welcome-message: Explore the API and try a request.
-      theme: aurora # Tüm değerler THEMES.md içinde; kullanıcı tercihi varsa onu korur
+      theme: ocean # Tüm değerler THEMES.md içinde; kullanıcı tercihi varsa onu korur
 ```
 
 `enabled: false` özgün Swagger HTML'ini geri getirir. Başlangıç ayarları `/swagger-ui/studio/config.json` altında sunulur ve OpenAPI dokümanına eklenmez. Logo yalnız aynı origin HTTP(S) adresinden yüklenir. Context path kullanılan projede logo adresine context path'i ekleyin veya uygun göreli adres kullanın.
 
-Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici aynı ayarı değiştirir. Tema tek bir origin genelinde tarayıcıda saklanır; Studio/Swagger geçişi onu değiştirmez. Eski `effect` ayarı kaldırılmıştır; kar için `theme: winter`, yıldızlar için `theme: cosmic` kullanın. Önceki açık/koyu tema tercihleriniz korunur.
+Studio üst çubuğundaki veya standart Swagger'ın sağ altındaki tema seçici aynı ayarı değiştirir. Tema tek bir origin genelinde tarayıcıda saklanır; Studio/Swagger geçişi onu değiştirmez. Eski `effect` ayarı kaldırılmıştır; kar için `theme: winter`, ay sahnesi için `theme: moonbase` kullanın. Önceki açık/koyu tema tercihleriniz korunur.
 
 ## Gerçek Spring Boot örneği
 
 ```powershell
 ./mvnw.cmd verify
-java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.25.jar
+java -jar examples/customer-api/target/swagger-ui-studio-customer-demo-0.3.26.jar
 ```
 
 [Swagger UI / Studio](http://127.0.0.1:8087/swagger-ui/index.html) adresini açın. Springdoc, [OpenAPI tanımını](http://127.0.0.1:8087/v3/api-docs) gerçek controller'lardan üretir. Müşteri oluşturma/listeleme, sipariş, sağlık, auth/interceptor kontrolü, dosya ve form endpoint'leri vardır. Veriler bellekte tutulur; sunucu yalnız `127.0.0.1` üzerinde çalışır.
@@ -77,9 +77,9 @@ Spring Security kurallarına dokunulmaz. `/swagger-ui/**` ve API dokümanı içi
 
 ## Entegrasyon ayrıntıları ve sınırlar
 
-Starter mevcut `SwaggerIndexTransformer` bean'ini dekore eder; özel transformer ve Swagger initializer çalışmaya devam eder. Yedi harici JS dosyası ve iki CSS aynı uygulamadan sunulur. Response plugin'i istek içeriğini kaydetmeden Swagger action'larını izler. Özel initializer kullanan uygulamalar Swagger'ı `response-effects.js` yüklendikten sonra başlatmalıdır. Swagger API tanımı 20 saniyede yüklenmezse standart ekran açık kalır ve **Retry API Studio** ile yeniden denenebilir.
+Starter mevcut `SwaggerIndexTransformer` bean'ini dekore eder; özel transformer ve Swagger initializer çalışmaya devam eder. Yedi harici JS dosyası ve iki CSS aynı uygulamadan sunulur. Execute efektleri yalnız API Studio içinde çalışır. Swagger API tanımı 20 saniyede yüklenmezse standart ekran açık kalır ve **Retry API Studio** ile yeniden denenebilir.
 
-Yerel `$ref`, yaygın JSON/form/query şekilleri desteklenir. Şema doğrulaması temel tip, enum, required, sayı aralığı ve boyutlarla sınırlıdır; tam JSON Schema doğrulayıcısı değildir. Harici `$ref` çözümü, çoklu doküman seçimi, raw binary body ve elle cookie-header düzenleme henüz yoktur. Swagger'da cookie tabanlı login kullanın. Şema/proje değişince sayfayı yenileyin. Strict nonce-only CSP politikaları için tema/efekt stillerine uygulamaya özel entegrasyon gerekir; starter CSP'yi gevşetmez. Somut transformer sınıfına doğrudan injection yapan kurulumlar interface dekorasyonuna uyarlanmalıdır.
+Yerel `$ref`, yaygın JSON/form/query şekilleri desteklenir. Şema doğrulaması temel tip, enum, required, sayı aralığı ve boyutlarla sınırlıdır; tam JSON Schema doğrulayıcısı değildir. Harici `$ref` çözümü, raw binary body ve elle cookie-header düzenleme henüz yoktur. Swagger'da cookie tabanlı login kullanın. Şema/proje değişince sayfayı yenileyin. Strict nonce-only CSP politikaları için tema/efekt stillerine uygulamaya özel entegrasyon gerekir; starter CSP'yi gevşetmez. Somut transformer sınıfına doğrudan injection yapan kurulumlar interface dekorasyonuna uyarlanmalıdır.
 
 ## Geliştirme ve doğrulama
 
@@ -104,14 +104,33 @@ Teknik başvurular: [Springdoc customization](https://springdoc.org/index.html),
 
 HTTP status and timing appear in the response header without extra character badges. Five consecutive 2xx completions trigger a short celebration; failures and cancellation reset the session streak. No request data or streaks are persisted.
 
-While waiting, a clock stays visible. At four seconds a gull can land on the Bosphorus ferry; at eight seconds the Ocean whale takes a second breath and Winter's snowman adjusts its scarf. About 8% of requests in Bosphorus, Ocean and Arrakis receive rare visitors. Endpoint tab changes get a short character journey.
+While waiting, a clock stays visible. At four seconds a gull can land on the Bosphorus ferry; at eight seconds the Ocean whale takes a second breath and Winter's snowman adjusts its scarf. About 8% of requests in Bosphorus and Ocean receive rare visitors. Endpoint tab changes get a short character journey.
 
-Bosphorus and Winter offer Theme light, Day, Sunset and Night beside the theme picker. Choices are saved separately per theme in localStorage and sync across same-origin browser tabs. Reduced motion disables decorative characters, visitors, celebrations and travel while retaining static palettes and elapsed time. The demo endpoint `/api/demo-response` accepts `status=418` and `delayMillis=0..15000` for previewing these scenes.
+Bosphorus and Winter offer Day and Night beside the theme picker. Choices are saved separately per theme in localStorage and sync across same-origin browser tabs. Reduced motion disables decorative characters, visitors, celebrations and travel while retaining static palettes and elapsed time. The demo endpoint `/api/demo-response` accepts `status=418` and `delayMillis=0..15000` for previewing these scenes.
 
-### Eight scene themes (phase one)
+### Scene themes
 
-Orient Express, Koi Garden, Moonbase, Coral Reef, Clockwork, Firefly Camp, Air Mail and Volcanic Island each include a shared Studio/Swagger palette, ambient artwork and a distinct Execute scene. Koi reverse direction and the camp fox opens its eyes when the pointer approaches decorative space. Forms, buttons, editors, response text and Swagger operation controls suppress proximity reactions. Decorative layers never capture input, clean up when themes change, pause in hidden tabs and respect reduced motion. Scope and implementation sequence: [THEME_PHASE_ONE.md](THEME_PHASE_ONE.md).
+Orient Express, Koi Garden, Moonbase, Coral Reef, Air Mail and Volcanic Island each include a shared Studio/Swagger palette, ambient artwork and a distinct Execute scene. Koi reverse direction when the pointer approaches decorative space. Forms, buttons, editors, response text and Swagger operation controls suppress proximity reactions. Decorative layers never capture input, clean up when themes change, pause in hidden tabs and respect reduced motion. Scope and implementation sequence: [THEME_PHASE_ONE.md](THEME_PHASE_ONE.md).
 
 JSON request bodies, JSON responses and schema examples use theme-aware syntax highlighting. Editable requests retain native textarea behavior and synchronized coloring. Documents over 128 KiB or 12,000 tokens fall back to complete plain text to bound rendering cost. Swagger code blocks use the same token colors.
 
 Response schema is available before and after execution, with status and content-type selection. Exact status, status ranges and default definitions are supported. Studio Execute scenes use a fixed bottom strip outside the scrolling panels and do not consume space inside the response card.
+
+Request kartındaki **Headers → + Add** ile özel header ekleyebilir, etkinleştirip kapatabilir veya silebilirsiniz. Değerler endpoint sekmelerinde bellekte korunur ve Studio kapanınca silinir; tarayıcı depolamasına yazılmaz. Etkin özel header aynı adlı Swagger header’ını değiştirir; request interceptor son sözü söyler. Copy API raporu etkin özel header’ları içerir. Tarayıcının yönettiği Cookie/Host gibi [yasak header’lar](https://fetch.spec.whatwg.org/#forbidden-request-header) ve multipart boundary başlığı elle değiştirilemez.
+
+### Tablo yanıtı ve liste düzenleyicisi
+
+Uygun JSON yanıtlarında **JSON / Table** ile görünüm seçin. Kök nesne dizileri ve `content` gibi kapsayıcıların içindeki diziler desteklenir; iç içe nesne/diziler hücreden açılır. Boş listeler 0 satırdır; hata yanıtları ve tabloya uygun olmayan içerik JSON görünür. Tablo 100 satırlık sayfalar ve en fazla 100 görünür sütun kullanır; JSON yanıtı tam kalır. Yalnız görünüm tercihi endpoint bazında saklanır.
+
+Query ve form listelerinde doğrudan değer yazın; alan otomatik isteğe eklenir. **+ Add item** yeni değer ekler, satırdaki **×** değeri siler. JSON düzenleme ve alanı göndermeme seçenekleri **JSON & sending options** altındadır. JSON body'de **Edit list values** bölümü açık gelir, JSON gövdesinin üstünde yer alır ve metinle eşleşir. İç içe nesne alanları ve kök diziler desteklenir; nesne dizilerinin içindeki alanlar JSON üzerinden düzenlenir. **Request preview** interceptor öncesi gerçek URL/body gösterir. Boş liste ile alanı göndermemek ve boş metin elemanı farklıdır; boş query listeleri servis sözleşmesine göre parametre üretmeyebilir. Serileştirme API tanımına göre Swagger motorunda yapılır; liste değerleri diske yazılmaz.
+
+Yeni demo senaryoları: `/api/table-page` (`empty=true` ile boş content), `/api/table-scalar`, `/api/table-error`, `/api/list-optional`, `/api/list-numbers`, `/api/list-form`, `/api/list-nested`; mevcut GET/POST `/api/list-query` ve POST `/api/list-body` de kullanılabilir. Demo, tek elemanlı `Ayşe & a,b` değerini bölmeden korur; Spring'in varsayılan koleksiyon dönüşümü tek parametrede virgülü ayırabildiğinden gerçek servisinizin sözleşmesini önizlemeyle kontrol edin.
+
+Java demosu çalışırken `npm run test:demo`, üretilen OpenAPI üzerinden gerçek Swagger motoruyla HTTP istekleri gönderir; query/form/body ve tablo senaryolarını uçtan uca doğrular. Farklı yerel adres için `STUDIO_DEMO_URL` kullanılabilir.
+
+
+### cURL ve API grupları
+
+Endpoint başlığındaki **cURL → Copy cURL**, Bash/Zsh için interceptor öncesi komutu üretir. Swagger kimlik bilgileri ve özel header değerleri varsayılan olarak çıkarılır. Gerekirse **Include authorization and custom headers** seçeneğini açın. URL ve gövde değerlerini paylaşmadan önce kontrol edin. Multipart metin alanları desteklenir. Yerel dosyaları terminalde ekleyin.
+
+Swagger'da birden fazla tanım yapılandırıldığında Studio üst çubuğundaki **API definition** seçicisi Swagger ile aynı grubu açar. Sekmeler ve favoriler tanım bazındadır. Grup değişiminde açık istek taslakları temizlenir ve Swagger kendi yetkilendirme yaşam döngüsünü uygular.

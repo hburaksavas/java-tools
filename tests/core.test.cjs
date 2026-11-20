@@ -96,3 +96,68 @@ test('response buffering stops at 1 MiB', async t => {
   const response = await bridge.send(ui, core.requestOptions(spec, core.operations(spec)[0], draft(), '', 'https://api.example.test'), { origin: 'https://api.example.test' });
   assert.equal(response.text.length, 1024 * 1024); assert.equal(response.headers['x-studio-truncated'], 'true');
 });
+
+ test('custom headers validate browser rules and collapse duplicates without changing disabled rows', () => {
+  assert.deepEqual(core.customHeaders([{name:'X-Trace',value:' first '},{name:'x-trace',value:' second '},{name:'X-Empty',value:''},{name:'Cookie',value:'secret',enabled:false}, {name:'',value:''}]), {'x-trace':'second','X-Empty':''});
+  for (const [name,value] of [['Bad name','x'],['X-Test','a\r\nb'],['Host','example.org'],['Cookie','a=b'],['Sec-Test','x'],['Proxy-Test','x'],['X-HTTP-Method-Override','TRACE']]) assert.throws(()=>core.customHeaders([{name,value}]));
+ });
+ test('custom headers override Swagger auth and reach fetch before the final interceptor', async t => {
+  let sent;
+  const {w,ui,bridge}=engine(t,{bearer:{value:'shared'}},{requestInterceptor:req=>{assert.equal(req.headers.authorization,'Bearer custom'); req.headers['X-Trace']='intercepted'; return req;}});
+  w.fetch=async(url,init)=>{sent=init;return new Response('{}');};
+  const options=core.requestOptions(spec,core.operations(spec)[0],draft({headers:[{name:'authorization',value:'Bearer custom'},{name:'X-Trace',value:'custom'}]}),'','https://api.example.test');
+  const built=bridge.build(ui,options); assert.equal(Object.keys(built.headers).filter(k=>k.toLowerCase()==='authorization').length,1);
+  await bridge.send(ui,options,{origin:'https://api.example.test'});
+  assert.equal(sent.headers.authorization,'Bearer custom'); assert.equal(sent.headers['X-Trace'],'intercepted');
+ });
+
+test('string lists preserve query values for GET/POST and nested JSON body values', t => {
+  const { ui, bridge } = engine(t);
+  const names = ['Ali', 'Ayse', 'a,b', 'a&b', 'with space', ''];
+  for (const method of ['get', 'post']) {
+    const s = { openapi: '3.0.3', paths: { '/list-query': { [method]: { parameters: [{ name: 'names', in: 'query', required: true, style: 'form', explode: true, schema: { type: 'array', items: { type: 'string' } } }] } } } };
+    const op = core.operations(s)[0];
+    const request = bridge.build(ui, core.requestOptions(s, op, draft({ values: { 'query:names': JSON.stringify(names) } }), '', 'https://api.example.test'));
+    assert.deepEqual(new URL(request.url).searchParams.getAll('names'), names);
+    assert.throws(() => core.requestOptions(s, op, draft({ values: { 'query:names': '[1]' } }), '', 'https://api.example.test'), /string/);
+  }
+  const s = { openapi: '3.0.3', paths: { '/list-body': { post: { requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', properties: { names: { type: 'array', items: { type: 'string' } } } } } } } } } } };
+  for (const values of [names, [], ['single']]) {
+    const request = bridge.build(ui, core.requestOptions(s, core.operations(s)[0], draft({ contentType: 'application/json', body: JSON.stringify({ names: values }) }), '', 'https://api.example.test'));
+    assert.deepEqual(JSON.parse(request.body), { names: values });
+  }
+});
+
+test('array serialization respects OpenAPI styles, Swagger 2 collection formats and form encoding', t => {
+  const {ui,bridge}=engine(t);
+  const names=['Ayşe','a&b','a,b',''];
+  const build=(api,extra)=>bridge.build(ui,core.requestOptions(api,core.operations(api)[0],draft(extra),'','https://api.example.test'));
+  for(const [style,explode,expected] of [['form',true,names],['form',false,[names.join(',')]],['spaceDelimited',false,[names.join(' ')]],['pipeDelimited',false,[names.join('|')]]]) {
+    const api={openapi:'3.0.3',paths:{'/lists':{get:{parameters:[{name:'names',in:'query',style,explode,schema:{type:'array',items:{type:'string'}}}]}}}};
+    const req=build(api,{values:{'query:names':JSON.stringify(names)}});assert.deepEqual(new URL(req.url).searchParams.getAll('names'),expected);
+    const empty=build(api,{values:{'query:names':'[]'}});assert.ok(!new URL(empty.url).searchParams.has('names') || new URL(empty.url).searchParams.get('names')==='');
+  }
+  for(const [collectionFormat,expected] of [['multi',names],['csv',[names.join(',')]],['pipes',[names.join('|')]]]) {
+    const api={swagger:'2.0',paths:{'/lists':{get:{parameters:[{name:'names',in:'query',type:'array',items:{type:'string'},collectionFormat}]}}}};
+    assert.deepEqual(new URL(build(api,{values:{'query:names':JSON.stringify(names)}}).url).searchParams.getAll('names'),expected);
+  }
+  for(const explode of [true,false]) {
+    const api={openapi:'3.0.3',paths:{'/lists':{post:{requestBody:{content:{'application/x-www-form-urlencoded':{schema:{type:'object',properties:{names:{type:'array',items:{type:'string'}}}},encoding:{names:{style:'form',explode}}}}}}}}};
+    const req=build(api,{contentType:'application/x-www-form-urlencoded',form:{names:JSON.stringify(names)}});
+    assert.deepEqual(new URLSearchParams(req.body).getAll('names'),explode?names:[names.join(',')]);
+  }
+});
+
+
+test('transport reports actual send, headers and streamed byte phases without letting observers break requests', async t => {
+  const { w, ui, bridge } = engine(t);
+  const phases = []; const encoder = new TextEncoder();
+  w.fetch = async () => new Response(new ReadableStream({ start(c) { c.enqueue(encoder.encode('{"ok":')); c.enqueue(encoder.encode('true}')); c.close(); } }), { status: 200 });
+  const options = core.requestOptions(spec, core.operations(spec)[0], draft(), '', 'https://api.example.test');
+  const result = await bridge.send(ui, options, { origin: 'https://api.example.test', onPhase: (phase, detail) => phases.push({ phase, ...detail }) });
+  assert.equal(result.status, 200);
+  assert.deepEqual(phases.map(p => p.phase), ['preparing', 'waiting', 'receiving', 'receiving', 'receiving']);
+  assert.equal(phases.at(-1).bytes, 11); assert.equal(phases[2].status, 200);
+  const again = await bridge.send(ui, options, { origin: 'https://api.example.test', onPhase: () => { throw Error('observer'); } });
+  assert.equal(again.status, 200);
+});

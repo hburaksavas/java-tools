@@ -1,6 +1,6 @@
-# Tema ve response kataloğu — 0.3.18
+# Tema ve response kataloğu — 0.3.26
 
-Tüm temalar Studio ve standart Swagger için ortak renk, ortam ve Execute sahnesi kullanır. System dışında 27 tema vardır.
+Studio ve standart Swagger ortak renk ve ortam kullanır. Execute sahneleri yalnız API Studio içinde çalışır. System dışında 35 tema vardır.
 
 | Ayar değeri | Tema | Arka plan | Response dokunuşu |
 | --- | --- | --- | --- |
@@ -8,54 +8,45 @@ Tüm temalar Studio ve standart Swagger için ortak renk, ortam ve Execute sahne
 | light | Daylight | Açık ve sade | Yumuşak halka |
 | dark | Midnight | Koyu ve sade | Mor ışık yayılması |
 | winter | Winter | Kar | Kristaller ve buz kenarı |
-| cosmic | Cosmic | Yıldızlar | Takımyıldız parçacıkları |
 | rainy-night | Rainy Night | İnce yağmur | Su halkası |
-| aurora | Aurora | Yeşil/mor ışık perdeleri | Kenar ışığı |
 | sakura | Sakura | Pembe yapraklar | Kısa yaprak dağılımı |
-| ember | Ember | Yükselen köz | Köz parçacıkları |
 | ocean | Ocean | Su ışığı ve kabarcıklar | Su halkası |
 | cyberpunk | Cyberpunk | Neon çizgiler | Neon kenar darbesi |
-| blueprint | Blueprint | Teknik ızgara | Köşe/çizim vurgusu |
 | paper | Paper & Ink | Kâğıt dokusu | Mürekkep kenarı |
 | digital-rain | Digital Rain | Seyrek kod sütunları | Kenarda kod çözülmesi |
-| arrakis | Arrakis | Kum tepeleri ve yatay kum | Kum solucanı geçişi |
-| hyperspace | Hyperspace | Radyal yıldız alanı | Kenarda hiperuzay sıçraması |
 | orient-express | Orient Express | Gece, pencere ışıkları, buhar | Işıklı tren |
 | koi-garden | Koi Garden | Nilüferler, su halkaları ve koi | Dönen koi çifti |
 | moonbase | Moonbase | Ay tozu ve uzak Dünya | Süzülen astronot |
 | coral-reef | Coral Reef | Mercan, kabarcıklar ve ışık | Deniz kaplumbağası |
-| clockwork | Clockwork | Pirinç mekanizmalar | Dişliler ve açılan kilit |
-| firefly-camp | Firefly Camp | Ateş böcekleri, kamp ateşi, tilki | Ateşin yanına gelen tilki |
 | air-mail | Air Mail | Kâğıt ve bulutlar | Kâğıt uçak ve açılan zarf |
-| volcanic-island | Volcanic Island | Lav damarları ve kül | Dağılan lav kabarcığı |
+| volcanic-island | Volcanic Island | Lav damarları ve kül | Parlayan krater, lav akışı, duman ve püsküren korlar |
 | bosphorus | Bosphorus | Boğaz mavisi, süzülen martılar | Execute ile şehir hatları vapuru |
+| plasma-globe | Plasma Globe | Etkileşimli plasma sahnesi | Aynı sahnede istek tepkisi |
+| pendulum-wave | Pendulum Wave | Etkileşimli pendulums sahnesi | Aynı sahnede istek tepkisi |
+| ink-in-water | Ink in Water | Etkileşimli ink-water sahnesi | Aynı sahnede istek tepkisi |
+| wind-tunnel | Wind Tunnel | Etkileşimli wind sahnesi | Aynı sahnede istek tepkisi |
+| paper-city | Paper City | Etkileşimli paper-city sahnesi | Mevcut sahnede istek tepkisi |
+| cable-car | Cable Car | Etkileşimli cable-car sahnesi | Mevcut sahnede istek tepkisi |
+| watchmaker | Watchmaker | Etkileşimli watchmaker sahnesi | Mevcut sahnede istek tepkisi |
+| bonsai-seasons | Bonsai Seasons | Etkileşimli bonsai-seasons sahnesi | Mevcut sahnede istek tepkisi |
+| silk-lanterns | Silk Lanterns | Etkileşimli silk-lanterns sahnesi | Mevcut sahnede istek tepkisi |
+| miniature-harbor | Miniature Harbor | Etkileşimli miniature-harbor sahnesi | Mevcut sahnede istek tepkisi |
+| darkroom | Darkroom | Etkileşimli darkroom sahnesi | Mevcut sahnede istek tepkisi |
+| prism-room | Prism Room | Etkileşimli prism sahnesi | Aynı sahnede istek tepkisi |
+| kinetic-sand | Kinetic Sand | Koyu taş, sıcak kum ve fareyle açılan geçici izler | Aynı kum yüzeyinde hareket |
+| ripple-tank | Ripple Tank | Petrol mavisi, dokunmayla yayılan girişim dalgaları | Aynı dalga havuzunda istek darbeleri |
+| magnetic-lab | Magnetic Lab | Grafit ve bakır, metal bilyeler ve mıknatıs | Aynı sahnede alan akışı; fare yakınlığında bükülen çizgiler |
+| marble-run | Marble Run | Füme, cam rampalar ve dönen çark | Parkurda ilerleyen cam bilye |
+| neon-bowling | Neon Bowling | Mor neon bowling pisti | Başarıda strike, hatada oluk |
+| cappadocia | Cappadocia | Güneş doğmadan mavi-pembe şafak, peribacaları ve yükselen balonlar | Balon kalkışı ve aralıklı brülör ışığı |
 | autumn | Autumn | Sonbahar yaprakları | Sıcak yapraklar |
-| monsoon | Monsoon | Yoğun yağmur izleri | Su halkası |
-| bioluminescence | Bioluminescence | Belirip sönen ışık noktaları | Parlayan noktalar |
-| orient-express | Orient Express | Gece, pencere ışıkları, buhar | Işıklı tren |
-| koi-garden | Koi Garden | Nilüferler, su halkaları ve koi | Dönen koi çifti |
-| moonbase | Moonbase | Ay tozu ve uzak Dünya | Süzülen astronot |
-| coral-reef | Coral Reef | Mercan, kabarcıklar ve ışık | Deniz kaplumbağası |
-| clockwork | Clockwork | Pirinç mekanizmalar | Dişliler ve açılan kilit |
-| firefly-camp | Firefly Camp | Ateş böcekleri, kamp ateşi, tilki | Ateşin yanına gelen tilki |
-| air-mail | Air Mail | Kâğıt ve bulutlar | Kâğıt uçak ve açılan zarf |
-| volcanic-island | Volcanic Island | Lav damarları ve kül | Dağılan lav kabarcığı |
 
 ## Ortak davranış
 
 İstekler bekleme, başarı, uyarı, hata ve iptal durumlarına göre tepki verir. Metin ve JSON yerinde kalır. Azaltılmış hareket tercihi dekoratif animasyonları kapatır; istek süresi görünür kalır.
 
-Bosphorus ve Winter için gündüz, gün batımı ve gece tercihleri tarayıcıda ayrı saklanır. Sekiz yeni temanın kapsamı [THEME_PHASE_ONE.md](THEME_PHASE_ONE.md) dosyasındadır. Koi ve tilki yakınlık tepkileri yalnızca dekoratif boşlukta çalışır; form ve kontrollerde devre dışıdır.
+Bosphorus ve Winter için gündüz ve gece tercihleri tarayıcıda ayrı saklanır. Sekiz yeni temanın kapsamı [THEME_PHASE_ONE.md](THEME_PHASE_ONE.md) dosyasındadır. Koi ve tilki yakınlık tepkileri yalnızca dekoratif boşlukta çalışır; form ve kontrollerde devre dışıdır.
 
 ## Eski tema seçimlerinin geçişi
 
-| Eski | Yeni |
-| --- | --- |
-| forest | bioluminescence |
-| terminal | digital-rain |
-| sandstorm | arrakis |
-| observatory | cosmic |
-| infrared | ember |
-| zen | paper |
-| circuit | cyberpunk |
-| eclipse | cosmic |
+Kaldırılan seçimler mevcut temalara yönlendirilir. Bosphorus yalnız Day ve Night sunar; eski default ve sunset seçimleri Day olur. Winter da yalnız Day ve Night sunar; eski default ve sunset seçimleri Day olur.

@@ -8,7 +8,8 @@
   const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
   const button = (label, fn, cls) => { const n = el('button', label, cls); n.type = 'button'; n.onclick = fn; return n; };
   function read(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
-  function persist() { try { localStorage.setItem(storageKey, JSON.stringify({ version: 2, favorites, tabs, selected: selected?.id || null, recent })); } catch {} }
+  let responseViews = Object.create(null), groups = [], switchGroup, groupLoading = false;
+  function persist() { try { localStorage.setItem(storageKey, JSON.stringify({ version: 2, favorites, tabs, selected: selected?.id || null, recent, views: responseViews })); } catch {} }
   function field(label, value = '', type = 'text', definition) {
     const wrap = el('label', undefined, 'field'); wrap.append(el('span', label));
     let input;
@@ -17,6 +18,72 @@
     if (type !== 'file') input.value = value; input.autocomplete = 'off'; input.spellcheck = false; wrap.append(input);
     if (definition?.description) wrap.append(el('small', definition.description));
     return { wrap, input };
+  }
+  // Array controls share JSON as their source of truth, preserving omitted/empty values.
+  function createListField(label, definition, get, set, state) {
+    const wrap = el('section', undefined, 'field list-field'); wrap.setAttribute('aria-label', label);
+    const bar = el('div', undefined, 'list-heading'), mode = el('select'), enabled = el('input');
+    enabled.type = 'checkbox'; enabled.checked = get() !== undefined; enabled.setAttribute('aria-label', `Send ${label}`);
+    mode.setAttribute('aria-label', `${label} input mode`); mode.append(new Option('Value rows', 'items'), new Option('JSON', 'json')); mode.value = state.mode || 'items';
+    bar.append(el('strong', `${label}${definition.requiredField ? ' *' : ''}`));
+    const content = el('div', undefined, 'list-values'), error = el('small', '', 'error'), status = el('small', '', 'list-status'); error.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+    const advanced = el('details', undefined, 'list-options'); advanced.append(el('summary', 'JSON & sending options'));
+    const sendLabel = el('label', undefined, 'list-include'); sendLabel.append(enabled, el('span', 'Include this field in the request'));
+    const modeLabel = el('label', undefined, 'list-mode'); modeLabel.append(el('span', 'Edit as'), mode);
+    advanced.append(sendLabel, modeLabel);
+    wrap.append(bar);
+    if (definition.description) wrap.append(el('small', definition.description));
+    wrap.append(content, error, status, advanced);
+    let saved = state.raw ?? get() ?? '[]';
+    function updateStatus() {
+      let values; try { values = JSON.parse(saved); } catch {}
+      status.textContent = !enabled.checked ? 'Not included in this request. Type a value to include it.' : Array.isArray(values) && !values.length ? (label.endsWith(' · query') ? 'No values. The query parameter may be omitted; see Request preview.' : 'Empty list: 0 values will be sent.') : `${Array.isArray(values) ? values.length : 'Invalid'} value${values?.length === 1 ? '' : 's'} in this request.`;
+      wrap.dataset.included = String(enabled.checked);
+    }
+    function commit(value) { state.raw = saved = value; enabled.checked = true; set(value); updateStatus(); }
+    function draw() {
+      content.replaceChildren(); error.textContent = ''; updateStatus();
+      let values;
+      try { values = JSON.parse(saved); if (!Array.isArray(values)) throw Error('Expected an array.'); }
+      catch (e) { mode.value = 'json'; error.textContent = e.message; }
+      if (mode.value === 'json') {
+        const input = el('textarea'); input.value = saved; input.setAttribute('aria-label', `${label} JSON`);
+        try { if (enabled.checked) core.typedValue(spec, definition, saved, label); } catch (e) { input.setCustomValidity(e.message); error.textContent = e.message; }
+        input.oninput = () => { try { core.typedValue(spec, definition, input.value, label); input.setCustomValidity(''); error.textContent = ''; commit(input.value); } catch (e) { state.raw = saved = input.value; input.setCustomValidity(e.message); error.textContent = e.message; } };
+        content.append(input); return;
+      }
+      const placeholderOnly = values.length === 0;
+      (placeholderOnly ? [''] : values).forEach((value, i) => {
+        const row = el('div', undefined, 'list-item'), input = el('input'); input.type = 'text'; input.value = typeof value === 'string' ? value : JSON.stringify(value);
+        input.setAttribute('aria-label', `${label} item ${i + 1}`); input.placeholder = 'Enter a value…'; input.autocomplete = 'off';
+        row.append(el('span', String(i + 1), 'list-index'));
+        const initialErrors = placeholderOnly || !enabled.checked ? [] : core.validate(spec, definition.items, value, `${label}[${i}]`); input.setCustomValidity(initialErrors.join(' '));
+        input.oninput = () => {
+          if (!remove.isConnected) row.append(remove); remove.hidden = false;
+          try { values[i] = core.typedValue(spec, definition.items || {}, input.value, `${label}[${i}]`); input.setCustomValidity(''); error.textContent = ''; commit(JSON.stringify(values)); }
+          catch (e) { values[i] = input.value; commit(JSON.stringify(values)); input.setCustomValidity(e.message); error.textContent = e.message; }
+        };
+        const remove = button('×', () => { values.splice(i, 1); commit(JSON.stringify(values)); draw(); }); remove.setAttribute('aria-label', `Remove ${label} item ${i + 1}`); remove.title = 'Remove value'; remove.hidden = placeholderOnly;
+        row.append(input); if (!placeholderOnly) row.append(remove); content.append(row);
+      });
+      content.append(button('+ Add item', () => { const item = core.schema(spec, definition.items); values.push(item.type === 'integer' || item.type === 'number' ? 0 : item.type === 'boolean' ? false : item.type === 'object' ? {} : ''); commit(JSON.stringify(values)); draw(); content.querySelectorAll('.list-item input')[values.length - 1]?.focus(); }, 'text-button'));
+
+    }
+    enabled.onchange = () => { set(enabled.checked ? saved : undefined); draw(); };
+    mode.onchange = () => { if (enabled.checked && content.querySelector(':invalid')) { error.textContent = 'Correct the invalid list value before switching modes.'; mode.value = mode.value === 'json' ? 'items' : 'json'; return; } state.mode = mode.value; draw(); }; draw(); return wrap;
+  }
+  function tableSources(value) {
+    const found = [], pending = [{value, path: '$'}]; let visited = 0;
+    while (pending.length && visited++ < 5000 && found.length < 50) {
+      const item = pending.shift();
+      if (Array.isArray(item.value)) {
+        if (item.value.every(row => row !== null && typeof row === 'object' && !Array.isArray(row))) found.push(item);
+        // Arrays inside individual rows are expanded in cells, rather than scanned as separate tables.
+      } else if (item.value && typeof item.value === 'object') {
+        for (const [key, child] of Object.entries(item.value)) if (child && typeof child === 'object') pending.push({value: child, path: `${item.path}[${JSON.stringify(key)}]`});
+      }
+    }
+    return found;
   }
   const layoutKey = 'brsvs:studio:request-layout';
   let requestLayout = read(layoutKey) === 'stacked' ? 'stacked' : 'split';
@@ -66,10 +133,36 @@
     if (config.logoUrl) { try { const url = new URL(config.logoUrl, location.href); if (url.origin === location.origin && ['http:', 'https:'].includes(url.protocol)) { const img = el('img', undefined, 'logo'); img.src = url.href; img.alt = ''; brand.append(img); } } catch {} }
     brand.append(el('h1', config.title || 'API Studio'));
     const auth = button('Authorize', () => {
-      if (busy) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
+      if (busy || groupLoading) return; try { bridge.openAuth(ui); close(); } catch (e) { alert(e.message); }
     }, 'auth-button');
-    const sceneDock = el('div', undefined, 'scene-dock'); sceneDock.dataset.studioDock = 'true'; sceneDock.setAttribute('aria-hidden', 'true');
     top.append(brand, el('small', spec.info?.title || 'API workspace'), el('span', undefined, 'grow'));
+    if (groups.length > 1) {
+      const group = el('select'); group.setAttribute('aria-label', 'API definition');
+      for (const item of groups) {
+        const option = el('option', item.name);
+        option.value = item.url;
+        option.selected = new URL(item.url, location.href).href === specUrl;
+        group.append(option);
+      }
+      group.disabled = groupLoading;
+      const groupStatus = el('span'); groupStatus.setAttribute('role', 'status');
+      group.onchange = async () => {
+        if (busy || groupLoading) { group.value = groups.find(item => new URL(item.url, location.href).href === specUrl)?.url || ''; return; }
+        groupLoading = true; group.disabled = true; groupStatus.textContent = 'Loading API definition…';
+        const current = generation;
+        try {
+          const next = await switchGroup(group.value);
+          if (current === generation) { close(); overviewScroll = 0; renderedId = null; await open(next); }
+        } catch (e) {
+          if (current === generation) { close(); alert(e.message); }
+        } finally {
+          groupLoading = false;
+          const activePicker = shadow?.querySelector('[aria-label="API definition"]');
+          if (activePicker) activePicker.disabled = false;
+        }
+      };
+      top.append(group, groupStatus);
+    }
     if (ops.some(op => core.authorizationSchemes(spec, op).length)) top.append(auth);
     top.append(themePicker(), window.SwaggerStudioTheme.atmospherePicker(), button('Swagger ↗', close));
     const layout = el('div', undefined, 'layout'), side = el('aside', undefined, 'side');
@@ -92,8 +185,8 @@
       const t = el('div', undefined, 'tab'); t.append(button(`${op.method} ${op.path}`, () => select(op), selected?.id === id ? 'active' : ''), button('×', () => closeTab(id), 'remove'));
       t.lastChild.setAttribute('aria-label', `Close ${op.method} ${op.path}`); tabbar.append(t);
     }
-    main.append(tabbar, selected ? editor(selected) : dashboard()); layout.append(side, main); const sceneFooter = el('footer', undefined, 'scene-footer'); sceneFooter.setAttribute('aria-hidden', 'true'); sceneFooter.append(sceneDock);
-    shell.append(top, layout, sceneFooter); shadow.append(shell);
+    main.append(tabbar, selected ? editor(selected) : dashboard()); layout.append(side, main);
+    shell.append(top, layout); shadow.append(shell);
     main.scrollTop = selected ? drafts.get(selected.id)?.scrollTop || 0 : overviewScroll;
     renderedId = selected?.id || null;
   }
@@ -130,10 +223,12 @@
     const sys = ui?.getSystem?.() || ui;
     let base = core.baseUrl(spec, op, specUrl, location.href);
     try { const selectedServer = sys?.oas3Selectors?.selectedServer?.(`${op.path}:${op.method.toLowerCase()}`) || sys?.oas3Selectors?.selectedServer?.(); if (selectedServer) base = new URL(selectedServer, specUrl || location.href).href; } catch {}
-    return { values: Object.create(null), form: Object.create(null), files: Object.create(null), bodies: Object.create(null), body: undefined, auth: '', base, contentType: types.find(core.isJson) || types[0] || '', accept: '' };
+    return { values: Object.create(null), form: Object.create(null), files: Object.create(null), bodies: Object.create(null), headers: [], body: undefined, auth: '', base, contentType: types.find(core.isJson) || types[0] || '', accept: '' };
   }
   function editor(op) {
     const draft = drafts.get(op.id) || newDraft(op); drafts.set(op.id, draft);
+    draft.listStates ||= Object.create(null);
+    const listField = (label, definition, get, set) => createListField(label, definition, get, set, draft.listStates[label] ||= {});
     const securityNames = core.authorizationSchemes(spec, op), secured = securityNames.length > 0;
     const area = el('div', undefined, 'editor'), heading = el('div', undefined, 'heading');
     const star = button(favorites.includes(op.id) ? '★' : '☆', () => { if (busy) return; favorites = favorites.includes(op.id) ? favorites.filter(x => x !== op.id) : [...favorites, op.id]; persist(); render(); }); star.setAttribute('aria-label', 'Toggle favorite');
@@ -144,14 +239,44 @@
     }, 'copy-api');
     copyApi.title = 'Copy API details'; copyApi.setAttribute('aria-label', 'Copy API details');
     const copyStatus = el('span', '', 'copy-status'); copyStatus.setAttribute('role', 'status');
+    const curlMenu = el('details', undefined, 'curl-menu');
+    const curlSummary = el('summary', 'cURL');
+    curlMenu.append(curlSummary);
+    const credentials = el('input'); credentials.type = 'checkbox';
+    const credentialsLabel = el('label', undefined, 'row');
+    credentialsLabel.append(credentials, el('span', secured ? 'Include authorization and custom headers' : 'Include custom headers'));
+    const copyCurl = button('Copy cURL', async () => {
+      try {
+        const options = core.requestOptions(spec, op, draft, specUrl, location.href);
+        const command = bridge.curl(ui, options, secured ? draft.auth : '', credentials.checked, location.href);
+        await navigator.clipboard.writeText(command);
+        copyStatus.textContent = 'cURL copied.';
+        credentials.checked = false;
+        curlMenu.open = false;
+        curlSummary.focus();
+      } catch (e) { copyStatus.textContent = e.message; }
+    }, 'text-button');
+    const curlOptions = el('div', undefined, 'curl-options');
+    curlOptions.append(credentialsLabel, copyCurl, el('small', 'Bash or Zsh · before request interceptor'));
+    curlMenu.append(curlOptions);
     const layouts = el('div', undefined, 'layout-picker'); layouts.setAttribute('role', 'group'); layouts.setAttribute('aria-label', 'Request and response layout');
     for (const [value, label] of [['split', 'Side by side'], ['stacked', 'Stacked']]) {
       const control = button(label, () => { requestLayout = value; try { localStorage.setItem(layoutKey, JSON.stringify(value)); } catch {} applyLayout(); });
       control.dataset.requestLayout = value; control.setAttribute('aria-pressed', String(requestLayout === value)); layouts.append(control);
     }
     area.dataset.layout = requestLayout;
-    heading.append(el('span', op.method, `method ${op.method}`), el('h2', op.path), star, copyApi, copyStatus, el('span', undefined, 'grow'), layouts); area.append(heading, el('p', [op.summary, op.description].filter(Boolean).join('\n'), 'description'));
-    const base = field('Server URL', draft.base); base.wrap.classList.add('server-bar'); base.input.oninput = () => draft.base = base.input.value; area.append(base.wrap);
+    heading.append(el('span', op.method, `method ${op.method}`), el('h2', op.path), star, copyApi, curlMenu, copyStatus, el('span', undefined, 'grow'), layouts); area.append(heading, el('p', [op.summary, op.description].filter(Boolean).join('\n'), 'description'));
+    const server = el('div', undefined, 'server-inline'), serverLabel = button(draft.base, () => { serverLabel.hidden = true; serverInput.hidden = false; serverInput.value = draft.base; serverInput.focus(); serverInput.select(); }, 'server-label');
+    serverLabel.title = 'Edit Server URL'; serverLabel.setAttribute('aria-label', 'Edit Server URL');
+    const serverInput = el('input'); serverInput.value = draft.base; serverInput.hidden = true; serverInput.setAttribute('aria-label', 'Server URL'); serverInput.spellcheck = false;
+    const finishServer = save => { if (save) draft.base = serverInput.value.trim(); serverLabel.textContent = draft.base || 'Set Server URL'; serverInput.hidden = true; serverLabel.hidden = false; };
+    serverInput.oninput = () => draft.base = serverInput.value;
+    let serverBefore = draft.base;
+    serverLabel.addEventListener('click', () => { serverBefore = draft.base; });
+    serverInput.onblur = () => finishServer(true);
+    serverInput.onkeydown = event => { if (event.key === 'Enter' || event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); if (event.key === 'Escape') { draft.base = serverBefore; serverInput.value = serverBefore; } finishServer(event.key === 'Enter'); serverLabel.focus(); } };
+    server.append(serverLabel, serverInput); heading.insertBefore(server, copyStatus);
+
     const requestStart = area.children.length;
     if (secured) {
       const authDetails = el('details'); authDetails.append(el('summary', 'Override Authorization header for this request'));
@@ -161,8 +286,27 @@
       const key = `${p.in}:${p.name}`, s = core.schema(spec, p.schema || p); const f = field(`${p.name}${p.required ? ' *' : ''} · ${p.in} · ${s.type || 'string'}`, draft.values[key], 'text', { ...s, description: p.description || s.description });
       if (p.in === 'cookie') { f.input.disabled = true; f.input.placeholder = 'Managed by your browser session'; }
       else { f.input.placeholder = ['array','object'].includes(s.type) ? 'Enter JSON' : String(p.example ?? s.default ?? ''); f.input.oninput = () => draft.values[key] = f.input.value; }
-      area.append(f.wrap);
+      if (s.type === 'array' && p.in !== 'cookie') area.append(listField(`${p.name} · ${p.in}`, { ...s, requiredField: p.required, description: p.description || s.description }, () => draft.values[key], value => draft.values[key] = value));
+      else area.append(f.wrap);
     }
+    const headersSection = el('section', undefined, 'request-headers'), headerBar = el('div', undefined, 'headers-heading'), headerRows = el('div', undefined, 'header-rows');
+    const addHeader = button('+ Add', () => { draft.headers.push({ name:'', value:'', enabled:true }); drawHeaders(); headerRows.lastChild?.querySelector('input[type=text]')?.focus(); }, 'text-button');
+    addHeader.setAttribute('aria-label', 'Add header'); addHeader.title = 'Add header'; headerBar.append(el('h3', 'Headers'), el('span', undefined, 'grow'), addHeader); headersSection.append(headerBar, headerRows); area.append(headersSection);
+    function drawHeaders() {
+      headerRows.replaceChildren();
+      draft.headers.forEach((header, index) => {
+        const row = el('div', undefined, 'header-row'), enabled = el('input'), name = el('input'), value = el('input');
+        enabled.type = 'checkbox'; enabled.checked = header.enabled !== false; enabled.setAttribute('aria-label', `Enable header ${index + 1}`); row.dataset.enabled = String(enabled.checked);
+        enabled.onchange = () => { header.enabled = enabled.checked; row.dataset.enabled = String(enabled.checked); };
+        name.type = value.type = 'text'; name.placeholder = 'Header'; value.placeholder = 'Value'; name.value = header.name; value.value = header.value;
+        name.setAttribute('aria-label', `Header name ${index + 1}`); value.setAttribute('aria-label', `Header value ${index + 1}`);
+        for (const input of [name, value]) { input.autocomplete = 'off'; input.spellcheck = false; }
+        name.oninput = () => header.name = name.value; value.oninput = () => header.value = value.value;
+        const remove = button('×', () => { draft.headers.splice(index, 1); drawHeaders(); (headerRows.children[index]?.querySelector('input[type=text]') || addHeader).focus(); }, 'remove-header');
+        remove.setAttribute('aria-label', `Remove header ${index + 1}`); remove.title = 'Remove header'; row.append(enabled, name, value, remove); headerRows.append(row);
+      });
+    }
+    drawHeaders();
     const contents = core.bodyInfo(spec, op), types = Object.keys(contents);
     if (types.length) {
       const typeField = el('label', undefined, 'field'); typeField.append(el('span', 'Request content type')); const type = el('select'); type.setAttribute('aria-label', 'Request content type'); types.forEach(t => type.append(new Option(t, t))); type.value = draft.contentType;
@@ -174,7 +318,8 @@
           const f = field(`${name}${s.required?.includes(name) ? ' *' : ''} · ${binary ? 'file' : property.type || 'string'}`, draft.form[name], binary ? 'file' : 'text', property);
           if (binary) { f.input.multiple = property.type === 'array'; f.input.onchange = () => { draft.files[name] = f.input.multiple ? Array.from(f.input.files) : f.input.files[0]; }; if (draft.files[name]) f.wrap.append(el('small', `Selected: ${[draft.files[name]].flat().map(file => file.name).join(', ')}. Reselect to replace.`)); }
           else f.input.oninput = () => draft.form[name] = f.input.value;
-          area.append(f.wrap);
+          if (!binary && property.type === 'array') area.append(listField(name, {...property, requiredField:s.required?.includes(name)}, () => draft.form[name], value => draft.form[name] = value));
+          else area.append(f.wrap);
         }
       } else {
         if (draft.body === undefined) {
@@ -191,9 +336,54 @@
           format.title = 'Format JSON'; format.setAttribute('aria-label', 'Format JSON'); header.append(format);
         }
         bodyField.append(header, jsonEditor?.element || body.input, validation); area.append(bodyField);
+        if (core.isJson(draft.contentType)) {
+          const lists = el('details', undefined, 'body-lists'); lists.append(el('summary', 'Edit list values')); lists.open = true;
+          const listControls = el('div'); lists.append(listControls);
+          function drawBodyLists(manual = false) {
+            listControls.replaceChildren(); let parsed;
+            try { parsed = JSON.parse(draft.body); } catch { listControls.append(el('small', 'Enter valid JSON to edit list fields.')); return; }
+            function walk(raw, path = [], depth = 0) {
+              if (depth > 8) return;
+              const definition = core.schema(spec, raw);
+              if (definition.type === 'array') {
+                let parent = parsed;
+                for (const key of path.slice(0, -1)) { if (parent === undefined) break; parent = parent && Object.hasOwn(parent, key) ? parent[key] : undefined; }
+                if (path.length && parent !== undefined && (!parent || typeof parent !== 'object' || Array.isArray(parent))) return;
+                const label = path.length ? path.join('.') : 'Body';
+                const get = () => { let value = JSON.parse(draft.body); for (const key of path) value = value && Object.hasOwn(value, key) ? value[key] : undefined; return value === undefined ? undefined : JSON.stringify(value); };
+                const stateKey = `body:${draft.contentType}:${label}`; if (manual) delete draft.listStates[stateKey];
+                const state = draft.listStates[stateKey] ||= {};
+                listControls.append(createListField(label, definition, get, value => {
+                  let root = JSON.parse(draft.body), target = root;
+                  if (!path.length) root = value === undefined ? undefined : JSON.parse(value);
+                  else { for (const key of path.slice(0, -1)) { if (!Object.hasOwn(target, key)) { if (value === undefined) return; Object.defineProperty(target, key, {value: {}, enumerable:true, configurable:true, writable:true}); } target = target[key]; } if (value === undefined) delete target[path.at(-1)]; else { try { Object.defineProperty(target, path.at(-1), {value: JSON.parse(value), enumerable:true, configurable:true, writable:true}); } catch { validation.textContent = `${label}: enter valid JSON before updating the body.`; validation.hidden = false; return; } } }
+                  draft.body = root === undefined ? '' : JSON.stringify(root, null, 2); body.input.value = draft.body; jsonEditor?.refresh();
+                }, state));
+              } else for (const [key, child] of Object.entries(definition.properties || {})) walk(child, [...path, key], depth + 1);
+            }
+            walk(s); lists.hidden = !listControls.children.length;
+          }
+          body.input.addEventListener('input', () => drawBodyLists(true));
+          drawBodyLists(); area.insertBefore(lists, bodyField);
+        }
       }
       const model = el('details'); model.append(el('summary', 'Request schema'), jsonCode(JSON.stringify(s, null, 2), true)); area.append(model);
     }
+    const preview = el('details', undefined, 'request-preview'); preview.append(el('summary', 'Request preview'));
+    const previewBody = el('div'); preview.append(previewBody); area.append(preview);
+    function updatePreview() {
+      if (!host || !preview.isConnected || !preview.open) return;
+      try {
+        const invalid = [...request.querySelectorAll('input,textarea')].find(input => input.closest('.list-field')?.dataset.included !== 'false' && !input.checkValidity());
+        if (invalid) throw new Error(invalid.validationMessage);
+        const options = core.requestOptions(spec, op, draft, specUrl, location.href), built = bridge.build(ui, options, secured ? draft.auth : '');
+        let body = built.body;
+        if (body instanceof FormData) body = [...body.entries()].map(([key,value]) => [key, typeof value === 'string' ? value : `[File: ${value.name}]`]);
+        previewBody.replaceChildren(el('pre', `${op.method} ${built.url}`), el('pre', typeof body === 'string' ? body : JSON.stringify(body ?? null, null, 2)), el('small', 'Preview before request interceptor. Empty query lists may serialize to no parameter; check the service contract.'));
+      } catch (e) { previewBody.replaceChildren(el('p', e.message, 'error')); }
+    }
+    preview.ontoggle = updatePreview;
+    area.addEventListener('input', updatePreview); area.addEventListener('change', updatePreview); area.addEventListener('click', () => queueMicrotask(updatePreview));
     const controls = el('div', undefined, 'request-actions'), send = button('Execute', run, 'send'), cancel = button('Cancel', () => controller?.abort()); cancel.hidden = true; controls.append(send, cancel);
     const output = el('section', undefined, 'response'); output.setAttribute('aria-live', 'polite'); output.setAttribute('aria-label', 'Response'); output.dataset.studioPanel = 'true'; output.tabIndex = -1; const panels = el('div', undefined, 'request-response'), request = el('section', undefined, 'request'); request.setAttribute('aria-label', 'Request');
     const requestHeading = el('div', undefined, 'panel-heading'); requestHeading.append(el('h3', 'Request'), el('span', undefined, 'grow'), controls); request.append(requestHeading);
@@ -242,22 +432,105 @@
       output.replaceChildren(); if (result.error) { output.append(responseHeader(), el('p', result.error, 'error'), responseSchema()); return; }
       const status = el('div', undefined, 'response-heading'); status.append(el('h3', 'Response'), el('strong', `${result.status} ${result.statusText || ''}`, `status ${result.status < 400 ? 'ok' : 'fail'}`), el('span', `${result.ms} ms`, 'muted'), el('span', undefined, 'grow'));
       const copy = button('Copy body', async () => { try { await navigator.clipboard.writeText(result.body); copy.textContent = 'Copied'; } catch { copy.textContent = 'Copy unavailable'; } }, 'text-button'); status.append(copy); output.append(status);
-      const details = el('details'); details.append(el('summary', 'Response headers'), el('pre', result.headers)); output.append(details, jsonCode(result.body), responseSchema());
+      const details = el('details'); details.append(el('summary', 'Response headers'), el('pre', result.headers)); output.append(details);
+      let sources = [];
+      if (result.status < 400) { try { sources = tableSources(JSON.parse(result.body)); } catch {} }
+      const content = el('div', undefined, 'response-body');
+      if (!sources.length) { output.append(jsonCode(result.body), responseSchema()); return; }
+      const toolbar = el('div', undefined, 'row response-view'), source = el('select'); source.setAttribute('aria-label', 'Table array');
+      for (const item of sources) source.append(new Option(item.path, item.path));
+      source.value = sources.some(item => item.path === draft.tablePath) ? draft.tablePath : sources[0].path;
+      const json = button('JSON', () => choose('json')), table = button('Table', () => choose('table'));
+      toolbar.append(json, table, source); output.append(toolbar, content, responseSchema());
+      let page = 0;
+      function choose(view) { responseViews[op.id] = view; persist(); page = 0; draw(); }
+      function draw() {
+        const tabular = responseViews[op.id] === 'table'; source.hidden = !tabular || sources.length < 2;
+        json.setAttribute('aria-pressed', String(!tabular)); table.setAttribute('aria-pressed', String(tabular)); content.replaceChildren();
+        if (!tabular) { content.append(jsonCode(result.body)); return; }
+        const rows = sources.find(item => item.path === source.value).value, columns = [...new Set(rows.flatMap(row => Object.keys(row)))];
+        if (!rows.length) { content.append(el('p', 'Empty array · 0 rows', 'empty')); return; }
+        const scroll = el('div', undefined, 'table-scroll'), grid = el('table', undefined, 'response-table'), head = el('thead'), heading = el('tr'), body = el('tbody');
+        // Keep wide or large responses usable without dropping the original JSON.
+        const visibleColumns = columns.slice(0, 100);
+        for (const name of visibleColumns) { const cell = el('th', name); cell.scope = 'col'; heading.append(cell); } head.append(heading);
+        for (const row of rows.slice(page * 100, (page + 1) * 100)) {
+          const tr = el('tr');
+          for (const name of visibleColumns) {
+            const cell = el('td');
+            if (!Object.hasOwn(row, name)) cell.append(el('span', '—', 'muted'));
+            else if (row[name] && typeof row[name] === 'object') { const nested = el('details'); nested.append(el('summary', Array.isArray(row[name]) ? `Array (${row[name].length})` : 'Object'), jsonCode(JSON.stringify(row[name], null, 2), true)); cell.append(nested); }
+            else cell.textContent = row[name] === null ? 'null' : String(row[name]);
+            tr.append(cell);
+          }
+          body.append(tr);
+        }
+        grid.append(head, body); scroll.append(grid); content.append(scroll);
+        const paging = el('div', undefined, 'row'), previous = button('Previous', () => { page--; draw(); }), next = button('Next', () => { page++; draw(); }); previous.disabled = page === 0; next.disabled = (page + 1) * 100 >= rows.length;
+        paging.append(previous, el('span', `${page * 100 + 1}–${Math.min((page + 1) * 100, rows.length)} / ${rows.length} rows`), next); content.append(paging);
+        if (columns.length > 100) content.append(el('small', 'First 100 columns shown. JSON contains all columns.'));
+      }
+      source.onchange = () => { draft.tablePath = source.value; page = 0; draw(); }; draw();
+    }
+    function networkJourney() {
+      const scene = el('div', undefined, 'network-journey'); scene.dataset.phase = 'preparing';
+      const title = el('div', undefined, 'journey-title'); title.append(el('span', 'REQUEST JOURNEY'), el('small', 'Visual simulation'));
+      const art = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      art.setAttribute('viewBox', '0 0 600 180'); art.setAttribute('aria-hidden', 'true');
+      art.innerHTML = `<path class="journey-track" d="M112 83H488M112 107H488"/><path class="journey-dashes" d="M112 83H488"/>
+        <g class="journey-client"><rect class="journey-node" x="26" y="53" width="86" height="68" rx="10"/><path class="journey-line" d="M27 69h84m-70-8h2m6 0h2m6 0h2m-12 27-8 7 8 7m28-14 8 7-8 7m-10-18-6 22"/><text x="69" y="151">BROWSER</text></g>
+        <g class="journey-gateway"><rect class="journey-node" x="260" y="60" width="80" height="60" rx="15"/><path class="journey-line" d="M281 81h38m-38 9h38m-38 9h20m-24 11h1m7 0h1m7 0h1"/><text x="300" y="151">NETWORK</text></g>
+        <g class="journey-server"><circle class="journey-orbit" cx="530" cy="87" r="51"/><rect class="journey-node" x="488" y="45" width="84" height="84" rx="12"/><path class="journey-line" d="M497 72h66m-66 27h66m-56-40h28m-28 27h28m-28 27h28"/><circle class="journey-led" cx="552" cy="59" r="3"/><circle class="journey-led" cx="552" cy="86" r="3"/><circle class="journey-led" cx="552" cy="113" r="3"/><text x="530" y="151">SERVER</text></g>
+        <g class="journey-outbound"><rect x="0" y="-6" width="19" height="12" rx="4"/><path d="m5-2 4 3 5-3"/></g>
+        <g class="journey-return"><rect x="0" y="-6" width="19" height="12" rx="4"/><path d="m5-2 4 3 5-3"/></g>
+        <g class="journey-spark"><path d="m400 76 8 8-8 8m16-16-8 8 8 8"/></g>`;
+      const detail = el('div', undefined, 'journey-detail'), label = el('span', 'Preparing request'), bytes = el('small', '');
+      label.setAttribute('role', 'status'); detail.append(el('i', undefined, 'journey-dot'), label, el('span', undefined, 'grow'), bytes);
+      const steps = el('div', undefined, 'journey-steps');
+      for (const text of ['Prepare', 'Send', 'Receive', 'Complete']) steps.append(el('span', text));
+      scene.append(title, art, detail, steps);
+      let finished = false;
+      function phase(name, info = {}) {
+        if (finished || !scene.isConnected) return;
+        scene.dataset.phase = name;
+        const labels = { preparing: 'Preparing request', waiting: 'Waiting for server response', receiving: 'Receiving response' };
+        label.textContent = labels[name] || labels.preparing;
+        if (info.bytes !== undefined) bytes.textContent = `${(info.bytes / 1024).toFixed(1)} KiB received`;
+        if (info.status !== undefined) scene.dataset.outcome = info.status >= 400 ? 'error' : info.status >= 300 ? 'redirect' : 'success';
+      }
+      function finish(status, error) {
+        if (finished) return; finished = true;
+        scene.dataset.phase = 'complete';
+        scene.dataset.outcome = error?.name === 'AbortError' ? 'cancelled' : error || !status ? 'offline' : status >= 400 ? 'error' : status >= 300 ? 'redirect' : 'success';
+        label.textContent = error?.name === 'AbortError' ? 'Request cancelled' : error ? 'Server offline' : `HTTP ${status} · Response received`;
+        scene.classList.add('journey-finished');
+        if (error && error.name !== 'AbortError') bytes.textContent = 'Unreachable or blocked';
+      }
+      return { scene, phase, finish };
     }
     async function run() {
-      if (busy) return;
+      if (busy || groupLoading) return;
+      const invalid = [...request.querySelectorAll('input,textarea')].find(input => input.closest('.list-field')?.dataset.included !== 'false' && !input.checkValidity());
+      if (invalid) { show({error: invalid.validationMessage}); invalid.reportValidity(); return; }
       let options; try { options = core.requestOptions(spec, op, draft, specUrl, location.href); } catch (e) { show({ error: e.message }); focusResponse(); return; }
-      busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); output.replaceChildren(responseHeader(), el('p', 'Waiting for response…', 'pending'), responseSchema());
-      const feedback = window.SwaggerStudioResponseEffects?.start(shadow.querySelector('.scene-dock'), 'studio-execute'); focusResponse();
+      busy = true; send.setAttribute('aria-disabled', 'true'); send.setAttribute('aria-busy', 'true'); cancel.hidden = false; output.setAttribute('aria-busy', 'true'); controller = new AbortController(); const current = generation, start = performance.now(); const journey = networkJourney(); output.replaceChildren(responseHeader(), journey.scene, responseSchema());
+      const feedback = window.SwaggerStudioResponseEffects?.start(shadow.querySelector('.shell'), 'studio-execute'); focusResponse();
       try {
-        const response = await bridge.send(ui, options, { signal: controller.signal, manualAuth: secured ? draft.auth : '', confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
+        const response = await bridge.send(ui, options, { signal: controller.signal, onPhase: journey.phase, manualAuth: secured ? draft.auth : '', confirmOrigin: origin => confirm(`Send ${op.method} request and its credentials to ${origin}?`) });
         if (current !== generation) return;
         let body = response.text ?? response.data ?? ''; if (typeof body !== 'string') body = JSON.stringify(body, null, 2); try { body = JSON.stringify(JSON.parse(body), null, 2); } catch {}
         if (response.headers?.['x-studio-truncated'] === 'true') body += '\n[Response truncated at 1 MiB]';
         draft.response = { status: response.status, statusText: response.statusText, ms: Math.round(performance.now() - start), contentType: String(Object.entries(response.headers || {}).find(([key]) => key.toLowerCase() === 'content-type')?.[1] || '').split(';')[0].trim(), headers: Object.entries(response.headers || {}).map(([k,v]) => `${k}: ${v}`).join('\n'), body };
         draft.schemaStatus = undefined; draft.schemaType = undefined;
-        activity.push({ method: op.method, path: op.path, status: response.status, ms: draft.response.ms }); activity = activity.slice(-100); show(draft.response); focusResponse(); feedback?.finish(response.status);
-      } catch (e) { if (current === generation) { draft.response = { error: e.name === 'AbortError' ? 'Request cancelled.' : `${e.message}. Check network, CORS, certificate and page policy restrictions.` }; show(draft.response); focusResponse(); feedback?.finish(undefined, e); activity.push({ method: op.method, path: op.path, status: 0, ms: Math.round(performance.now() - start) }); } }
+        activity.push({ method: op.method, path: op.path, status: response.status, ms: draft.response.ms }); activity = activity.slice(-100); journey.finish(response.status); show(draft.response); focusResponse(); feedback?.finish(response.status);
+      } catch (e) { if (current === generation) { draft.response = { error: e.name === 'AbortError' ? 'Request cancelled.' : `${e.message}. Check network, CORS, certificate and page policy restrictions.` }; const offline = e.name !== 'AbortError' && journey.scene.dataset.phase === 'waiting';
+        journey.finish(undefined, e); feedback?.finish(undefined, e);
+        if (offline) {
+          cancel.hidden = true;
+          await new Promise(resolve => window.setTimeout(resolve, 1100));
+          if (current !== generation || !output.isConnected) return;
+        }
+        show(draft.response); focusResponse(); activity.push({ method: op.method, path: op.path, status: 0, ms: Math.round(performance.now() - start) }); } }
       finally { if (current === generation) { busy = false; send.removeAttribute('aria-disabled'); send.removeAttribute('aria-busy'); send.textContent = 'Execute'; cancel.hidden = true; output.removeAttribute('aria-busy'); } }
     }
     return area;
@@ -269,9 +542,12 @@
     const current = ++generation;
     try {
       spec = data.spec; ui = data.ui || window.ui || window.swaggerUi; config = data.config || {}; specUrl = data.specUrl ? new URL(data.specUrl, location.href).href : '';
+      groups = data.groups || []; switchGroup = data.switchGroup;
       if (!spec?.paths || !(spec.openapi || spec.swagger === '2.0')) throw new Error('Swagger API definition is not ready.');
       ops = core.operations(spec); storageKey = `studio:v2:${location.origin}${location.pathname}:${specUrl}`;
-      const saved = read(storageKey) || {}, ids = new Set(ops.map(o => o.id));
+      const saved = read(storageKey) || {}; responseViews = Object.create(null);
+      for (const [id, view] of Object.entries(saved.views || {})) if (view === 'table') responseViews[id] = view;
+      const ids = new Set(ops.map(o => o.id));
       const clean = values => Array.isArray(values) ? [...new Set(values.filter(id => typeof id === 'string' && ids.has(id)))].slice(0, 100) : [];
       favorites = clean(saved.favorites); tabs = clean(saved.tabs); recent = clean(saved.recent); selected = ops.find(o => o.id === saved.selected && tabs.includes(o.id)) || null;
       window.SwaggerStudioTheme.configure(config);
@@ -287,7 +563,7 @@
     else if (e.altKey && e.key.toLowerCase() === 'w' && selected) { e.preventDefault(); closeTab(selected.id); }
     else if (e.key === 'Tab') {
       const scope = shadow;
-      const nodes = [...scope.querySelectorAll('button,input,textarea,select,[tabindex="0"]')].filter(n => !n.disabled && !n.hidden && n.getClientRects().length && !n.closest('details:not([open])'));
+      const nodes = [...scope.querySelectorAll('button,input,textarea,select,summary,[tabindex="0"]')].filter(n => !n.disabled && !n.hidden && n.getClientRects().length && (n.tagName === 'SUMMARY' || !n.closest('details:not([open])')));
       if (!nodes.length) return; const first = nodes[0], last = nodes.at(-1), active = shadow.activeElement;
       if (e.shiftKey && (active === first || !nodes.includes(active))) { e.preventDefault(); last.focus(); }
       else if (!e.shiftKey && (active === last || !nodes.includes(active))) { e.preventDefault(); first.focus(); }

@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @SpringBootApplication
-@io.swagger.v3.oas.annotations.OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Customer Platform", version = "0.3.25", description = "Local API Studio playground"))
+@io.swagger.v3.oas.annotations.OpenAPIDefinition(info = @io.swagger.v3.oas.annotations.info.Info(title = "Customer Platform", version = "0.3.26", description = "Local API Studio playground"))
 @SecurityScheme(name = "demoBearer", type = SecuritySchemeType.HTTP, scheme = "bearer", description = "Local demo token: demo-token")
 public class CustomerApiApplication {
     public static void main(String[] args) { SpringApplication.run(CustomerApiApplication.class, args); }
@@ -57,6 +57,54 @@ public class CustomerApiApplication {
             Customer customer = new Customer(id, input.name(), input.email(), "ACTIVE");
             customers.put(id, customer); return customer;
         }
+
+        @RequestMapping(value = "/list-query", method = {RequestMethod.GET, RequestMethod.POST})
+        @Operation(summary = "Echo a string list from query parameters", tags = "Lists")
+        List<String> listQuery(@RequestParam List<String> names, jakarta.servlet.http.HttpServletRequest request) {
+            // Spring's default single-string collection converter splits commas. This demo's
+            // repeated-parameter contract preserves each decoded value, including commas and blanks.
+            return List.of(request.getParameterValues("names"));
+        }
+
+        @PostMapping(value = "/list-body", consumes = "application/json")
+        @Operation(summary = "Echo a string list from a JSON field", tags = "Lists")
+        List<String> listBody(@org.springframework.web.bind.annotation.RequestBody StringListInput input) { return input.names(); }
+
+        @GetMapping("/table-page") @Operation(summary = "Paged nested rows for table view", tags = "Tables")
+        Map<String, Object> tablePage(@RequestParam(defaultValue = "false") boolean empty) {
+            return Map.of("content", empty ? List.of() : List.of(
+                    Map.of("id", 1, "name", "Ayşe", "profile", Map.of("city", "İstanbul"), "tags", List.of("vip", "new")),
+                    Map.of("id", 2, "name", "Ali", "active", false)),
+                    "archived", List.of(Map.of("id", 3, "name", "Ece")), "totalElements", empty ? 0 : 2);
+        }
+
+        @GetMapping("/table-scalar") @Operation(summary = "Scalar response falls back to JSON", tags = "Tables")
+        Map<String, Object> tableScalar() { return Map.of("message", "No rows here", "count", 1); }
+
+        @GetMapping("/table-error") @Operation(summary = "Error arrays stay in JSON view", tags = "Tables")
+        org.springframework.http.ResponseEntity<List<Map<String, Object>>> tableError() {
+            return org.springframework.http.ResponseEntity.badRequest().body(List.of(Map.of("field", "names", "message", "Invalid names")));
+        }
+
+        @GetMapping("/list-optional") @Operation(summary = "Optional repeated query: omitted versus empty text", tags = "Lists")
+        Map<String, Object> optionalList(@RequestParam(required = false) List<String> names, jakarta.servlet.http.HttpServletRequest request) {
+            String[] raw = request.getParameterValues("names");
+            return Map.of("present", raw != null, "names", raw == null ? List.of() : List.of(raw));
+        }
+
+        @GetMapping("/list-numbers") @Operation(summary = "Typed numeric query list", tags = "Lists")
+        List<Integer> numberList(@RequestParam List<Integer> ids) { return ids; }
+
+        @PostMapping(value = "/list-form", consumes = "application/x-www-form-urlencoded")
+        @Operation(summary = "Repeated URL-encoded form list", tags = "Lists")
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @io.swagger.v3.oas.annotations.media.Content(
+                mediaType = "application/x-www-form-urlencoded", schema = @Schema(implementation = StringListInput.class),
+                encoding = @io.swagger.v3.oas.annotations.media.Encoding(name = "names", style = "FORM", explode = true)))
+        List<String> formList(@RequestParam List<String> names, jakarta.servlet.http.HttpServletRequest request) { return List.of(request.getParameterValues("names")); }
+
+        @PostMapping(value = "/list-nested", consumes = "application/json")
+        @Operation(summary = "Nested string and number lists", tags = "Lists")
+        NestedListInput nestedList(@org.springframework.web.bind.annotation.RequestBody NestedListInput input) { return input; }
 
         @GetMapping("/orders") @Operation(summary = "List orders", tags = "Orders")
         List<Map<String, Object>> orders() {
@@ -99,6 +147,8 @@ public class CustomerApiApplication {
         }
     }
 
+    record NestedListInput(StringListInput filter, List<Integer> ids) {}
+    record StringListInput(List<String> names) {}
     record Customer(long id, String name, String email, String status) {}
     record NewCustomer(@Schema(description = "Customer display name", example = "Selin Acar", requiredMode = Schema.RequiredMode.REQUIRED) String name,
                        @Schema(description = "Contact email", example = "selin@example.test", requiredMode = Schema.RequiredMode.REQUIRED) String email) {}

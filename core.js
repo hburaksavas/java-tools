@@ -113,6 +113,23 @@
     }
     return errors;
   }
+  function customHeaders(rows = []) {
+    const forbidden = new Set(['accept-charset','accept-encoding','access-control-request-headers','access-control-request-method','connection','content-length','cookie','cookie2','date','dnt','expect','host','keep-alive','origin','referer','set-cookie','te','trailer','transfer-encoding','upgrade','via']);
+    const headers = new Map();
+    for (const [index, row] of rows.entries()) {
+      if (!row || row.enabled === false) continue;
+      const name = String(row.name ?? '').trim(), raw = String(row.value ?? '');
+      if (!name && !raw) continue;
+      if (!name) throw new Error(`Header name is required (row ${index + 1}).`);
+      if (!/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name)) throw new Error(`Invalid header name: ${name}.`);
+      if (/[\u0000-\u0008\u000a-\u001f\u007f\u0100-\uffff]/.test(raw)) throw new Error(`Header ${name} contains unsupported characters.`);
+      const key = name.toLowerCase(), value = raw.replace(/^[\t ]+|[\t ]+$/g, '');
+      const methodOverride = ['x-http-method','x-http-method-override','x-method-override'].includes(key) && value.split(',').some(method => /^(CONNECT|TRACE|TRACK)$/i.test(method.trim().replace(/^"|"$/g, '')));
+      if (forbidden.has(key) || /^(proxy-|sec-)/.test(key) || methodOverride) throw new Error(`${name} is managed by the browser and cannot be set here.`);
+      headers.set(key, { name, value });
+    }
+    return Object.fromEntries([...headers.values()].map(({name,value}) => [name,value]));
+  }
   function requestOptions(spec, op, draft, specUrl, pageUrl) {
     const parameters = Object.create(null);
     for (const p of op.parameters.filter(p => !['body', 'formData'].includes(p.in))) {
@@ -148,7 +165,9 @@
     const original = resolve(spec, spec.paths[op.path]);
     const cleanOp = { ...original[op.method.toLowerCase()], parameters: op.parameters, requestBody: op.requestBody ? { ...resolve(spec, op.requestBody), content: Object.fromEntries(Object.entries(contents).map(([type, entry]) => [type, { ...entry, schema: schema(spec, entry.schema) }])) } : undefined };
     const executionSpec = { ...spec, paths: { ...spec.paths, [op.path]: { ...original, parameters: [], [op.method.toLowerCase()]: cleanOp } } };
-    return { spec: executionSpec, pathName: op.path, method: op.method.toLowerCase(), operationId: op.operationId,
+    const headers = customHeaders(draft.headers);
+    if (draft.contentType === 'multipart/form-data' && Object.keys(headers).some(name => name.toLowerCase() === 'content-type')) throw new Error('Multipart Content-Type is generated automatically. Remove the custom Content-Type header.');
+    return { spec: executionSpec, customHeaders: headers, pathName: op.path, method: op.method.toLowerCase(), operationId: op.operationId,
       parameters, requestBody: spec.openapi ? requestBody : undefined, baseURL: base.href.replace(/\/$/, ''),
       contextUrl: specUrl || pageUrl, requestContentType: draft.contentType || undefined, responseContentType: draft.accept || 'application/json' };
   }
@@ -197,6 +216,9 @@
     const url = built?.url || `${draft.base.replace(/\/$/, '')}/${path.replace(/^\//, '')}${query.size ? `?${query}` : ''}`;
     const lines = [`# ${op.method} ${op.path}`, op.summary || '', `URL: ${url}`, '', '## Request'];
     if (draft.contentType) lines.push(`Content-Type: ${draft.contentType}`);
+    const headers = new Map();
+    for (const row of draft.headers || []) if (row.enabled !== false && row.name.trim()) headers.set(row.name.trim().toLowerCase(), { name:row.name.trim(), value:row.value });
+    if (headers.size) lines.push('Custom headers:', block(Object.fromEntries([...headers.values()].map(({name,value}) => [name,value])), 'json'));
     if (Object.keys(parameters).length) lines.push('Parameters:', block(parameters, 'json'));
     if (Object.keys(draft.form).length || Object.keys(draft.files).length) {
       const form = { ...draft.form };
@@ -221,6 +243,6 @@
     if (!Array.isArray(security)) return [];
     return [...new Set(security.flatMap(requirement => requirement && typeof requirement === 'object' ? Object.keys(requirement) : []).filter(name => Object.hasOwn(definitions, name)))];
   }
-  const api = { resolve, schema, sample, operations, baseUrl, bodyInfo, bodyExample, isJson, validate, typedValue, requestOptions, responseExample, operationReport, authorizationSchemes, responseDefinitions, selectResponseDefinition };
+  const api = { resolve, schema, sample, operations, baseUrl, bodyInfo, bodyExample, isJson, validate, typedValue, requestOptions, responseExample, operationReport, authorizationSchemes, responseDefinitions, selectResponseDefinition, customHeaders };
   if (typeof module !== 'undefined') module.exports = api; else root.SwaggerStudioCore = api;
 })(globalThis);

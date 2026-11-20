@@ -31,6 +31,8 @@
     let done = false, removed = false, stage = 0, state = 'pending', celebrate = false, streakAtFinish = 0;
     const clock = document.createElement('small'); clock.className = 'request-clock'; node.append(clock);
     const interval = window.setInterval(tick, 250);
+    const visibility = () => { node.dataset.pageHidden = String(document.hidden); };
+    document.addEventListener('visibilitychange', visibility); visibility();
     function refresh() {
       if (removed) return;
       for (const element of node.querySelectorAll('.rare-visitors,.streak-party,.perched-gull')) element.remove();
@@ -57,7 +59,7 @@
     function tick() {
       if (done || removed) return;
       const elapsed = Math.max(0, (now() - started) / 1000), next = elapsed >= 8 ? 2 : elapsed >= 4 ? 1 : 0;
-      clock.textContent = `Waiting · ${elapsed.toFixed(1)} s`;
+      clock.textContent = `Waiting Â· ${elapsed.toFixed(1)} s`;
       if (next !== stage) { stage = next; refresh(); }
     }
     function finish(code, error) {
@@ -68,7 +70,7 @@
       celebrate = streak > 0 && streak % 5 === 0;
       refresh();
     }
-    function remove() { if (removed) return; removed = true; window.clearInterval(interval); }
+    function remove() { if (removed) return; removed = true; window.clearInterval(interval); document.removeEventListener('visibilitychange', visibility); }
     tick(); refresh();
     return { refresh, tick, finish, remove };
   }

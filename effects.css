@@ -391,3 +391,215 @@
 .brsvs-response-fx[data-panel-mode=dock] .rare-visitors { top:0; }
 .brsvs-response-fx[data-panel-mode=dock] .streak-party { top:7px; right:6px; }
 .brsvs-response-fx[data-panel-mode=dock] .request-clock { top:auto; bottom:0; right:4px; }
+
+/* Volcanic Island: a glowing crater, flowing lava and arcing embers. */
+.feature-volcano { isolation:isolate; }
+.eruption-island { position:absolute; width:140px; height:70px; left:calc(50% - 70px); bottom:-19px; }
+.feature-volcano .island-rock { fill:#36242b; stroke:#86504a; }
+.feature-volcano .island-lava { stroke:#ffb25c; stroke-width:4; stroke-dasharray:8 3; animation:volcanic-flow 1.2s linear infinite; filter:drop-shadow(0 0 3px #ff662b); }
+.crater-glow { position:absolute; left:calc(50% - 18px); bottom:28px; width:36px; height:8px; border-radius:50%; background:#ffe6a3; box-shadow:0 0 9px #ffb347,0 0 24px #f75b25; animation:volcanic-pulse 1.6s ease-in-out infinite alternate; }
+.volcanic-smoke { position:absolute; z-index:-1; left:calc(50% - 12px); bottom:30px; width:24px; height:15px; border-radius:50%; background:#97818c; filter:blur(3px); animation:volcanic-smoke 3s calc(var(--n)*-.75s) ease-out infinite; }
+.eruption-spark { position:absolute; left:50%; bottom:32px; width:3px; height:5px; border-radius:50%; background:#ffe5a0; box-shadow:0 0 5px #ff752e; animation:volcanic-arc 1.9s calc(var(--n)*-.137s) linear infinite; }
+@keyframes volcanic-flow { to { stroke-dashoffset:-22; } }
+@keyframes volcanic-pulse { to { opacity:.65; transform:scale(.85); } }
+@keyframes volcanic-smoke { from { opacity:0; transform:translate(0,0) scale(.5); } 20% { opacity:.28; } to { opacity:0; transform:translate(18px,-40px) scale(2.5); } }
+@keyframes volcanic-arc { 0% { opacity:0; transform:translate(0,0) scale(.5); } 10% { opacity:1; } 45% { transform:translate(calc(var(--drift)*.45),calc(var(--rise)*-1)) scale(1); } 85% { opacity:.8; } 100% { opacity:0; transform:translate(var(--drift),12px) scale(.4); } }
+.brsvs-response-fx[data-state=success] .feature-volcano :is(.eruption-spark,.volcanic-smoke) { animation-iteration-count:1; }
+
+/* Night crossing: a charcoal silhouette with warm cabin and navigation lights. */
+html[data-studio-theme=bosphorus][data-studio-atmosphere=night] .brsvs-response-fx.ferry .ferry-boat { color:#515c65; }
+html[data-studio-theme=bosphorus][data-studio-atmosphere=night] .ferry-boat b { background:repeating-linear-gradient(90deg,#f3d697 0 5px,#414c56 5px 8px); border-color:#414c56; box-shadow:0 0 6px #edc77d30; }
+html[data-studio-theme=bosphorus][data-studio-atmosphere=night] .ferry-boat b::after { content:''; position:absolute; right:-3px; top:2px; width:3px; height:3px; border-radius:50%; background:#b6e7c5; box-shadow:0 0 4px #83d6a6,-19px -12px 0 0 #fff0c4; }
+html[data-studio-theme=bosphorus][data-studio-atmosphere=night] .ferry-boat::after { border-color:#879da9; opacity:.3; }
+
+/* Execute belongs to the theme environment, without a scene strip or panel frame. */
+.brsvs-response-fx[data-panel-mode=ambient] { border:0!important; border-radius:0; box-shadow:none!important; background:transparent!important; overflow:hidden; pointer-events:none!important; }
+.brsvs-response-fx[data-panel-mode=ambient]::before,.brsvs-response-fx[data-panel-mode=ambient]::after,.brsvs-response-fx[data-panel-mode=ambient] > span { display:none; }
+.brsvs-response-fx[data-panel-mode=ambient] .feature-scene { top:auto; bottom:0; height:90px; }
+.brsvs-response-fx[data-panel-mode=ambient] .whale-lane { top:auto; bottom:0; }
+.brsvs-response-fx[data-panel-mode=ambient] .snowman-lane { top:auto; bottom:4px; right:24px; }
+.brsvs-response-fx[data-panel-mode=ambient] .storm-lane { top:8%; right:12%; }
+.brsvs-response-fx[data-panel-mode=ambient] .ferry-boat { bottom:8px; }
+.brsvs-response-fx[data-panel-mode=ambient] .cinema-scene { top:auto; bottom:0; height:60px; }
+.brsvs-response-fx[data-panel-mode=ambient] .response-scene { top:auto; bottom:0; height:60px; }
+.brsvs-response-fx[data-panel-mode=ambient] .request-clock { display:none; }
+.brsvs-response-fx[data-panel-mode=ambient] .rare-visitors { top:auto; bottom:12px; }
+.brsvs-response-fx[data-panel-mode=ambient] .streak-party { top:auto; bottom:14px; right:16px; }
+.brsvs-response-fx[data-panel-mode=ambient] .feature-volcano { left:auto; right:32px; width:200px; }
+.brsvs-response-fx[data-panel-mode=ambient] .feature-volcano .eruption-island { width:180px; height:90px; left:10px; bottom:-12px; }
+.brsvs-response-fx[data-panel-mode=ambient] .feature-volcano :is(.crater-glow,.volcanic-smoke,.eruption-spark) { bottom:56px; }
+
+/* Compact Swagger controls; detailed choices stay in a small theme menu. */
+#brsvs-studio-dock { position:fixed; right:20px; bottom:20px; z-index:2147483646; display:flex; gap:5px; padding:4px; border:1px solid var(--st-line); border-radius:13px; background:var(--st-panel); box-shadow:0 3px 12px #0002; }
+#brsvs-studio-dock[hidden],#brsvs-theme-menu[hidden] { display:none; }
+#brsvs-studio-dock > button { display:grid; place-items:center; width:34px; height:34px; padding:0; border:0; border-radius:8px; background:transparent; color:var(--st-text); cursor:pointer; }
+#brsvs-studio-dock > button:hover { background:var(--st-input); color:var(--st-accent); }
+#brsvs-studio-dock > button:focus-visible { outline:2px solid var(--st-accent); outline-offset:2px; }
+#brsvs-studio-dock > button:disabled { opacity:.4; cursor:wait; }
+#brsvs-theme-menu { position:absolute; right:0; bottom:calc(100% + 8px); width:min(230px,calc(100vw - 40px)); box-sizing:border-box; padding:14px; border:1px solid var(--st-line); border-radius:12px; background:var(--st-panel); color:var(--st-text); box-shadow:0 6px 24px #0003; font:12px system-ui; }
+#brsvs-theme-menu label { display:grid; gap:6px; }
+#brsvs-theme-menu label + label { margin-top:12px; }
+#brsvs-theme-menu :is(#brsvs-swagger-theme-picker,#brsvs-swagger-atmosphere-picker) { position:static; width:100%; padding:8px; box-sizing:border-box; border:1px solid var(--st-line); border-radius:7px; background:var(--st-input); color:var(--st-text); font:12px system-ui; }
+
+
+/* Cappadocia before sunrise: cool upper sky, rose horizon, no sun disc. */
+.environment-balloons { background:linear-gradient(180deg,#121c3b24 0%,transparent 45%,#c38aab18 78%,#d5a0a728 100%); }
+.environment-balloons .scene-dust { display:none; }
+.cappadocia-landscape { position:absolute; left:0; bottom:0; width:100%; height:20%; min-height:75px; opacity:.3; }
+.cappadocia-ridge.far { fill:#a0a0b7; }
+.cappadocia-ridge.near { fill:#9e879c; }
+.cappadocia-flight { position:absolute; left:var(--balloon-x); width:var(--balloon-size); bottom:var(--float-height); opacity:.5; will-change:transform; }
+.cappadocia-balloon { display:block; width:100%; overflow:visible; animation:cappadocia-sway 8s ease-in-out var(--burn-delay) infinite alternate; transform-origin:50% 95%; }
+.balloon-envelope { fill:var(--fabric); stroke:#665b78; stroke-width:1; }
+.balloon-stripe { fill:#f0d9c6; opacity:.7; }
+.balloon-seam { fill:none; stroke:#665b78; stroke-width:.7; opacity:.4; }
+.balloon-ropes { fill:none; stroke:#64556d; stroke-width:1.2; }
+.balloon-basket { fill:#a5816d; stroke:#68596c; stroke-width:1; }
+.balloon-flame { fill:#ffbc60; transform-origin:40px 88px; }
+.balloon-flame-core { fill:#fff0b7; }
+.balloon-warmth { fill:#ffc079; mix-blend-mode:screen; }
+.balloon-flame,.balloon-flame-core,.balloon-warmth { opacity:0; animation:cappadocia-burn var(--burn-time) linear var(--burn-delay) infinite; }
+.cappadocia-flight.launching { bottom:8%; animation:cappadocia-liftoff var(--flight-time) linear var(--flight-delay) infinite; }
+.cappadocia-flight.airborne { animation:cappadocia-drift var(--flight-time) ease-in-out var(--flight-delay) infinite alternate; }
+.feature-balloons { height:90px; }
+.feature-balloons .cappadocia-landscape { height:40%; min-height:0; }
+.feature-balloons .cappadocia-flight { opacity:.65; }
+.brsvs-response-fx[data-panel-mode=ambient] .feature-balloons { top:auto; bottom:0; height:120px; }
+[data-scene-paused=true] .cappadocia-flight,[data-scene-paused=true] .cappadocia-balloon,[data-scene-paused=true] :is(.balloon-flame,.balloon-flame-core,.balloon-warmth) { animation-play-state:paused!important; }
+@keyframes cappadocia-liftoff { 0%,10% { transform:translate(0,0) scale(.85); opacity:.3; } 18% { transform:translate(2px,-4vh) scale(.88); opacity:.5; } 75% { opacity:.5; } 94%,100% { transform:translate(35px,-65vh) scale(.65); opacity:0; } }
+@keyframes cappadocia-drift { from { transform:translate(-8px,5px); } to { transform:translate(14px,-22px); } }
+@keyframes cappadocia-sway { from { transform:rotate(-3deg); } to { transform:rotate(3deg); } }
+@keyframes cappadocia-burn { 0%,58%,76%,100% { opacity:0; } 61% { opacity:.7; } 63% { opacity:.35; } 65%,71% { opacity:.9; } 73% { opacity:.4; } }
+@media(max-width:700px) { .environment-balloons .cappadocia-flight:nth-of-type(3n) { display:none; } }
+@media(prefers-reduced-motion:reduce) { .cappadocia-flight,.cappadocia-balloon,.balloon-flame,.balloon-flame-core,.balloon-warmth { animation:none!important; } }
+
+/* Glass ramps and a neon bowling lane, isolated from request controls. */
+.environment-marbles,.environment-bowling { background:radial-gradient(ellipse at 85% 100%,color-mix(in srgb,var(--st-accent) 8%,transparent),transparent 50%); }
+:is(.environment-marbles,.environment-bowling) .scene-dust { display:none; }
+.play-track { display:block; width:min(480px,65vw); height:auto; overflow:visible; }
+.scene-environment > .play-track { position:absolute; right:22px; bottom:12px; opacity:.35; }
+.feature-scene > .play-track { position:absolute; right:20px; bottom:4px; width:min(360px,55%); height:82px; }
+.marble-support { fill:none; stroke:var(--st-muted); stroke-width:1; opacity:.4; }
+.marble-rail { fill:none; stroke:var(--st-accent); stroke-width:2; stroke-linecap:round; opacity:.7; }
+.marble-rail.inner { opacity:.24; }
+.marble-wheel { fill:none; stroke:var(--st-accent); stroke-width:1.6; transform-origin:302px 103px; animation:marble-wheel 8s linear infinite; }
+.marble-finish { fill:none; stroke:var(--st-accent); stroke-width:1.5; }
+.marble-glass { fill:color-mix(in srgb,var(--st-accent) 40%,var(--st-panel)); stroke:var(--st-accent); stroke-width:1; }
+.marble-glint { fill:none; stroke:var(--st-text); stroke-width:1.4; stroke-linecap:round; opacity:.8; }
+.marble-swirl { fill:none; stroke:var(--st-accent); stroke-width:2; }
+.rolling-marble { offset-path:path('M20 19H175Q228 19 228 54T175 89H66Q33 89 33 100T66 111H438'); offset-rotate:0deg; animation:marble-roll 9s cubic-bezier(.3,.1,.6,1) infinite; }
+.marble-arrived { display:none; }
+.bowling-lane { fill:var(--st-panel); stroke:var(--st-accent); stroke-width:1.4; }
+.bowling-gutter { fill:none; stroke:#8bcfd9; stroke-width:3; opacity:.6; }
+.bowling-guides { fill:none; stroke:var(--st-accent); stroke-width:.6; opacity:.12; }
+.bowling-arrow { fill:none; stroke:var(--st-accent); stroke-width:1; opacity:.6; }
+.bowling-pin { fill:var(--st-text); stroke:var(--st-panel); stroke-width:.6; transform-origin:0 8px; }
+.pin-stripe { fill:none; stroke:#e994d5; stroke-width:2; }
+.bowling-ball { fill:#8bcfd9; stroke:#c7eff5; stroke-width:.7; transform:translate(80px,109px); }
+.ball-holes { fill:#213249; stroke:none; }
+.environment-bowling:not([data-request-state]) .bowling-ball { animation:bowling-idle 12s ease-in-out infinite; }
+.environment-bowling[data-request-state=pending] .track-bowling .bowling-ball { animation:bowling-approach 1.5s ease-out both; }
+.environment-bowling[data-request-state=success] .track-bowling .bowling-ball { animation:bowling-strike .65s ease-in both; }
+.environment-bowling[data-request-state=success] .bowling-pin { animation:bowling-pin-fall .55s calc(.5s + var(--pin-delay)) ease-out both; }
+.environment-marbles[data-request-state=success] .rolling-marble { animation:marble-roll 1s ease-out 1 both; }
+.brsvs-response-fx:is([data-state=warning],[data-state=error]) .feature-bowling { display:block; }
+.environment-bowling:is([data-request-state=warning],[data-request-state=error]) .bowling-ball { animation:bowling-miss 1s ease-in both; }
+.brsvs-response-fx[data-state=cancelled] :is(.feature-bowling,.feature-marbles) { display:block; opacity:.35; }
+.brsvs-response-fx[data-state=cancelled] :is(.bowling-ball,.rolling-marble,.marble-wheel) { animation-play-state:paused; }
+@keyframes marble-roll { from { offset-distance:0%; } to { offset-distance:100%; } }
+@keyframes marble-wheel { to { transform:rotate(360deg); } }
+@keyframes bowling-idle { 0%,65%,100% { transform:translate(80px,109px); } 35% { transform:translate(101px,107px); } }
+@keyframes bowling-approach { from { transform:translate(80px,109px) scale(1); } to { transform:translate(290px,88px) scale(.7); } }
+@keyframes bowling-strike { from { transform:translate(290px,88px) scale(.7); } to { transform:translate(376px,72px) scale(.45); } }
+@keyframes bowling-miss { from { transform:translate(290px,88px) scale(.7); } 40% { transform:translate(370px,114px) scale(.6); } to { transform:translate(461px,121px) scale(.4); opacity:0; } }
+@keyframes bowling-pin-fall { to { transform:translate(12px,8px) rotate(var(--pin-turn)); opacity:.25; } }
+@media(max-width:700px) { .scene-environment > .play-track { width:65vw; opacity:.23; } .feature-scene > .play-track { width:65%; } }
+
+:is(.environment-bowling,.environment-marbles)[data-request-state=cancelled] :is(.bowling-ball,.rolling-marble,.marble-wheel) { animation-play-state:paused; opacity:.45; }
+.environment-marbles:is([data-request-state=warning],[data-request-state=error]) .rolling-marble { animation-play-state:paused; opacity:.4; }
+
+/* Only the ball handle captures input; the rest of the theme passes clicks through. */
+.environment-bowling .bowling-control { position:absolute; right:calc(22px + min(480px,65vw)*.8333 - 22px); bottom:calc(12px + min(480px,65vw)*.0646 - 22px); width:44px; height:44px; border:1px solid transparent; border-radius:50%; background:transparent; color:var(--st-accent); pointer-events:auto!important; cursor:grab; touch-action:none; }
+.environment-bowling .bowling-control:is(:hover,:focus-visible,.dragging) { border-color:var(--st-accent); outline:2px solid color-mix(in srgb,var(--st-accent) 25%,transparent); outline-offset:3px; }
+.environment-bowling .bowling-control:disabled { pointer-events:none!important; cursor:default; outline:0; border-color:transparent; }
+.environment-bowling .bowling-control.dragging { cursor:grabbing; }
+.bowling-score { position:absolute; right:26px; bottom:6px; color:var(--st-muted); font:10px ui-monospace,monospace; pointer-events:none; }
+.environment-bowling[data-game] .bowling-ball { animation:none!important; }
+.environment-bowling[data-game] .bowling-pin { animation:none!important; }
+.environment-bowling[data-strike=true] .bowling-gutter { animation:bowling-strike-light .9s ease-out 1; }
+@keyframes bowling-strike-light { 0%,100% { opacity:.6; } 35% { opacity:1; stroke:#f8d5f1; filter:drop-shadow(0 0 5px #ec92d5); } }
+@media(max-width:700px) { .bowling-score { font-size:9px; } }
+
+/* Magnetic Lab: a single copper electromagnet and responsive iron beads. */
+.environment-magnetic { background:radial-gradient(ellipse at 80% 100%,#b77b4d0d,transparent 55%); }
+.environment-magnetic .scene-dust { display:none; }
+.magnetic-lab { position:absolute; right:24px; bottom:12px; width:min(420px,58vw); height:auto; overflow:visible; opacity:.55; }
+.magnetic-platform { fill:var(--st-input); stroke:var(--st-line); stroke-width:1; }
+.magnetic-grid { fill:none; stroke:var(--st-accent); stroke-width:.5; opacity:.2; }
+.magnet-shell { fill:var(--st-input); stroke:var(--st-accent); stroke-width:1.8; }
+.magnet-cap.north { fill:var(--st-accent); }
+.magnet-cap.south { fill:#a3b6c0; }
+.magnet-shine { fill:none; stroke:var(--st-text); stroke-width:1; opacity:.2; }
+.magnet-body text { fill:var(--st-bg); font:600 9px ui-monospace,monospace; text-anchor:middle; }
+.magnetic-field { fill:none; stroke:var(--st-accent); stroke-width:.8; opacity:.24; stroke-dasharray:3 8; animation:magnetic-flux 8s linear var(--field-delay) infinite; }
+.magnetic-metal { fill:#8898a4; stroke:#d5e0e4; stroke-width:.6; }
+.magnetic-glint { fill:#f1e5d2; opacity:.8; }
+.magnetic-label { fill:var(--st-muted); font:8px ui-monospace,monospace; letter-spacing:2px; text-anchor:middle; }
+.environment-magnetic[data-request-state=pending] .magnetic-field { animation-duration:2s; opacity:.45; }
+.environment-magnetic[data-request-state=success] .magnet-cap.north { animation:magnetic-confirm 1s ease-out 1; }
+.environment-magnetic:is([data-request-state=error],[data-request-state=warning]) .magnetic-field { stroke:#d77f76; animation-direction:reverse; }
+.environment-magnetic[data-request-state=cancelled] .magnetic-field { animation-play-state:paused; opacity:.1; }
+@keyframes magnetic-flux { to { stroke-dashoffset:-88; } }
+@keyframes magnetic-confirm { 40% { fill:#abd5bb; filter:drop-shadow(0 0 5px #abd5bb55); } }
+@media(max-width:700px) { .magnetic-lab { width:65vw; opacity:.38; right:12px; } }
+
+:is(.environment-sand-table,.environment-wave-tank) .scene-dust { display:none; }
+.environment-sand-table { background:radial-gradient(ellipse at 70% 100%,#d9b47b0a,transparent 65%); }
+.environment-wave-tank { background:radial-gradient(ellipse at 70% 100%,#85cdd80d,transparent 65%); }
+.interactive-surface { position:absolute; right:16px; bottom:20px; width:min(780px,75vw); height:190px; border-radius:50% 50% 8px 8px / 15% 15% 8px 8px; pointer-events:none!important; }
+.surface-sand-table { background:radial-gradient(ellipse at center,#d9b47b08,transparent 70%); }
+.surface-wave-tank { border-bottom:1px solid #85cdd81a; background:linear-gradient(transparent,#85cdd805); }
+.surface-caption { position:absolute; bottom:8px; right:24px; color:var(--st-muted); opacity:.55; font:8px ui-monospace,monospace; letter-spacing:1.5px; }
+:is(.environment-sand-table,.environment-wave-tank)[data-request-state=error] .interactive-surface { filter:sepia(.25); }
+@media(max-width:700px) { .interactive-surface { width:85vw; height:145px; opacity:.7; } .surface-caption { font-size:7px; } }
+
+:is(.environment-plasma,.environment-pendulums,.environment-ink-water,.environment-wind,.environment-prism) .scene-dust { display:none; }
+.physics-canvas { position:absolute; right:18px; bottom:20px; width:min(720px,74vw); height:225px; pointer-events:none!important; }
+.physics-caption { position:absolute; right:24px; bottom:7px; color:var(--st-muted); opacity:.5; font:8px ui-monospace,monospace; letter-spacing:1px; }
+.environment-plasma { background:radial-gradient(ellipse at 75% 95%,#a26fda0c,transparent 50%); }
+.environment-ink-water { background:radial-gradient(ellipse at 75% 95%,#8f78bc0c,transparent 55%); }
+:is(.environment-plasma,.environment-pendulums,.environment-ink-water,.environment-wind,.environment-prism)[data-request-state=error] .physics-canvas { filter:sepia(.25); }
+@media(max-width:700px) { .physics-canvas { width:85vw; height:180px; opacity:.7; } .physics-caption { font-size:7px; } }
+
+/* Crafted worlds share their original scene with API feedback. */
+:is(.environment-paper-city,.environment-cable-car,.environment-watchmaker,.environment-bonsai-seasons,.environment-silk-lanterns,.environment-miniature-harbor,.environment-darkroom) .scene-dust { display:none; }
+.crafted-scene { position:absolute; right:18px; bottom:20px; width:min(660px,72vw); height:auto; overflow:visible; opacity:.65; }
+.crafted-caption { position:absolute; right:24px; bottom:7px; color:var(--st-muted); font:8px ui-monospace,monospace; letter-spacing:1px; opacity:.5; }
+.crafted-line { fill:none; stroke:var(--st-accent); stroke-width:1.4; }
+.paper-wall { fill:var(--st-input); stroke:var(--st-accent); stroke-width:1; }
+.paper-fold { fill:none; stroke:var(--st-accent); opacity:.3; }
+.paper-window { fill:var(--st-muted); opacity:.22; transition:fill .5s,opacity .5s; }
+.window-lit .paper-window { fill:#f1d4a4; opacity:.85; }
+.paper-building { transform-origin:center bottom; transform-box:fill-box; animation:paper-unfold 1.2s var(--building-delay) both; }
+.valley-far { fill:#79909a; opacity:.18; }.valley-near { fill:#708a89; opacity:.16; }
+.cable-line { fill:none; stroke:var(--st-muted); stroke-width:1.4; }
+.cabin-shell { fill:var(--st-accent); stroke:var(--st-text); stroke-width:1; }.cabin-window { fill:var(--st-bg); opacity:.7; }.cabin-door { fill:none; stroke:var(--st-bg); stroke-width:2; }
+.station-wall { fill:var(--st-input); stroke:var(--st-muted); stroke-width:1; }.station-door { fill:var(--st-accent); opacity:.25; transition:opacity .8s; }.at-station .station-door { opacity:.85; }
+.watch-case { fill:var(--st-input); stroke:var(--st-accent); stroke-width:3; }.watch-dial { fill:var(--st-panel); stroke:var(--st-muted); stroke-width:1; }
+.crafted-watchmaker .gear-cog { animation:none; fill:none; stroke:var(--st-accent); }.crafted-watchmaker.watch-running .gear-cog { animation:scene-cog-turn var(--watch-speed,5s) linear infinite; }.watch-spring { fill:none; stroke:var(--st-accent); stroke-width:1.5; }.watch-hand { fill:none; stroke:var(--st-text); stroke-width:2; }.watch-center { fill:var(--st-accent); }
+.bonsai-pot { fill:#8e7970; stroke:var(--st-accent); }.bonsai-trunk { fill:none; stroke:#a99178; stroke-width:8; stroke-linecap:round; }.bonsai-leaf { fill:#a4bb8b; opacity:.6; transform:scale(var(--growth,.8)); transform-box:fill-box; transform-origin:center; transition:fill 2s,opacity 2s,transform 2s; }.bonsai-blossoms { fill:#e2b6c7; opacity:0; transition:opacity 2s; }
+[data-season="1"] .bonsai-blossoms { opacity:.85; }[data-season="2"] .bonsai-leaf { fill:#c99869; }[data-season="3"] .bonsai-leaf { opacity:.08; transform:translateY(35px) scale(.5); }
+.lantern-wire { fill:none; stroke:var(--st-muted); opacity:.5; }.lantern-halo { fill:var(--st-accent); opacity:.045; }.lantern-silk { fill:var(--st-accent); opacity:.5; }.lantern-ribs { fill:none; stroke:var(--st-bg); stroke-width:.7; opacity:.45; }.lantern-cap { fill:var(--st-muted); }
+.harbor-water { fill:var(--st-accent); opacity:.06; }.crane-frame { fill:none; stroke:var(--st-accent); stroke-width:3; stroke-linejoin:round; }.hoist-cable { fill:none; stroke:var(--st-text); stroke-width:1; }.cargo-lift { fill:var(--cargo-color,#b99273); stroke:var(--st-text); }.cargo-stack { fill:#b99273; stroke:var(--st-panel); }.cargo-1 { fill:#83a7a6; }.cargo-2 { fill:#b1a1c2; }.harbor-ship { fill:var(--st-input); stroke:var(--st-accent); stroke-width:1.5; }.ship-cabin { fill:var(--st-accent); }
+.darkroom-wire { fill:none; stroke:var(--st-muted); opacity:.3; }.darkroom-lamp { fill:#c77871; stroke:#c77871; }.darkroom-glow { fill:#cf4949; opacity:.07; }.tray-rim { fill:var(--st-input); stroke:var(--st-accent); }.tray-liquid { fill:#120b10; }.photo-paper { fill:#d1c1b7; }.photo-image { opacity:var(--development,0); }.photo-image rect { fill:#575464; }.photo-image circle { fill:#d4bbb2; }.photo-image path { fill:#242535; stroke:#9d8c91; stroke-width:.6; }.liquid-reflection { fill:none; stroke:#e1b1aa; opacity:.2; }
+.crafted-control { position:absolute; pointer-events:auto!important; border:1px solid var(--st-line); border-radius:5px; color:var(--st-accent); background:var(--st-panel); cursor:pointer; }
+.crafted-control:focus-visible { outline:2px solid var(--st-accent); outline-offset:3px; }
+.watch-crown { right:calc(18px + min(660px,72vw)*.32 - 16px); bottom:calc(20px + min(660px,72vw)*.197 - 16px); width:32px; height:32px; border-radius:50%; background:transparent; cursor:ns-resize; touch-action:none; }
+.harbor-choice { bottom:25px; width:24px; height:22px; font:10px system-ui; }.cargo-choice-0 { right:92px; }.cargo-choice-1 { right:62px; }.cargo-choice-2 { right:32px; }.harbor-choice[aria-pressed=true] { border-color:var(--st-accent); }
+@keyframes paper-unfold { from { transform:scaleY(.05) skewX(-10deg); opacity:0; } to { transform:scaleY(1) skewX(0); opacity:1; } }
+@media(max-width:700px) { .crafted-scene { width:85vw; opacity:.5; }.crafted-caption { font-size:7px; }.watch-crown { right:calc(18px + 85vw*.32 - 16px); bottom:calc(20px + 85vw*.197 - 16px); } }
+
+.station-door { transform-box:fill-box; transform-origin:center; transition:opacity .8s,transform .8s; }.at-station .station-door { transform:scaleX(.15); }
+.crafted-watchmaker.watch-running .gear-cog.reverse { animation-direction:reverse; }
+.crafted-watchmaker.watch-running .watch-spring { animation:watch-wind 1.4s ease-in-out infinite alternate; transform-origin:310px 75px; }
+@keyframes watch-wind { to { transform:scale(.94); } }
