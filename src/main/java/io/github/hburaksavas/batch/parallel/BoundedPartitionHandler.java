@@ -2,7 +2,8 @@ package io.github.hburaksavas.batch.parallel;
 
 import java.util.*;
 import java.util.concurrent.*;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.core.partition.support.AbstractPartitionHandler;
 
 /** Waits for every accepted worker, even if one partition fails. Never retries business SQL. */

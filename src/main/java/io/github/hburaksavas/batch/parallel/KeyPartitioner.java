@@ -2,10 +2,10 @@ package io.github.hburaksavas.batch.parallel;
 
 import java.util.*;
 import javax.sql.DataSource;
-import org.springframework.batch.core.*;
-import org.springframework.batch.core.partition.support.Partitioner;
+import org.springframework.batch.core.step.StepExecution;
+import org.springframework.batch.core.partition.Partitioner;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.infrastructure.item.ExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 final class KeyPartitioner implements Partitioner {

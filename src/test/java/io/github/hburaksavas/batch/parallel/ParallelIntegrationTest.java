@@ -6,14 +6,18 @@ import java.util.concurrent.atomic.*;
 import javax.sql.DataSource;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.MapPropertySource;
@@ -163,6 +167,7 @@ class ParallelIntegrationTest {
 
     @Configuration(proxyBeanMethods = false)
     @EnableBatchProcessing
+    @EnableJdbcJobRepository
     @Import(ParallelAutoConfiguration.class)
     static class Infrastructure {
         @Bean(destroyMethod = "shutdown") EmbeddedDatabase dataSource() {

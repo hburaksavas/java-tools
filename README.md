@@ -1,6 +1,6 @@
 # Spring Batch Parallel Starter
 
-Spring Boot **3.4.13**, Spring Batch **5.2** ve **Java 17** için annotation tabanlı, anahtar bazında yerel partitioning. Mevcut reader/tasklet ve SQL dosyaları uygulamada kalır; starter seçilen step'leri paralel çalıştırır.
+Spring Boot **4.1.1**, Spring Batch **6.0.5** ve **Java 17** için annotation tabanlı, anahtar bazında yerel partitioning. Mevcut reader/tasklet ve SQL dosyaları uygulamada kalır; starter seçilen step'leri paralel çalıştırır.
 
 ## Kurulum
 
@@ -20,7 +20,9 @@ Linux/macOS: `./mvnw clean install`. Uygulamanın `pom.xml` dosyasına:
 </dependency>
 ```
 
-Uygulama kendi JDBC sürücüsünü ve DataSource konfigürasyonunu sağlar. Spring Boot auto-configuration altyapısı kullanılır. Batch altyapısı Boot tarafından kurulabilir; mevcut `@EnableBatchProcessing` konfigürasyonu da kullanılabilir.
+Uygulama kendi JDBC sürücüsünü ve DataSource konfigürasyonunu sağlar. Starter, Boot otomatik yapılandırmasının JDBC JobRepository kurması için `spring-boot-starter-batch-jdbc` bağımlılığını getirir. Batch altyapısını `@EnableBatchProcessing` ile elle yapılandırıyorsanız JDBC repository için `@EnableJdbcJobRepository` ekleyin.
+
+Spring Batch 5.2 metadata tablolarını kullanıyorsanız veritabanınıza uygun `org/springframework/batch/core/migration/6.0/migration-*.sql` script'ini uygulayın ve [Spring Batch 6 geçiş kılavuzunu](https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide) izleyin.
 
 ## Minimum kullanım
 
